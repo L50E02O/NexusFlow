@@ -1,33 +1,74 @@
 import { Link } from 'react-router-dom';
 
 import { stitchRepository } from '../entities/stitch/api/stitch.repository';
+import { filterStageScreenIds, stitchDomains } from '../shared/lib/stitch-domains';
 import { StitchScreenCard } from './stitch-screen-card';
 
-const featuredScreens = stitchRepository.listScreens().slice(0, 4);
+interface StitchShowcaseProps {
+	readonly query?: string;
+	readonly domain?: string;
+}
 
-export function StitchShowcase() {
+
+export function StitchShowcase({ query, domain }: StitchShowcaseProps) {
+	const visibleDomains = stitchDomains
+		.map(stage => ({ ...stage, screenIds: filterStageScreenIds(stage, { query, domain }) }))
+		.filter(stage => stage.screenIds.length > 0);
+
 	return (
 		<section className="section stitch-showcase" id="ui" aria-labelledby="stitch-showcase-title">
 			<div className="section-heading">
 				<div>
 					<p className="eyebrow">Vistas Stitch</p>
-					<h2 id="stitch-showcase-title">Las UIs exportadas ya se ven como componentes listos para usarse.</h2>
+					<h2 id="stitch-showcase-title">Las UIs exportadas ya están agrupadas por dominio del ecommerce.</h2>
 				</div>
 				<p>
-					Esta vitrina conecta las pantallas Stitch con sus rutas reales. Cada vista puede abrirse como HTML,
-					navegarse desde el hub y reutilizarse como bloque visual del producto.
+					Cada grupo responde a una etapa del recorrido. Puedes abrir la ruta completa, filtrar por dominio o
+					buscar por texto para encontrar una vista Stitch concreta sin recorrer todo el catálogo.
 				</p>
 			</div>
 
-			<div className="stitch-showcase-grid" aria-label="Pantallas Stitch destacadas">
-				{featuredScreens.map(screen => (
-					<StitchScreenCard
-						key={screen.screenId}
-						screen={screen}
-						stageLabel={stitchRepository.getStage(screen.screenId)?.title}
-					/>
+			<div className="stitch-domain-summary" aria-label="Dominios Stitch visibles">
+				{visibleDomains.map(domainItem => (
+					<article className="stitch-domain-pill" key={domainItem.anchor}>
+						<span>{domainItem.title}</span>
+						<strong>{domainItem.screenIds.length}</strong>
+					</article>
 				))}
 			</div>
+
+			<div className="stitch-showcase-grid" aria-label="Dominios Stitch destacados">
+				{visibleDomains.map(domainItem => (
+					<article className="stitch-domain-card" key={domainItem.anchor} id={domainItem.anchor}>
+						<div className="stitch-domain-card-header">
+							<div>
+								<p className="eyebrow">{domainItem.title}</p>
+								<h3>{domainItem.description}</h3>
+							</div>
+							<Link className="button button-secondary" to={`/ui/domain/${domainItem.anchor}`}>
+								Filtrar dominio
+							</Link>
+						</div>
+
+						<div className="stitch-domain-card-grid">
+							{domainItem.screenIds.map(screenId => {
+								const screen = stitchRepository.findById(screenId);
+
+								if (!screen) return null;
+
+								return <StitchScreenCard key={screen.screenId} screen={screen} stageLabel={domainItem.title} />;
+							})}
+						</div>
+					</article>
+				))}
+			</div>
+
+			{visibleDomains.length === 0 ? (
+				<div className="empty-state" role="status" aria-live="polite">
+					<h3>No hay UIs Stitch que coincidan</h3>
+					<p>Prueba otro término de búsqueda o limpia el filtro de dominio para volver a ver todas las vistas.</p>
+				</div>
+			) : null}
 
 			<div className="stitch-showcase-footer">
 				<div>

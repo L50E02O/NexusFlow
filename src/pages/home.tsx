@@ -1,3 +1,5 @@
+import { useSearchParams } from 'react-router-dom';
+
 import { HomeHero } from '../widgets/home-hero';
 import { StitchShowcase } from '../widgets/stitch-showcase';
 import { ProductCatalog } from '../widgets/product-catalog';
@@ -6,17 +8,21 @@ import { LayerStack } from '../widgets/layer-stack';
 import { AdoptionRoadmap } from '../widgets/adoption-roadmap';
 
 export function HomePage() {
+	const [searchParams] = useSearchParams();
+	const query = searchParams.get('q') ?? '';
+	const domain = searchParams.get('domain') ?? '';
+
   return (
     <main className="app-shell">
       <div className="page">
         <HomeHero />
 
-        <StitchShowcase />
+        <StitchShowcase query={query} domain={domain} />
 
-        <ProductCatalog />
+        <ProductCatalog query={query} />
 
         {/* Integración directa del flujo Stitch para acceso natural desde el home */}
-        <StitchFlow />
+        <StitchFlow query={query} domain={domain} />
 
         <LayerStack />
 

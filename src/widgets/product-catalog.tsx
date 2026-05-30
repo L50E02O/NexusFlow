@@ -15,10 +15,42 @@ type ProductRow = {
   summary?: string;
 };
 
-export function ProductCatalog() {
+interface ProductCatalogProps {
+  readonly query?: string;
+}
+
+function normalizeSearchText(value: string) {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+}
+
+export function ProductCatalog({ query }: ProductCatalogProps) {
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [dbConfigured, setDbConfigured] = useState<boolean | null>(null);
+
+  const normalizedQuery = normalizeSearchText(query ?? '');
+  const filteredProducts = products.filter(product => {
+    if (!normalizedQuery) return true;
+
+    const searchable = normalizeSearchText(
+      [
+        product.nombre,
+        product.descripcion,
+        product.categoria,
+        product.id_categoria,
+        product.name,
+        product.summary,
+      ]
+        .filter(Boolean)
+        .join(' '),
+    );
+
+    return searchable.includes(normalizedQuery);
+  });
 
   useEffect(() => {
     let mounted = true;
@@ -88,9 +120,16 @@ export function ProductCatalog() {
             cuenta actual.
           </p>
         </div>
+      ) : filteredProducts.length === 0 ? (
+        <div className="empty-state" role="status" aria-live="polite">
+          <h3>No encontramos coincidencias</h3>
+          <p>
+            La búsqueda <strong>{query}</strong> no coincide con productos cargados. Prueba otro término o limpia el filtro.
+          </p>
+        </div>
       ) : (
         <ul className="atlas-grid" aria-label="Listado de productos">
-          {products.map(product => {
+          {filteredProducts.map(product => {
             const id = product.id_producto ?? product.id ?? String(product.name ?? Math.random());
             const imageUrl = product.url ?? product.imagen ?? '';
             const categoryLabel = product.categoria ?? product.id_categoria ?? 'general';

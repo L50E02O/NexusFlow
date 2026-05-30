@@ -2,7 +2,8 @@ import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { stitchRepository } from '../entities/stitch/api/stitch.repository';
-import { heroMetrics, marketCategories, navigationItems } from '../shared/lib/site-data';
+import { heroMetrics, navigationItems } from '../shared/lib/site-data';
+import { stitchDomains } from '../shared/lib/stitch-domains';
 
 export function HomeHero() {
   const navigate = useNavigate();
@@ -11,7 +12,8 @@ export function HomeHero() {
 
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    navigate('/ui');
+    const normalized = searchValue.trim();
+    navigate(normalized ? `/?q=${encodeURIComponent(normalized)}#catalogo` : '/#catalogo');
   }
 
   return (
@@ -62,10 +64,10 @@ export function HomeHero() {
           </form>
 
           <div className="market-categories" aria-label="Categorías destacadas">
-            {marketCategories.map(category => (
-              <a key={category} className="market-chip" href="#catalogo">
-                {category}
-              </a>
+            {stitchDomains.map(domain => (
+              <Link key={domain.anchor} className="market-chip" to={`/ui?domain=${domain.anchor}`}>
+                {domain.title}
+              </Link>
             ))}
           </div>
 

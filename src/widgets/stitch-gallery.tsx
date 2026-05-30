@@ -2,14 +2,28 @@ import { Link } from 'react-router-dom';
 import React, { useEffect, useMemo, useState } from 'react';
 
 import { stitchScreens } from '../shared/lib/stitch-screens.generated';
-import { stitchFlowStages, stitchScreensById } from '../shared/lib/stitch-flow';
+import { stitchScreensById } from '../shared/lib/stitch-flow';
 import { stitchRepository } from '../entities/stitch/api/stitch.repository';
+import { filterStageScreenIds, stitchDomains } from '../shared/lib/stitch-domains';
 import { StitchScreenCard } from './stitch-screen-card';
 
-export function StitchFlow() {
+interface StitchFlowProps {
+	readonly query?: string;
+	readonly domain?: string;
+}
+
+export function StitchFlow({ query, domain }: StitchFlowProps) {
 	const [currentScreenId, setCurrentScreenId] = useState<string | null>(null);
 
-	const orderedIds = useMemo(() => stitchFlowStages.flatMap(s => s.screenIds), []);
+	const visibleStages = useMemo(
+		() =>
+			stitchDomains
+				.map(stage => ({ ...stage, screenIds: filterStageScreenIds(stage, { query, domain }) }))
+				.filter(stage => stage.screenIds.length > 0),
+			[domain, query],
+	);
+
+	const orderedIds = useMemo(() => visibleStages.flatMap(stage => stage.screenIds), [visibleStages]);
 
 	useEffect(() => {
 		function onKey(e: KeyboardEvent) {
@@ -38,6 +52,12 @@ export function StitchFlow() {
 
 	const closeViewer = () => setCurrentScreenId(null);
 
+	useEffect(() => {
+		if (currentScreenId && !orderedIds.includes(currentScreenId)) {
+			setCurrentScreenId(null);
+		}
+	}, [currentScreenId, orderedIds]);
+
 	const currentScreen = currentScreenId ? stitchRepository.findById(currentScreenId) : null;
 
 	return (
@@ -63,11 +83,11 @@ export function StitchFlow() {
 
 			<div className="flow-summary" aria-label="Resumen del flujo Stitch">
 				<article>
-					<strong>{stitchScreens.length}</strong>
+					<strong>{orderedIds.length}</strong>
 					<span>pantallas conectadas</span>
 				</article>
 				<article>
-					<strong>{stitchFlowStages.length}</strong>
+					<strong>{visibleStages.length}</strong>
 					<span>etapas del recorrido</span>
 				</article>
 				<article>
@@ -77,7 +97,7 @@ export function StitchFlow() {
 			</div>
 
 			<div className="flow-stage-grid">
-				{stitchFlowStages.map(stage => (
+				{visibleStages.map(stage => (
 					<article className="flow-stage-card" key={stage.anchor}>
 						<span>{stage.title}</span>
 						<h3>{stage.description}</h3>
@@ -108,6 +128,13 @@ export function StitchFlow() {
 					</article>
 				))}
 			</div>
+
+			{visibleStages.length === 0 ? (
+				<div className="empty-state" role="status" aria-live="polite">
+					<h3>No se encontraron coincidencias en el flujo</h3>
+					<p>Quita el filtro actual o usa otra búsqueda para ver nuevamente las pantallas Stitch disponibles.</p>
+				</div>
+			) : null}
 
 			{currentScreen && (
 				<div className="stitch-embedded-viewer" role="dialog" aria-label={`Visor ${currentScreen.title}`}>
