@@ -11,12 +11,12 @@ export function UiHubPage() {
 	const domain = searchParams.get('domain') ?? '';
 
 	return (
-		<main className="app-shell">
+		<main className="app-shell" id="main-content" tabIndex={-1} data-route-announcement="Hub de UI Stitch" aria-labelledby="ui-hub-title">
 			<div className="page ui-page">
 				<header className="ui-hero">
 					<div>
 						<p className="eyebrow">Rutas UI</p>
-						<h1 className="ui-hero-title">Explora cada interfaz Stitch como una ruta real.</h1>
+						<h1 className="ui-hero-title" id="ui-hub-title" tabIndex={-1} data-route-focus>Explora cada interfaz Stitch como una ruta real.</h1>
 						<p className="ui-hero-copy">
 							Desde aquí puedes entrar al flujo completo, abrir cada pantalla exportada y moverte entre
 							rutas sin salir de NexusFlow.

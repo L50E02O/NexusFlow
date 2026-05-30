@@ -13,7 +13,7 @@ export function HomePage() {
 	const domain = searchParams.get('domain') ?? '';
 
   return (
-    <main className="app-shell">
+    <main className="app-shell" id="main-content" tabIndex={-1} data-route-announcement="Inicio de NexusFlow" aria-labelledby="hero-title">
       <div className="page">
         <HomeHero />
 

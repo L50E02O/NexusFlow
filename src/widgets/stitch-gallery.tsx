@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { stitchScreens } from '../shared/lib/stitch-screens.generated';
 import { stitchScreensById } from '../shared/lib/stitch-flow';
 import { stitchRepository } from '../entities/stitch/api/stitch.repository';
 import { filterStageScreenIds, stitchDomains } from '../shared/lib/stitch-domains';
 import { StitchScreenCard } from './stitch-screen-card';
+import { useRouteAnnouncements } from '../shared/components/route-accessibility-shell';
 
 interface StitchFlowProps {
 	readonly query?: string;
@@ -14,6 +15,9 @@ interface StitchFlowProps {
 
 export function StitchFlow({ query, domain }: StitchFlowProps) {
 	const [currentScreenId, setCurrentScreenId] = useState<string | null>(null);
+	const dialogRef = useRef<HTMLDivElement | null>(null);
+	const lastTriggerRef = useRef<HTMLButtonElement | null>(null);
+	const { announce } = useRouteAnnouncements();
 
 	const visibleStages = useMemo(
 		() =>
@@ -25,32 +29,19 @@ export function StitchFlow({ query, domain }: StitchFlowProps) {
 
 	const orderedIds = useMemo(() => visibleStages.flatMap(stage => stage.screenIds), [visibleStages]);
 
-	useEffect(() => {
-		function onKey(e: KeyboardEvent) {
-			if (!currentScreenId) return;
-			if (e.key === 'ArrowLeft') {
-				const nav = stitchRepository.getNavigation(currentScreenId);
-				if (nav.previous) setCurrentScreenId(nav.previous.screenId);
-			}
-			if (e.key === 'ArrowRight') {
-				const nav = stitchRepository.getNavigation(currentScreenId);
-				if (nav.next) setCurrentScreenId(nav.next.screenId);
-			}
-			if (e.key === 'Escape') {
-				setCurrentScreenId(null);
-			}
-		}
-
-		window.addEventListener('keydown', onKey);
-		return () => window.removeEventListener('keydown', onKey);
-	}, [currentScreenId]);
-
 	const startFirst = () => {
 		const first = orderedIds[0] ?? stitchScreens[0]?.screenId ?? null;
 		setCurrentScreenId(first);
+		if (first) {
+			const screen = stitchRepository.findById(first);
+			if (screen) announce(`Abriendo visor de ${screen.title}`);
+		}
 	};
 
-	const closeViewer = () => setCurrentScreenId(null);
+	const closeViewer = () => {
+		setCurrentScreenId(null);
+		announce('Visor cerrado');
+	};
 
 	useEffect(() => {
 		if (currentScreenId && !orderedIds.includes(currentScreenId)) {
@@ -58,7 +49,44 @@ export function StitchFlow({ query, domain }: StitchFlowProps) {
 		}
 	}, [currentScreenId, orderedIds]);
 
+	useEffect(() => {
+		if (!currentScreenId) {
+			lastTriggerRef.current?.focus();
+			return;
+		}
+
+		dialogRef.current?.focus();
+	}, [currentScreenId]);
+
 	const currentScreen = currentScreenId ? stitchRepository.findById(currentScreenId) : null;
+
+	function handleDialogKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+		if (!currentScreenId) return;
+
+		if (e.key === 'Escape') {
+			e.preventDefault();
+			closeViewer();
+			return;
+		}
+
+		if (e.key === 'ArrowLeft') {
+			const nav = stitchRepository.getNavigation(currentScreenId);
+			if (nav.previous) {
+				const nextScreen = stitchRepository.findById(nav.previous.screenId);
+				setCurrentScreenId(nav.previous.screenId);
+				if (nextScreen) announce(`Mostrando ${nextScreen.title}`);
+			}
+		}
+
+		if (e.key === 'ArrowRight') {
+			const nav = stitchRepository.getNavigation(currentScreenId);
+			if (nav.next) {
+				const nextScreen = stitchRepository.findById(nav.next.screenId);
+				setCurrentScreenId(nav.next.screenId);
+				if (nextScreen) announce(`Mostrando ${nextScreen.title}`);
+			}
+		}
+	}
 
 	return (
 		<section className="section stitch-flow" id="flujo-app" aria-labelledby="stitch-flow-title">
@@ -72,7 +100,7 @@ export function StitchFlow({ query, domain }: StitchFlowProps) {
 					el home y siga el flujo sin perder contexto. Usa "Iniciar flujo" para una experiencia embebida.
 				</p>
 				<div className="stitch-flow-actions">
-					<button className="button button-primary" onClick={startFirst} aria-label="Iniciar flujo Stitch">
+					<button className="button button-primary" type="button" onClick={startFirst} aria-label="Iniciar flujo Stitch">
 						Iniciar flujo
 					</button>
 					<Link className="button button-secondary" to="/ui">
@@ -115,8 +143,15 @@ export function StitchFlow({ query, domain }: StitchFlowProps) {
 										viewerAction={
 											<button
 												className="button button-ghost"
-												onClick={() => setCurrentScreenId(screen.screenId)}
+												type="button"
+												onClick={event => {
+													lastTriggerRef.current = event.currentTarget;
+													setCurrentScreenId(screen.screenId);
+													announce(`Abriendo visor de ${screen.title}`);
+												}}
 												aria-label={`Abrir ${screen.title} en visor`}
+												aria-controls="stitch-embedded-viewer"
+												aria-expanded={currentScreenId === screen.screenId}
 											>
 												Abrir en visor
 											</button>
@@ -137,15 +172,25 @@ export function StitchFlow({ query, domain }: StitchFlowProps) {
 			) : null}
 
 			{currentScreen && (
-				<div className="stitch-embedded-viewer" role="dialog" aria-label={`Visor ${currentScreen.title}`}>
+				<div
+					className="stitch-embedded-viewer"
+					id="stitch-embedded-viewer"
+					role="dialog"
+					aria-modal="false"
+					aria-labelledby="stitch-embedded-title"
+					tabIndex={-1}
+					ref={dialogRef}
+					onKeyDown={handleDialogKeyDown}
+				>
 					<header className="stitch-embedded-header">
 						<div>
-							<strong>{currentScreen.title}</strong>
+							<strong id="stitch-embedded-title">{currentScreen.title}</strong>
 							<span className="stitch-embedded-stage">{stitchRepository.getStage(currentScreen.screenId)?.title}</span>
 						</div>
 						<div className="stitch-embedded-controls">
 							<button
 								className="button button-secondary"
+								type="button"
 								onClick={() => {
 									const nav = stitchRepository.getNavigation(currentScreen.screenId);
 									if (nav.previous) setCurrentScreenId(nav.previous.screenId);
@@ -156,6 +201,7 @@ export function StitchFlow({ query, domain }: StitchFlowProps) {
 							</button>
 							<button
 								className="button button-secondary"
+								type="button"
 								onClick={() => {
 									const nav = stitchRepository.getNavigation(currentScreen.screenId);
 									if (nav.next) setCurrentScreenId(nav.next.screenId);
@@ -164,11 +210,15 @@ export function StitchFlow({ query, domain }: StitchFlowProps) {
 							>
 								→
 							</button>
-							<button className="button button-danger" onClick={closeViewer} aria-label="Cerrar visor">
+							<button className="button button-danger" type="button" onClick={closeViewer} aria-label="Cerrar visor">
 								Cerrar
 							</button>
 						</div>
 					</header>
+
+					<p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+						{currentScreen ? `Visor activo de ${currentScreen.title}` : 'Visor cerrado'}
+					</p>
 
 					<iframe
 						title={currentScreen.title}

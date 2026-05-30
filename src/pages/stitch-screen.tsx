@@ -19,7 +19,13 @@ export function StitchScreenPage() {
 	const navigation = stitchRepository.getNavigation(screenId);
 
 	return (
-		<main className="app-shell">
+		<main
+			className="app-shell"
+			id="main-content"
+			tabIndex={-1}
+			data-route-announcement={`Pantalla Stitch: ${screen.title}`}
+			aria-labelledby="ui-screen-title"
+		>
 			<div className="page ui-screen-page">
 				<header className="ui-screen-toolbar">
 					<div className="ui-screen-toolbar-links">
@@ -36,7 +42,7 @@ export function StitchScreenPage() {
 				<section className="ui-screen-layout" aria-labelledby="ui-screen-title">
 					<article className="ui-screen-copy">
 						<p className="eyebrow">Ruta Stitch</p>
-						<h1 className="ui-screen-title" id="ui-screen-title">
+						<h1 className="ui-screen-title" id="ui-screen-title" tabIndex={-1} data-route-focus>
 							{screen.title}
 						</h1>
 						<p className="ui-screen-summary">{screen.summary}</p>
