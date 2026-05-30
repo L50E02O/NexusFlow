@@ -1,23 +1,27 @@
-import { supabase } from '../../../shared/lib/supabase';
 import type { ProductoInsert, ProductoUpdate } from '../../../shared/types/database/productos';
+import { isSupabaseConfigured, requireSupabaseClient } from '../../../shared/lib/supabase';
 
 const tableName = 'productos';
-const table = supabase.from(tableName) as any;
+
+function getTable() {
+	return requireSupabaseClient().from(tableName) as any;
+}
 
 export const productosRepository = {
+	isConfigured: isSupabaseConfigured,
 	list() {
-		return table.select('*');
+		return getTable().select('*');
 	},
 	findById(idProducto: string) {
-		return table.select('*').eq('id_producto', idProducto).maybeSingle();
+		return getTable().select('*').eq('id_producto', idProducto).maybeSingle();
 	},
 	create(payload: ProductoInsert) {
-		return table.insert(payload).select('*').single();
+		return getTable().insert(payload).select('*').single();
 	},
 	update(idProducto: string, payload: ProductoUpdate) {
-		return table.update(payload).eq('id_producto', idProducto).select('*').single();
+		return getTable().update(payload).eq('id_producto', idProducto).select('*').single();
 	},
 	remove(idProducto: string) {
-		return table.delete().eq('id_producto', idProducto);
+		return getTable().delete().eq('id_producto', idProducto);
 	},
 } as const;

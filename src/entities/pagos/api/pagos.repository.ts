@@ -1,23 +1,27 @@
-import { supabase } from '../../../shared/lib/supabase';
 import type { PagoInsert, PagoUpdate } from '../../../shared/types/database/pagos';
+import { isSupabaseConfigured, requireSupabaseClient } from '../../../shared/lib/supabase';
 
 const tableName = 'pagos';
-const table = supabase.from(tableName) as any;
+
+function getTable() {
+	return requireSupabaseClient().from(tableName) as any;
+}
 
 export const pagosRepository = {
+	isConfigured: isSupabaseConfigured,
 	list() {
-		return table.select('*');
+		return getTable().select('*');
 	},
 	findById(idPago: string) {
-		return table.select('*').eq('id_pago', idPago).maybeSingle();
+		return getTable().select('*').eq('id_pago', idPago).maybeSingle();
 	},
 	create(payload: PagoInsert) {
-		return table.insert(payload).select('*').single();
+		return getTable().insert(payload).select('*').single();
 	},
 	update(idPago: string, payload: PagoUpdate) {
-		return table.update(payload).eq('id_pago', idPago).select('*').single();
+		return getTable().update(payload).eq('id_pago', idPago).select('*').single();
 	},
 	remove(idPago: string) {
-		return table.delete().eq('id_pago', idPago);
+		return getTable().delete().eq('id_pago', idPago);
 	},
 } as const;
