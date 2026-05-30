@@ -1,8 +1,19 @@
-import { Link } from 'react-router-dom';
+import { FormEvent, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
-import { heroMetrics, navigationItems } from '../shared/lib/site-data';
+import { stitchRepository } from '../entities/stitch/api/stitch.repository';
+import { heroMetrics, marketCategories, navigationItems } from '../shared/lib/site-data';
 
 export function HomeHero() {
+  const navigate = useNavigate();
+  const [searchValue, setSearchValue] = useState('');
+  const featuredScreens = stitchRepository.listScreens().slice(0, 3);
+
+  function handleSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    navigate('/ui');
+  }
+
   return (
     <>
       <header className="site-header">
@@ -23,22 +34,50 @@ export function HomeHero() {
       </header>
 
       <section className="hero" id="top" aria-labelledby="hero-title">
-        <div>
-          <p className="eyebrow">Home de entrada y flujo operativo</p>
+        <div className="hero-copy-panel">
+          <p className="eyebrow">Landing de comercio y navegación Stitch</p>
           <h1 className="hero-title" id="hero-title">
-            Home primero, flujo Stitch después.
+            Comprá, explorá y bajá a cada UI Stitch sin perder el hilo.
           </h1>
           <p className="hero-copy">
-            La aplicación arranca en una portada clara, baja al flujo de pantallas Stitch y deja
-            la base preparada para conectar datos reales sin perder la arquitectura por capas.
+            NexusFlow arranca como una portada tipo marketplace, con catálogo, accesos rápidos y las vistas Stitch
+            ya conectadas para que el producto se recorra como una experiencia real.
           </p>
+
+          <form className="hero-search" onSubmit={handleSearch}>
+            <label className="sr-only" htmlFor="hero-search-input">
+              Buscar productos o vistas Stitch
+            </label>
+            <input
+              id="hero-search-input"
+              type="search"
+              value={searchValue}
+              onChange={event => setSearchValue(event.target.value)}
+              placeholder="Buscar productos, marcas o vistas Stitch"
+              aria-label="Buscar productos, marcas o vistas Stitch"
+            />
+            <button className="button button-primary" type="submit">
+              Buscar
+            </button>
+          </form>
+
+          <div className="market-categories" aria-label="Categorías destacadas">
+            {marketCategories.map(category => (
+              <a key={category} className="market-chip" href="#catalogo">
+                {category}
+              </a>
+            ))}
+          </div>
 
           <div className="hero-actions">
             <Link className="button button-primary" to="/ui">
-              Ver rutas UI
+              Abrir hub UI
             </Link>
+            <a className="button button-secondary" href="#ui">
+              Ver UIs Stitch
+            </a>
             <a className="button button-secondary" href="#datos">
-              Ver datos
+              Ver preparación de datos
             </a>
           </div>
 
@@ -52,30 +91,21 @@ export function HomeHero() {
           </div>
         </div>
 
-        <aside className="hero-panel" aria-label="Resumen de adaptación">
-          <span className="panel-kicker">Recorrido preparado</span>
+        <aside className="hero-panel" aria-label="Vistas destacadas de Stitch">
+          <span className="panel-kicker">Vistas listas para usar</span>
           <div className="panel-list">
-            <article className="panel-item">
-              <strong>Home como puerta de entrada</strong>
-              <p>
-                Una portada limpia, accesible y pensada para llevar al usuario hacia la experiencia
-                principal.
-              </p>
-            </article>
-            <article className="panel-item">
-              <strong>Flujo Stitch conectado</strong>
-              <p>
-                Las pantallas exportadas ahora se organizan como etapas del producto, no como una
-                galería aislada.
-              </p>
-            </article>
-            <article className="panel-item">
-              <strong>Datos listos para enchufar</strong>
-              <p>
-                Supabase y los repositorios de entidades ya dejan el camino trazado para hacer la
-                app funcional con datos reales.
-              </p>
-            </article>
+            {featuredScreens.map(screen => (
+              <article className="panel-item hero-screen-item" key={screen.screenId}>
+                <div className="hero-screen-topline">
+                  <strong>{screen.title}</strong>
+                  <span>{stitchRepository.getStage(screen.screenId)?.title ?? 'Vista independiente'}</span>
+                </div>
+                <p>{screen.summary}</p>
+                <Link className="button button-secondary" to={`/ui/${screen.screenId}`}>
+                  Abrir vista
+                </Link>
+              </article>
+            ))}
           </div>
         </aside>
       </section>

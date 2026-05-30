@@ -80,7 +80,16 @@ export function StitchScreenPage() {
 					</article>
 
 					<aside className="ui-screen-preview" aria-label={`Vista previa de ${screen.title}`}>
-						<img src={screen.imagePath} alt={`Captura de ${screen.title}`} />
+						{screen.htmlPath ? (
+							<iframe
+								title={`Vista de ${screen.title}`}
+								src={screen.htmlPath}
+								className="ui-screen-iframe"
+								sandbox="allow-scripts allow-same-origin allow-forms"
+							/>
+						) : (
+							<img src={screen.imagePath} alt={`Captura de ${screen.title}`} />
+						)}
 					</aside>
 				</section>
 			</div>

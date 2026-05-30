@@ -7,7 +7,8 @@ export interface StitchFlowStage {
 	readonly anchor: string;
 }
 
-export const stitchFlowStages: StitchFlowStage[] = [
+// Etapas manuales originales, mantenemos el orden lógico creado previamente.
+const baseStages: StitchFlowStage[] = [
 	{
 		title: '1. Acceso',
 		description: 'Pantallas de entrada y registro que abren la experiencia desde el home.',
@@ -63,13 +64,24 @@ export const stitchFlowStages: StitchFlowStage[] = [
 		title: '5. Riesgo y continuidad',
 		description: 'Devoluciones, seguridad antifraude y continuidad de la relación con el usuario.',
 		anchor: 'riesgo',
-		screenIds: [
-			'19b68716e75048aab9a97a7bdc086dae',
-			'f468ae1e48b04f59b20ad14781a86010',
-		],
+		screenIds: ['19b68716e75048aab9a97a7bdc086dae', 'f468ae1e48b04f59b20ad14781a86010'],
 	},
 ];
 
-export const stitchScreensById = new Map(
-	stitchScreens.map(screen => [screen.screenId, screen] as const),
-);
+// Asegurarnos de que todas las pantallas exportadas por Stitch estén incluidas en el flujo.
+const allIds = stitchScreens.map(s => s.screenId);
+const includedIds = baseStages.flatMap(s => s.screenIds);
+const remaining = allIds.filter(id => !includedIds.includes(id));
+
+export const stitchFlowStages: StitchFlowStage[] = [...baseStages];
+
+if (remaining.length > 0) {
+	stitchFlowStages.push({
+		title: '6. Otras pantallas',
+		description: 'Pantallas exportadas adicionales — incluidas para navegación completa entre prototipos.',
+		anchor: 'otras',
+		screenIds: remaining,
+	});
+}
+
+export const stitchScreensById = new Map(stitchScreens.map(screen => [screen.screenId, screen] as const));

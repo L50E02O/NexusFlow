@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 
 import { DataReadiness } from '../widgets/data-readiness';
+import { StitchShowcase } from '../widgets/stitch-showcase';
 import { StitchFlow } from '../widgets/stitch-gallery';
 
 export function UiHubPage() {
@@ -26,6 +27,7 @@ export function UiHubPage() {
 					</div>
 				</header>
 
+				<StitchShowcase />
 				<StitchFlow />
 				<DataReadiness />
 			</div>

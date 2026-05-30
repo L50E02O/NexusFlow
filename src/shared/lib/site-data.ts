@@ -3,24 +3,28 @@ import { stitchScreens } from './stitch-screens.generated';
 
 export const navigationItems = [
 	{ label: 'Inicio', href: '#top' },
+  { label: 'Productos', href: '#catalogo' },
+  { label: 'UIs Stitch', href: '#ui' },
 	{ label: 'Flujo Stitch', href: '#flujo-app' },
 	{ label: 'Capas', href: '#capas' },
 	{ label: 'Datos', href: '#datos' },
 	{ label: 'Hoja de ruta', href: '#flujo' },
 ];
 
+export const marketCategories = ['Moda', 'Tecnología', 'Hogar', 'Ofertas', 'Mercado Pago', 'UIs Stitch'];
+
 export const heroMetrics = [
   {
-	value: String(stitchScreens.length),
-	label: 'pantallas Stitch conectadas al sistema y listas para navegar.',
+  value: String(stitchScreens.length),
+  label: 'UI Stitch conectadas como vistas navegables.',
   },
   {
-	value: String(stitchFlowStages.length),
-	label: 'etapas funcionales para cargar home y luego el flujo de la app.',
+  value: String(stitchFlowStages.length),
+  label: 'etapas funcionales para recorrer el producto sin perder contexto.',
   },
   {
-	value: '1',
-	label: 'base preparada para Supabase y repositorios existentes.',
+  value: '1',
+  label: 'landing listo para enchufar datos reales de catálogo.',
   },
 ];
 

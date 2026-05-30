@@ -1,6 +1,7 @@
 import { HomeHero } from '../widgets/home-hero';
+import { StitchShowcase } from '../widgets/stitch-showcase';
+import { ProductCatalog } from '../widgets/product-catalog';
 import { StitchFlow } from '../widgets/stitch-gallery';
-import { DataReadiness } from '../widgets/data-readiness';
 import { LayerStack } from '../widgets/layer-stack';
 import { AdoptionRoadmap } from '../widgets/adoption-roadmap';
 
@@ -9,9 +10,16 @@ export function HomePage() {
     <main className="app-shell">
       <div className="page">
         <HomeHero />
+
+        <StitchShowcase />
+
+        <ProductCatalog />
+
+        {/* Integración directa del flujo Stitch para acceso natural desde el home */}
         <StitchFlow />
+
         <LayerStack />
-        <DataReadiness />
+
         <AdoptionRoadmap />
 
         <footer className="site-footer" aria-label="Pie de página">
