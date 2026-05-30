@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 import { heroMetrics, navigationItems } from '../shared/lib/site-data';
 
 export function HomeHero() {
@@ -32,9 +34,9 @@ export function HomeHero() {
           </p>
 
           <div className="hero-actions">
-            <a className="button button-primary" href="#flujo-app">
-              Ver flujo
-            </a>
+            <Link className="button button-primary" to="/ui">
+              Ver rutas UI
+            </Link>
             <a className="button button-secondary" href="#datos">
               Ver datos
             </a>

@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 import { stitchScreens } from '../shared/lib/stitch-screens.generated';
 import { stitchFlowStages, stitchScreensById } from '../shared/lib/stitch-flow';
 
@@ -55,6 +57,9 @@ export function StitchFlow() {
 											<a className="button button-primary" href={screen.htmlPath} target="_blank" rel="noreferrer">
 												Ver HTML
 											</a>
+											<Link className="button button-secondary" to={`/ui/${screen.screenId}`}>
+												Abrir ruta
+											</Link>
 											<a className="button button-secondary" href={screen.imagePath} target="_blank" rel="noreferrer">
 												Ver captura
 											</a>
