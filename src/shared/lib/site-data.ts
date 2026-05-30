@@ -1,21 +1,26 @@
+import { stitchFlowStages } from './stitch-flow';
+import { stitchScreens } from './stitch-screens.generated';
+
 export const navigationItems = [
-  { label: 'Capas', href: '#capas' },
-  { label: 'Flujo', href: '#flujo' },
-  { label: 'Ventajas', href: '#ventajas' },
+	{ label: 'Inicio', href: '#top' },
+	{ label: 'Flujo Stitch', href: '#flujo-app' },
+	{ label: 'Capas', href: '#capas' },
+	{ label: 'Datos', href: '#datos' },
+	{ label: 'Hoja de ruta', href: '#flujo' },
 ];
 
 export const heroMetrics = [
   {
-    value: '6',
-    label: 'capas ordenadas para separar UI, dominio y reutilización.',
+	value: String(stitchScreens.length),
+	label: 'pantallas Stitch conectadas al sistema y listas para navegar.',
   },
   {
-    value: '0',
-    label: 'dependencias Next para mantener el arranque simple en Vite.',
+	value: String(stitchFlowStages.length),
+	label: 'etapas funcionales para cargar home y luego el flujo de la app.',
   },
   {
-    value: '100%',
-    label: 'de la base visual pensada para accesibilidad y contraste fuerte.',
+	value: '1',
+	label: 'base preparada para Supabase y repositorios existentes.',
   },
 ];
 
@@ -24,14 +29,14 @@ export const layerCards = [
     name: 'app',
     title: 'Capa de composición',
     description:
-      'Punto de entrada para montar la página y conectar secciones sin mezclar lógica de negocio con presentación.',
+      'Punto de entrada para montar el home, el flujo Stitch y futuras rutas sin mezclar lógica de negocio con presentación.',
     tags: ['Shell', 'Layout', 'Providers'],
   },
   {
     name: 'pages',
     title: 'Pantallas completas',
     description:
-      'Agrupa la estructura de cada vista y decide qué widgets se muestran en cada contexto.',
+      'Agrupa la estructura de cada vista y decide qué widgets se muestran en cada contexto del recorrido.',
     tags: ['Home', 'Catálogo', 'Detalle'],
   },
   {
@@ -52,40 +57,40 @@ export const layerCards = [
     name: 'entities',
     title: 'Modelo de negocio',
     description:
-      'Define las piezas del dominio: producto, colección, carrito y cualquier entidad compartida.',
+      'Define las piezas del dominio: producto, carrito, perfil y cualquier entidad lista para leer desde la base.',
     tags: ['Producto', 'Carrito', 'Colección'],
   },
   {
     name: 'shared',
     title: 'Utilidades y UI base',
     description:
-      'Centraliza helpers, estilos, tokens y componentes que deben ser consistentes en todo el proyecto.',
+      'Centraliza helpers, estilos, tokens, cliente de Supabase y componentes que deben ser consistentes en todo el proyecto.',
     tags: ['UI', 'Tokens', 'Helpers'],
   },
 ];
 
 export const roadmapSteps = [
   {
-    title: '1. Repositorio y base visual',
+    title: '1. Inicio y flujo',
     description:
-      'Primero se conserva este proyecto como base, se adapta la plantilla y se quita la dependencia de Next que rompía el arranque.',
-    items: ['Mantener Vite', 'Eliminar imports incompatibles', 'Conservar avances ya hechos'],
+      'La aplicación arranca en el home y luego baja al flujo Stitch para que el recorrido sea comprensible desde el primer render.',
+    items: ['Home como entrada', 'Flujo visible', 'Accesos directos'],
   },
   {
     title: '2. Capas funcionales',
     description:
-      'Luego se separan los bloques principales en pages, widgets, features, entities y shared para que cada pieza tenga una responsabilidad clara.',
+      'La UI se divide en páginas, widgets, features, entities y shared para que cada pieza tenga una responsabilidad clara.',
     items: ['Responsabilidad única', 'Reutilización real', 'Menos acoplamiento'],
   },
   {
-    title: '3. Evolución segura',
+    title: '3. Datos reales',
     description:
-      'Por último se agregan datos reales, backend y autenticación sin romper la interfaz ya validada.',
-    items: ['Supabase cuando haga falta', 'Rutas nuevas por etapas', 'Sin rehacer todo otra vez'],
+      'Cuando la BD esté lista, los servicios reemplazan el contenido estático sin tener que rehacer la interfaz.',
+    items: ['Supabase', 'Repositorios', 'Consultas por entidad'],
   },
 ];
 
 export const ctaItems = [
-  'La plantilla queda lista para crecer sin arrastrar el stack de Next.',
-  'Tus avances actuales pueden convivir con la nueva base visual.',
+  'La plantilla ya carga el home, el flujo Stitch y el bloque preparado para datos.',
+  'Los repositorios existentes pueden conectarse a la base sin cambiar la arquitectura.',
 ];

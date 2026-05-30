@@ -309,6 +309,221 @@ a {
   gap: 14px;
 }
 
+.atlas-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.atlas-summary article {
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.atlas-summary strong {
+  display: block;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.atlas-summary span {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.atlas-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.atlas-card {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
+  box-shadow: var(--shadow);
+}
+
+.atlas-card-media {
+  aspect-ratio: 16 / 10;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border);
+}
+
+.atlas-card-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  background: #0b0b0b;
+}
+
+.atlas-card-body {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.atlas-card-topline {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.atlas-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--foreground);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.atlas-folder {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.atlas-card h3 {
+  margin: 0;
+  font-size: 1.18rem;
+  line-height: 1.25;
+}
+
+.atlas-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.atlas-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.stitch-flow .section-heading p,
+.data-readiness .section-heading p {
+  max-width: 34rem;
+}
+
+.flow-summary,
+.data-readiness-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.flow-summary article,
+.data-readiness-card {
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.flow-summary strong,
+.data-readiness-card span {
+  display: block;
+  font-size: 1.45rem;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.flow-summary span,
+.data-readiness-card p {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.flow-stage-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.flow-stage-card {
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  box-shadow: var(--shadow);
+}
+
+.flow-stage-card > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  margin-bottom: 14px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.flow-stage-card h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.45;
+  color: var(--foreground);
+}
+
+.flow-stage-screens {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.flow-screen-card {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.flow-screen-card-topline {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.flow-screen-card h4 {
+  margin: 12px 0 0;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.flow-screen-card p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
 .layer-card,
 .roadmap-card {
   padding: 22px;
@@ -392,6 +607,11 @@ a {
   line-height: 1.7;
 }
 
+.atlas-screen-id {
+	color: rgba(247, 247, 245, 0.54);
+	font-size: 0.8rem;
+	word-break: break-word;
+}
 .site-footer {
   display: flex;
   justify-content: space-between;
@@ -414,7 +634,12 @@ a {
   .hero,
   .layer-grid,
   .roadmap-grid,
-  .hero-metrics {
+  .hero-metrics,
+  .atlas-grid,
+  .atlas-summary,
+	.flow-stage-grid,
+	.flow-summary,
+	.data-readiness-grid {
     grid-template-columns: 1fr;
   }
 
@@ -440,4 +665,12 @@ a {
   .hero-title {
     font-size: clamp(3rem, 16vw, 5.2rem);
   }
+
+	.flow-screen-card .atlas-card-actions {
+		flex-direction: column;
+	}
+
+	.atlas-card-actions {
+		flex-direction: column;
+	}
 }

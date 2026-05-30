@@ -22,21 +22,21 @@ export function HomeHero() {
 
       <section className="hero" id="top" aria-labelledby="hero-title">
         <div>
-          <p className="eyebrow">Plantilla adaptada al proyecto actual</p>
+          <p className="eyebrow">Home de entrada y flujo operativo</p>
           <h1 className="hero-title" id="hero-title">
-            Ecommerce modular, limpio y listo para crecer.
+            Home primero, flujo Stitch después.
           </h1>
           <p className="hero-copy">
-            La base de la plantilla se trasladó a una estructura Vite real, con capas claras y
-            una estética de alto contraste para priorizar legibilidad, jerarquía y foco visual.
+            La aplicación arranca en una portada clara, baja al flujo de pantallas Stitch y deja
+            la base preparada para conectar datos reales sin perder la arquitectura por capas.
           </p>
 
           <div className="hero-actions">
-            <a className="button button-primary" href="#capas">
-              Ver capas
-            </a>
-            <a className="button button-secondary" href="#flujo">
+            <a className="button button-primary" href="#flujo-app">
               Ver flujo
+            </a>
+            <a className="button button-secondary" href="#datos">
+              Ver datos
             </a>
           </div>
 
@@ -51,27 +51,27 @@ export function HomeHero() {
         </div>
 
         <aside className="hero-panel" aria-label="Resumen de adaptación">
-          <span className="panel-kicker">Adaptación segura</span>
+          <span className="panel-kicker">Recorrido preparado</span>
           <div className="panel-list">
             <article className="panel-item">
-              <strong>Lo que se conservó</strong>
+              <strong>Home como puerta de entrada</strong>
               <p>
-                La intención visual de la plantilla: negro, blanco, tipografía contundente y
-                bloques amplios con aire.
+                Una portada limpia, accesible y pensada para llevar al usuario hacia la experiencia
+                principal.
               </p>
             </article>
             <article className="panel-item">
-              <strong>Lo que se retiró</strong>
+              <strong>Flujo Stitch conectado</strong>
               <p>
-                Dependencias y archivos ligados a Next que no pertenecen al runtime actual del
-                proyecto.
+                Las pantallas exportadas ahora se organizan como etapas del producto, no como una
+                galería aislada.
               </p>
             </article>
             <article className="panel-item">
-              <strong>Lo que queda listo</strong>
+              <strong>Datos listos para enchufar</strong>
               <p>
-                Una base visual modular sobre la que luego puedes conectar Supabase, catálogo y
-                autenticación.
+                Supabase y los repositorios de entidades ya dejan el camino trazado para hacer la
+                app funcional con datos reales.
               </p>
             </article>
           </div>
