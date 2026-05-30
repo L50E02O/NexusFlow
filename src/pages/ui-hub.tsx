@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
 
+import { commerceScreens } from '../shared/lib/commerce-screens';
 import { DataReadiness } from '../widgets/data-readiness';
 import { StitchShowcase } from '../widgets/stitch-showcase';
 import { StitchFlow } from '../widgets/stitch-gallery';
@@ -33,8 +34,11 @@ export function UiHubPage() {
 						<Link className="button button-primary" to="/">
 							Volver al home
 						</Link>
-						<Link className="button button-secondary" to="/ui/4b9d8d751fdb4d4eaf42022fb6ee1d75">
-							Abrir primera UI
+						<Link className="button button-secondary" to="/comercio">
+							Comercio adaptativo
+						</Link>
+						<Link className="button button-ghost" to={`/ui/${commerceScreens.login}`}>
+							Abrir acceso
 						</Link>
 						{query || domain ? (
 							<button className="button button-ghost" onClick={() => setSearchParams({})} type="button">

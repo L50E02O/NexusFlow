@@ -1,12 +1,32 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 import type { Database } from '../types/database/database';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+let cachedClient: SupabaseClient<Database> | null = null;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-	throw new Error('Faltan las variables VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY.');
+export function isSupabaseConfigured() {
+	return !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+export function getSupabaseClient() {
+	if (!isSupabaseConfigured()) return null;
+
+	if (!cachedClient) {
+		cachedClient = createClient<Database>(
+			import.meta.env.VITE_SUPABASE_URL,
+			import.meta.env.VITE_SUPABASE_ANON_KEY,
+		);
+	}
+
+	return cachedClient;
+}
+
+export function requireSupabaseClient() {
+	const client = getSupabaseClient();
+
+	if (!client) {
+		throw new Error('Supabase no configurado: falta VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY');
+	}
+
+	return client;
+}

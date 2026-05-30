@@ -14,7 +14,13 @@ export function UiDomainPage() {
 	);
 
 	return (
-		<main className="ui-domain-page page">
+		<main
+			className="app-shell ui-domain-page page"
+			id="main-content"
+			tabIndex={-1}
+			data-route-announcement={current ? `Dominio Stitch: ${current.title}` : 'Dominio Stitch'}
+			aria-labelledby="domain-page-title"
+		>
 			<aside className="domain-sidebar" aria-label="Navegación de dominios">
 				<h2>Dominios</h2>
 				<ul>
@@ -31,7 +37,9 @@ export function UiDomainPage() {
 
 			<section className="domain-main">
 				<header className="domain-header">
-					<h1>{current ? current.title : 'Dominio'}</h1>
+					<h1 id="domain-page-title" tabIndex={-1} data-route-focus>
+						{current ? current.title : 'Dominio'}
+					</h1>
 					<p className="domain-summary">{current?.description}</p>
 				</header>
 

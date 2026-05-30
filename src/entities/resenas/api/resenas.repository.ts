@@ -1,23 +1,27 @@
-import { supabase } from '../../../shared/lib/supabase';
 import type { ResenaInsert, ResenaUpdate } from '../../../shared/types/database/resenas';
+import { isSupabaseConfigured, requireSupabaseClient } from '../../../shared/lib/supabase';
 
 const tableName = 'resenas';
-const table = supabase.from(tableName) as any;
+
+function getTable() {
+	return requireSupabaseClient().from(tableName) as any;
+}
 
 export const resenasRepository = {
+	isConfigured: isSupabaseConfigured,
 	list() {
-		return table.select('*');
+		return getTable().select('*');
 	},
 	findById(idResena: string) {
-		return table.select('*').eq('id_resena', idResena).maybeSingle();
+		return getTable().select('*').eq('id_resena', idResena).maybeSingle();
 	},
 	create(payload: ResenaInsert) {
-		return table.insert(payload).select('*').single();
+		return getTable().insert(payload).select('*').single();
 	},
 	update(idResena: string, payload: ResenaUpdate) {
-		return table.update(payload).eq('id_resena', idResena).select('*').single();
+		return getTable().update(payload).eq('id_resena', idResena).select('*').single();
 	},
 	remove(idResena: string) {
-		return table.delete().eq('id_resena', idResena);
+		return getTable().delete().eq('id_resena', idResena);
 	},
 } as const;

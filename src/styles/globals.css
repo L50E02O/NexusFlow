@@ -947,6 +947,312 @@ a {
   margin-top: 16px;
 }
 
+.stitch-html-view {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius-lg) - 4px);
+  background: #0b0b0b;
+}
+
+.stitch-html-view-frame,
+.ui-screen-iframe .stitch-html-view-frame,
+.stitch-iframe .stitch-html-view-frame {
+  display: block;
+  width: 100%;
+  min-height: 420px;
+  height: 100%;
+  border: 0;
+  background: #0b0b0b;
+}
+
+.stitch-html-view--embedded {
+  min-height: 360px;
+}
+
+.stitch-html-view--embedded .stitch-html-view-frame {
+  min-height: 360px;
+}
+
+.stitch-html-view--fullscreen .stitch-html-view-frame {
+  min-height: 520px;
+}
+
+.stitch-html-view-loading,
+.stitch-html-view-fallback {
+  padding: 16px 18px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.stitch-native-view {
+  margin: 0;
+  padding: 16px;
+}
+
+.stitch-native-view img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: calc(var(--radius-md) - 2px);
+  border: 1px solid var(--border);
+}
+
+.stitch-native-view figcaption {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.stitch-native-view figcaption p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.stitch-embedded-viewer {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: var(--shadow);
+}
+
+.stitch-embedded-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.stitch-embedded-stage {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.stitch-embedded-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.stitch-flow-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.commerce-page {
+  display: grid;
+  gap: 20px;
+}
+
+.commerce-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) auto;
+  gap: 20px;
+  align-items: end;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+}
+
+.commerce-hero-title {
+  margin: 0;
+  font-size: clamp(2rem, 4.5vw, 4rem);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+  text-transform: uppercase;
+}
+
+.commerce-hero-copy {
+  max-width: 40rem;
+  margin: 16px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.commerce-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.commerce-journey-steps {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.commerce-journey-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.commerce-journey-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.commerce-journey-step h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.commerce-journey-step p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.commerce-journey-screen {
+  margin-top: 8px !important;
+  font-size: 0.82rem;
+  color: rgba(247, 247, 245, 0.72);
+}
+
+.commerce-journey-featured {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 20px 22px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+}
+
+.product-catalog-setup .atlas-card-actions {
+  margin-top: 14px;
+}
+
+.atlas-card-placeholder {
+  padding: 24px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.stitch-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: #000;
+}
+
+.stitch-app-chrome {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(7, 17, 31, 0.92);
+  backdrop-filter: blur(8px);
+  z-index: 2;
+}
+
+.stitch-app-brand {
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+}
+
+.stitch-app-stage {
+  flex: 1;
+  color: var(--muted);
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stitch-app-chrome-actions {
+  margin-left: auto;
+}
+
+.stitch-app-back {
+  min-height: 36px;
+  padding: 6px 12px;
+}
+
+.stitch-interactive-view {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.stitch-interactive-frame {
+  flex: 1;
+  width: 100%;
+  min-height: calc(100dvh - 52px);
+  border: 0;
+  background: #000;
+}
+
+.stitch-app-loading {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(7, 17, 31, 0.9);
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.stitch-app-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  max-width: min(92vw, 420px);
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: rgba(7, 17, 31, 0.96);
+  color: var(--foreground);
+  box-shadow: var(--shadow);
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
+.stitch-app-fallback-panel {
+  padding: 20px;
+}
+
 .layer-card,
 .roadmap-card {
   padding: 22px;
@@ -1067,9 +1373,16 @@ a {
 	.data-readiness-grid,
 	.ui-hero,
 	.ui-screen-layout,
-	.ui-screen-meta {
+	.ui-screen-meta,
+	.commerce-hero,
+	.commerce-journey-step,
+	.commerce-journey-featured {
     grid-template-columns: 1fr;
   }
+
+	.commerce-journey-step {
+		align-items: flex-start;
+	}
 
 	.hero-search,
 	.stitch-showcase-footer {

@@ -1,6 +1,7 @@
 import { Link, Navigate, useParams } from 'react-router-dom';
 
 import { stitchRepository } from '../entities/stitch/api/stitch.repository';
+import { StitchHtmlView } from '../shared/components/stitch-html-view';
 
 export function StitchScreenPage() {
 	const { screenId } = useParams<{ screenId: string }>();
@@ -31,6 +32,9 @@ export function StitchScreenPage() {
 					<div className="ui-screen-toolbar-links">
 						<Link className="button button-secondary" to="/">
 							Home
+						</Link>
+						<Link className="button button-secondary" to="/comercio">
+							Comercio
 						</Link>
 						<Link className="button button-secondary" to="/ui">
 							Hub UI
@@ -86,16 +90,7 @@ export function StitchScreenPage() {
 					</article>
 
 					<aside className="ui-screen-preview" aria-label={`Vista previa de ${screen.title}`}>
-						{screen.htmlPath ? (
-							<iframe
-								title={`Vista de ${screen.title}`}
-								src={screen.htmlPath}
-								className="ui-screen-iframe"
-								sandbox="allow-scripts allow-same-origin allow-forms"
-							/>
-						) : (
-							<img src={screen.imagePath} alt={`Captura de ${screen.title}`} />
-						)}
+						<StitchHtmlView screen={screen} variant="fullscreen" className="ui-screen-iframe" />
 					</aside>
 				</section>
 			</div>

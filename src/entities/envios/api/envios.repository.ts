@@ -1,23 +1,27 @@
-import { supabase } from '../../../shared/lib/supabase';
 import type { EnvioInsert, EnvioUpdate } from '../../../shared/types/database/envios';
+import { isSupabaseConfigured, requireSupabaseClient } from '../../../shared/lib/supabase';
 
 const tableName = 'envios';
-const table = supabase.from(tableName) as any;
+
+function getTable() {
+	return requireSupabaseClient().from(tableName) as any;
+}
 
 export const enviosRepository = {
+	isConfigured: isSupabaseConfigured,
 	list() {
-		return table.select('*');
+		return getTable().select('*');
 	},
 	findById(idEnvio: string) {
-		return table.select('*').eq('id_envio', idEnvio).maybeSingle();
+		return getTable().select('*').eq('id_envio', idEnvio).maybeSingle();
 	},
 	create(payload: EnvioInsert) {
-		return table.insert(payload).select('*').single();
+		return getTable().insert(payload).select('*').single();
 	},
 	update(idEnvio: string, payload: EnvioUpdate) {
-		return table.update(payload).eq('id_envio', idEnvio).select('*').single();
+		return getTable().update(payload).eq('id_envio', idEnvio).select('*').single();
 	},
 	remove(idEnvio: string) {
-		return table.delete().eq('id_envio', idEnvio);
+		return getTable().delete().eq('id_envio', idEnvio);
 	},
 } as const;

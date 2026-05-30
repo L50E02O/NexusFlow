@@ -1,8 +1,8 @@
-import { FormEvent, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { stitchRepository } from '../entities/stitch/api/stitch.repository';
-import { heroMetrics, navigationItems } from '../shared/lib/site-data';
+import { commerceScreenPath } from '../shared/lib/commerce-screens';
+import { heroMetrics } from '../shared/lib/site-data';
 import { stitchDomains } from '../shared/lib/stitch-domains';
 
 export function HomeHero() {
@@ -29,14 +29,17 @@ export function HomeHero() {
         </div>
 
         <div className="hero-actions">
-          <Link className="button button-primary" to="/ui">
-            Abrir hub UI
+          <Link className="button button-primary" to="/comercio">
+            Comercio adaptativo
           </Link>
-          <a className="button button-secondary" href="#ui">
-            Ver UIs Stitch
-          </a>
-          <a className="button button-secondary" href="#datos">
-            Ver preparación de datos
+          <Link className="button button-secondary" to={commerceScreenPath('catalog')}>
+            Catálogo Stitch
+          </Link>
+          <Link className="button button-secondary" to="/ui">
+            Hub UI
+          </Link>
+          <a className="button button-ghost" href="#datos">
+            Conectar Supabase
           </a>
         </div>
 

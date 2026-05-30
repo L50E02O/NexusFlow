@@ -6,6 +6,7 @@ import { stitchScreensById } from '../shared/lib/stitch-flow';
 import { stitchRepository } from '../entities/stitch/api/stitch.repository';
 import { filterStageScreenIds, stitchDomains } from '../shared/lib/stitch-domains';
 import { StitchScreenCard } from './stitch-screen-card';
+import { StitchHtmlView } from '../shared/components/stitch-html-view';
 import { useRouteAnnouncements } from '../shared/components/route-accessibility-shell';
 
 interface StitchFlowProps {
@@ -176,7 +177,7 @@ export function StitchFlow({ query, domain }: StitchFlowProps) {
 					className="stitch-embedded-viewer"
 					id="stitch-embedded-viewer"
 					role="dialog"
-					aria-modal="false"
+					aria-modal="true"
 					aria-labelledby="stitch-embedded-title"
 					tabIndex={-1}
 					ref={dialogRef}
@@ -220,12 +221,7 @@ export function StitchFlow({ query, domain }: StitchFlowProps) {
 						{currentScreen ? `Visor activo de ${currentScreen.title}` : 'Visor cerrado'}
 					</p>
 
-					<iframe
-						title={currentScreen.title}
-						src={currentScreen.htmlPath}
-						className="stitch-iframe"
-						sandbox="allow-scripts allow-same-origin allow-forms"
-					/>
+					<StitchHtmlView screen={currentScreen} variant="embedded" className="stitch-iframe" />
 				</div>
 			)}
 		</section>

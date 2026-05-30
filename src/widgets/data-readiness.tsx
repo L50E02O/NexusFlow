@@ -13,9 +13,9 @@ const repositoryNames = [
 ];
 
 const readinessPoints = [
-	'Supabase ya está centralizado en `src/shared/lib/supabase.ts` con tipado de base de datos.',
-	'Los repositorios de `entities` siguen el mismo patrón CRUD, así que se pueden reemplazar por datos reales sin tocar la UI.',
-	'El siguiente paso funcional es mover el origen de los datos de la galería a servicios asíncronos por pantalla.',
+	'Cliente Supabase lazy en `src/shared/lib/supabase.ts`: la app arranca sin variables y conecta al definir `.env`.',
+	'11 repositorios CRUD en `entities/` con `isConfigured()` listos para productos, carritos, pedidos y más.',
+	'Copia `.env.example`, rellena URL y anon key, y ejecuta `npm run dev` para ver el catálogo real.',
 ];
 
 export function DataReadiness() {

@@ -50,6 +50,7 @@ export function RouteAccessibilityShell({ children }: RouteAccessibilityShellPro
   }, []);
 
   const contextValue = useMemo(() => ({ announce }), [announce]);
+  const isStitchShell = location.pathname === '/' || location.pathname.startsWith('/s/');
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -65,7 +66,7 @@ export function RouteAccessibilityShell({ children }: RouteAccessibilityShellPro
       <a className="skip-link" href="#main-content">
         Saltar al contenido principal
       </a>
-      <SharedHeader />
+      {isStitchShell ? null : <SharedHeader />}
       <div className="sr-only" aria-live="polite" aria-atomic="true" role="status">
         {announcement}
       </div>

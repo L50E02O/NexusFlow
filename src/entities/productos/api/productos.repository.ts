@@ -1,31 +1,14 @@
-import { createClient } from '@supabase/supabase-js';
 import type { ProductoInsert, ProductoUpdate } from '../../../shared/types/database/productos';
-import type { Database } from '../../../shared/types/database/database';
+import { isSupabaseConfigured, requireSupabaseClient } from '../../../shared/lib/supabase';
 
 const tableName = 'productos';
 
-function getSupabaseClient() {
-	const url = import.meta.env.VITE_SUPABASE_URL;
-	const anon = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-	if (!url || !anon) return null;
-
-	return createClient<Database>(url, anon);
-}
-
 function getTable() {
-	const client = getSupabaseClient();
-	if (!client) {
-		throw new Error('Supabase no configurado: falta VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY');
-	}
-
-	return client.from(tableName) as any;
+	return requireSupabaseClient().from(tableName) as any;
 }
 
 export const productosRepository = {
-	isConfigured() {
-		return !!getSupabaseClient();
-	},
+	isConfigured: isSupabaseConfigured,
 	list() {
 		return getTable().select('*');
 	},

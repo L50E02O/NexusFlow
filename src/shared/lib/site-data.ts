@@ -4,6 +4,7 @@ import { stitchScreens } from './stitch-screens.generated';
 export const navigationItems = [
 	{ label: 'Inicio', href: '#top' },
   { label: 'Productos', href: '#catalogo' },
+  { label: 'Comercio', href: '/comercio' },
   { label: 'UIs Stitch', href: '#ui' },
 	{ label: 'Flujo Stitch', href: '#flujo-app' },
 	{ label: 'Capas', href: '#capas' },

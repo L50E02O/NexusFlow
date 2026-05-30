@@ -39,6 +39,7 @@ export function SharedHeader() {
 
           <nav className="main-nav" aria-label="Navegación principal">
             <Link className="nav-link" to="/">Inicio</Link>
+            <Link className="nav-link" to="/comercio">Comercio</Link>
             <Link className="nav-link" to="/ui">Hub UI</Link>
           </nav>
         </div>

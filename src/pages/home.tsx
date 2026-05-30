@@ -1,5 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 
+import { CommerceJourney } from '../widgets/commerce-journey';
 import { HomeHero } from '../widgets/home-hero';
 import { StitchShowcase } from '../widgets/stitch-showcase';
 import { ProductCatalog } from '../widgets/product-catalog';
@@ -18,6 +19,8 @@ export function HomePage() {
         <HomeHero />
 
         <StitchShowcase query={query} domain={domain} />
+
+        <CommerceJourney />
 
         <ProductCatalog query={query} />
 

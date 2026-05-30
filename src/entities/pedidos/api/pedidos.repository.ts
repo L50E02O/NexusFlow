@@ -1,23 +1,27 @@
-import { supabase } from '../../../shared/lib/supabase';
 import type { PedidoInsert, PedidoUpdate } from '../../../shared/types/database/pedidos';
+import { isSupabaseConfigured, requireSupabaseClient } from '../../../shared/lib/supabase';
 
 const tableName = 'pedidos';
-const table = supabase.from(tableName) as any;
+
+function getTable() {
+	return requireSupabaseClient().from(tableName) as any;
+}
 
 export const pedidosRepository = {
+	isConfigured: isSupabaseConfigured,
 	list() {
-		return table.select('*');
+		return getTable().select('*');
 	},
 	findById(idPedido: string) {
-		return table.select('*').eq('id_pedido', idPedido).maybeSingle();
+		return getTable().select('*').eq('id_pedido', idPedido).maybeSingle();
 	},
 	create(payload: PedidoInsert) {
-		return table.insert(payload).select('*').single();
+		return getTable().insert(payload).select('*').single();
 	},
 	update(idPedido: string, payload: PedidoUpdate) {
-		return table.update(payload).eq('id_pedido', idPedido).select('*').single();
+		return getTable().update(payload).eq('id_pedido', idPedido).select('*').single();
 	},
 	remove(idPedido: string) {
-		return table.delete().eq('id_pedido', idPedido);
+		return getTable().delete().eq('id_pedido', idPedido);
 	},
 } as const;

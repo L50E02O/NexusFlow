@@ -54,7 +54,18 @@ for (const screenRef of requestedScreens) {
 
   if (htmlUrl) {
     const htmlResponse = await fetch(htmlUrl);
-    const htmlText = await htmlResponse.text();
+    let htmlText = await htmlResponse.text();
+    const bridgeTag =
+      '<script src="/stitch-bridge-boot.js" defer data-nf-screen="' +
+      screenRef.id +
+      '"></script>';
+    if (!htmlText.includes('stitch-bridge-boot')) {
+      if (htmlText.includes('</body>')) {
+        htmlText = htmlText.replace('</body>', `${bridgeTag}\n</body>`);
+      } else {
+        htmlText += bridgeTag;
+      }
+    }
     await fs.writeFile(path.join(screenDir, 'code.html'), htmlText, 'utf8');
   }
 

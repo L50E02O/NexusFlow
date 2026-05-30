@@ -1,17 +1,21 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 
-import { HomePage } from '../../pages/home';
-import { UiDomainPage } from '../../pages/ui-domain';
-import { StitchScreenPage } from '../../pages/stitch-screen';
-import { UiHubPage } from '../../pages/ui-hub';
+import { StitchAppPage } from '../../pages/stitch-app';
+
+function LegacyUiScreenRedirect() {
+	const { screenId } = useParams<{ screenId: string }>();
+	return <Navigate to={screenId ? `/s/${screenId}` : '/'} replace />;
+}
 
 export function AppRouter() {
 	return (
 		<Routes>
-			<Route path="/" element={<HomePage />} />
-			<Route path="/ui" element={<UiHubPage />} />
-			<Route path="/ui/domain/:domain" element={<UiDomainPage />} />
-			<Route path="/ui/:screenId" element={<StitchScreenPage />} />
+			<Route path="/" element={<StitchAppPage />} />
+			<Route path="/s/:screenId" element={<StitchAppPage />} />
+			<Route path="/comercio" element={<Navigate to="/" replace />} />
+			<Route path="/ui" element={<Navigate to="/" replace />} />
+			<Route path="/ui/domain/:domain" element={<Navigate to="/" replace />} />
+			<Route path="/ui/:screenId" element={<LegacyUiScreenRedirect />} />
 			<Route path="*" element={<Navigate to="/" replace />} />
 		</Routes>
 	);
