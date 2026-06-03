@@ -20,5 +20,20 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src"]
+  "include": [
+    "src/main.tsx",
+    "src/App.tsx",
+    "src/app/**/*.ts",
+    "src/app/**/*.tsx",
+    "src/pages/**/*.ts",
+    "src/pages/**/*.tsx",
+    "src/features/**/*.ts",
+    "src/features/**/*.tsx",
+    "src/entities/**/*.ts",
+    "src/entities/**/*.tsx",
+    "src/widgets/**/*.ts",
+    "src/widgets/**/*.tsx",
+    "src/shared/**/*.ts",
+    "src/shared/**/*.tsx"
+  ]
 }
