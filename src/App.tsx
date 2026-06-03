@@ -26,6 +26,7 @@ import { MerchantReportsPage } from '@/pages/merchant/MerchantReportsPage';
 import { MerchantReturnsPage } from '@/pages/merchant/MerchantReturnsPage';
 import { MerchantSecurityPage } from '@/pages/merchant/MerchantSecurityPage';
 import { MerchantAssistantPage } from '@/pages/merchant/MerchantAssistantPage';
+import { MessagingPage } from '@/pages/MessagingPage';
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
           <Route path="categorias" element={<PlaceholderPage title="Categorías" description="Explora nuestras categorías desde la tienda principal." />} />
           <Route path="sostenibilidad" element={<PlaceholderPage title="Sostenibilidad" />} />
           <Route path="soporte" element={<SupportPage />} />
+          <Route path="mensajeria" element={<MessagingPage />} />
           <Route path="cupones" element={<CouponsPage />} />
           <Route path="notificaciones" element={<NotificationsPage />} />
           <Route path="ofertas" element={<OffersPage />} />

@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { TopNav } from './TopNav';
 import { Footer } from './Footer';
 import { Icon } from '@/shared/ui/Icon';
+import { AiChatWidget } from '@/components/chat/AiChatWidget';
 import { AccessibilityPanel } from '@/components/accessibility/AccessibilityPanel';
 import { useAccessibility } from '@/shared/context/AccessibilityContext';
 
@@ -29,23 +30,7 @@ export function AppLayout({ showFooter = true, showFab = true }: AppLayoutProps)
       >
         <Icon name="accessibility_new" className="text-[28px]" />
       </button>
-      {showFab && (
-        <div className="fixed bottom-xl right-xl z-[60] flex flex-col items-end gap-md">
-          <div className="bg-surface shadow-xl rounded-xl border border-outline-variant p-md max-w-[280px] hidden md:block">
-            <p className="text-body-md text-primary font-medium">
-              ¡Hola! Soy tu conserje de IA. ¿Buscas algo específico hoy?
-            </p>
-          </div>
-          <button
-            type="button"
-            aria-label="Asistente IA"
-            className="w-16 h-16 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all focus-ring relative"
-          >
-            <Icon name="smart_toy" className="text-[32px]" filled />
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-error rounded-full border-2 border-surface" />
-          </button>
-        </div>
-      )}
+      {showFab && <AiChatWidget />}
     </div>
   );
 }

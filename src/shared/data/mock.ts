@@ -502,3 +502,92 @@ export function orderStatusLabel(status: OrderStatus): string {
   };
   return labels[status];
 }
+
+export type MessageThread = {
+  id: string;
+  name: string;
+  preview: string;
+  time: string;
+  avatar: string;
+  online?: boolean;
+  unread?: number;
+  important?: boolean;
+};
+
+export type ChatMessage = {
+  role: 'them' | 'me';
+  text: string;
+  time: string;
+};
+
+export const messageThreads: MessageThread[] = [
+  {
+    id: 'carlos',
+    name: 'Carlos Mendoza',
+    preview: '¿Podrías enviarme la factura del pedido #4421?',
+    time: '14:20',
+    avatar:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuBE6zRqkpBmiA-juFUBHRW5AYtt6M7eRbcq-g_QtZMvx6pgKae9ELqfYnAPK0GUHPD135MOa96-MP-64vgXOwVPB9OpPEptPSMbDEKWAhdEkN6kQ5YghCjwiERW6H9ap6reBvAEkj4imxHembkfk3ljiRMqPQdQ_HJ2BXWRn-Cpce_E9Rsf3odlXYY2ukeEGbTHGztVM1TVZ_w6YlrncIJnYyVgpjz-ZRxWzzvD6WcXzrLQMyDA6NQ8FoFXlw2ET2R6ho9c8t-3ZuE',
+    online: true,
+  },
+  {
+    id: 'elena',
+    name: 'Elena Ruiz',
+    preview: '¡Recibido! Muchas gracias por la gestión.',
+    time: 'Ayer',
+    avatar:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuCY6bwhKGpWfwvRFrWrBzha-nY93O--PUIbjLUEBCkGxSQoToWkWdMZ0cdR2EL8hAI91sb313YVX6ovIVTznfYgEF4_UnuA05bL3gwfFF5bSOuDArVO-YO0lrugIhkvu7U2dMuKBi6kuEOojG1ngAoVetWqTFyppSoFLKbvu8FWPEOsy1AJJNq4_BUy7ri',
+    unread: 2,
+  },
+  {
+    id: 'soporte',
+    name: 'Soporte NexusFlow',
+    preview: 'Tu ticket #8821 ha sido actualizado.',
+    time: 'Lun',
+    avatar:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuBGGnUd8vT9hn8wkhcLL1BFlHB6HwD4AZatU7lez5S8dMEiH24Ct-pWe5olPoyKr2I33hFhyCt6-15gw4QRtTCArD12k9-4bNRnUZ_PFZcNCyfKlprd8A9zCLmW-u8nKEfGQxxKzkTYSRY0qgreZkuhN_k5WbTPEhOn3gfcnUlrCYqRI2qDlDLdcEdrQjNsr8vDRun0oGkhjHnnHDjPt0jqHtgMV8kh0R0c9njxokCGzsY_FtoM0Ub3ulmssSpMn-znnAcJDwVDSaw',
+    important: true,
+  },
+];
+
+export const threadMessages: Record<string, ChatMessage[]> = {
+  carlos: [
+    {
+      role: 'them',
+      text: 'Hola, estoy revisando los últimos envíos. ¿Podrías confirmarme si el paquete #LX-442 ya salió del almacén?',
+      time: '14:15',
+    },
+    {
+      role: 'me',
+      text: 'Sí, Carlos. Salió esta mañana a las 9:30. Deberías recibir el tracking en tu correo en unos minutos.',
+      time: '14:18',
+    },
+    {
+      role: 'them',
+      text: '¿Podrías enviarme la factura del pedido #4421?',
+      time: '14:20',
+    },
+  ],
+  elena: [
+    { role: 'them', text: '¡Recibido! Muchas gracias por la gestión.', time: 'Ayer' },
+  ],
+  soporte: [
+    {
+      role: 'them',
+      text: 'Tu ticket #8821 ha sido actualizado. Un agente revisará tu solicitud en las próximas 2 horas.',
+      time: 'Lun 09:00',
+    },
+  ],
+};
+
+export const messagingAiSuggestions = [
+  'Adjuntar factura #4421',
+  'Ver estado de envío',
+  'Traducir',
+] as const;
+
+export const homeAiQuickReplies = [
+  '¿Dónde está mi pedido?',
+  'Recomiéndame ofertas',
+  'Ayuda con devoluciones',
+] as const;

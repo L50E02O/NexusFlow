@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 
 const helpCategories = [
@@ -63,9 +64,12 @@ export function SupportPage() {
           <button type="button" className="min-h-11 px-xl border-2 border-white text-white rounded-xl font-button hover:bg-white/10 flex items-center gap-sm focus-ring">
             <Icon name="assignment" /> Seguimiento de Tickets
           </button>
-          <button type="button" className="min-h-11 px-xl bg-secondary text-white rounded-xl font-button hover:bg-secondary/90 flex items-center gap-sm focus-ring">
+          <Link
+            to="/mensajeria"
+            className="min-h-11 px-xl bg-secondary text-white rounded-xl font-button hover:bg-secondary/90 flex items-center gap-sm focus-ring"
+          >
             <Icon name="chat" /> Soporte en Tiempo Real
-          </button>
+          </Link>
         </div>
       </section>
 
