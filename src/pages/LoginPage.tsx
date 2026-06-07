@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import { AccessibilityPanel } from '@/components/accessibility/AccessibilityPanel';
 import { useAccessibility } from '@/shared/context/AccessibilityContext';
+import { useAuth } from '@/shared/context/AuthContext';
 
 const adaptiveProfiles = [
   { icon: 'smartphone', title: 'Comprador Joven Digital', desc: 'Rápida, fluida y optimizada para dispositivos móviles.' },
@@ -18,10 +19,24 @@ const registerProfiles = [
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { openPanel } = useAccessibility();
+  const { signIn, session } = useAuth();
   const [tab, setTab] = useState<'login' | 'register'>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<string>('young');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const redirectTo = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/';
+
+  useEffect(() => {
+    if (session) {
+      navigate(redirectTo, { replace: true });
+    }
+  }, [session, navigate, redirectTo]);
 
   return (
     <div className="bg-surface text-on-surface font-body-md min-h-screen flex flex-col">
@@ -124,14 +139,35 @@ export function LoginPage() {
               </div>
             )}
 
+            {authError && (
+              <p className="text-error font-label-md p-md bg-error-container/20 rounded-xl border border-error/20" role="alert">
+                {authError}
+              </p>
+            )}
+
             <form
               className="space-y-lg"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                if (tab === 'register' && selectedProfile === 'merchant') {
-                  navigate('/merchant');
-                } else {
-                  navigate('/');
+                setAuthError(null);
+
+                if (tab === 'register') {
+                  if (selectedProfile === 'merchant') {
+                    navigate('/merchant');
+                  } else {
+                    navigate('/');
+                  }
+                  return;
+                }
+
+                setSubmitting(true);
+                try {
+                  await signIn(email, password);
+                  navigate(redirectTo, { replace: true });
+                } catch (err) {
+                  setAuthError(err instanceof Error ? err.message : 'No se pudo iniciar sesión.');
+                } finally {
+                  setSubmitting(false);
                 }
               }}
             >
@@ -172,6 +208,8 @@ export function LoginPage() {
                   id="email"
                   type="email"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="ejemplo@nexusflow.com"
                   className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                 />
@@ -264,6 +302,8 @@ export function LoginPage() {
                         id="password"
                         type={showPassword ? 'text' : 'password'}
                         required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
                         className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none"
                       />
@@ -286,9 +326,10 @@ export function LoginPage() {
                   </label>
                   <button
                     type="submit"
-                    className="w-full h-12 bg-primary text-white font-button rounded-xl shadow hover:bg-primary/90 transition-all"
+                    disabled={submitting}
+                    className="w-full h-12 bg-primary text-white font-button rounded-xl shadow hover:bg-primary/90 transition-all disabled:opacity-60"
                   >
-                    Iniciar sesión
+                    {submitting ? 'Iniciando sesión...' : 'Iniciar sesión'}
                   </button>
                   <Link
                     to="/"

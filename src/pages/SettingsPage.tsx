@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { Icon } from '@/shared/ui/Icon';
 import { userProfile } from '@/shared/data/mock';
+import { useWcagCriterios } from '@/shared/hooks/useWcagCriterios';
+import { DataStatus } from '@/shared/ui/DataStatus';
+import type { WcagEstado } from '@/shared/types/database/wcag-criterios';
+
+const estadoLabels: Record<WcagEstado, { label: string; className: string }> = {
+  P: { label: 'Pendiente', className: 'bg-error-container text-error' },
+  C: { label: 'Cumplido', className: 'bg-secondary-container text-on-secondary-container' },
+  En: { label: 'En progreso', className: 'bg-tertiary-fixed text-on-tertiary-fixed' },
+};
 
 const settingsNav = [
   { id: 'cuenta', label: 'Cuenta', icon: 'manage_accounts' },
@@ -21,6 +30,7 @@ export function SettingsPage() {
   const [notifPush, setNotifPush] = useState(true);
   const [notifPromo, setNotifPromo] = useState(false);
   const [notifOrders, setNotifOrders] = useState(true);
+  const { groupedByPrincipio, loading: wcagLoading, error: wcagError } = useWcagCriterios();
 
   const scrollTo = (id: SettingsSection) => {
     setActive(id);
@@ -207,6 +217,56 @@ export function SettingsPage() {
                 </div>
                 <input type="checkbox" defaultChecked className="w-6 h-6 rounded-md text-primary" />
               </label>
+
+              <div className="space-y-lg pt-md border-t border-outline-variant/20">
+                <h3 className="font-headline-md text-headline-md text-primary">Checklist WCAG 2.2 (A + AA)</h3>
+                <DataStatus
+                  loading={wcagLoading}
+                  error={wcagError}
+                  isEmpty={Object.keys(groupedByPrincipio).length === 0}
+                  emptyMessage="No hay criterios WCAG disponibles."
+                >
+                  <div className="space-y-xl">
+                    {Object.entries(groupedByPrincipio).map(([principio, criterios]) => (
+                      <div key={principio} className="space-y-md">
+                        <h4 className="font-label-md text-primary uppercase tracking-wider border-b border-outline-variant/20 pb-sm">
+                          {principio}
+                        </h4>
+                        <div className="space-y-sm">
+                          {criterios.map((item) => {
+                            const estado = estadoLabels[item.estado as WcagEstado] ?? estadoLabels.P;
+                            return (
+                              <article
+                                key={item.id}
+                                className="p-md border border-outline-variant/20 rounded-xl space-y-xs"
+                              >
+                                <div className="flex flex-wrap items-center justify-between gap-sm">
+                                  <div className="flex items-center gap-sm">
+                                    <span className="font-bold text-primary">{item.criterio}</span>
+                                    <span className="font-label-md">{item.nombre}</span>
+                                    <span className="text-[10px] font-bold uppercase px-sm py-xs rounded-full bg-surface-container-high text-on-surface-variant">
+                                      Nivel {item.nivel}
+                                    </span>
+                                  </div>
+                                  <span className={`text-[10px] font-bold uppercase px-sm py-xs rounded-full ${estado.className}`}>
+                                    {estado.label}
+                                  </span>
+                                </div>
+                                <p className="text-on-surface-variant text-label-md">
+                                  <strong>Qué verificar:</strong> {item.que_verificar}
+                                </p>
+                                <p className="text-on-surface-variant text-label-md">
+                                  <strong>Cómo implementarlo:</strong> {item.como_implementarlo}
+                                </p>
+                              </article>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </DataStatus>
+              </div>
             </div>
           </section>
 

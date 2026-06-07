@@ -1,5 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { AuthProvider } from '@/shared/context/AuthContext';
 import { CartProvider } from '@/shared/context/CartContext';
+import { ProtectedRoute } from '@/shared/ui/ProtectedRoute';
 import { AppLayout } from '@/widgets/layout/AppLayout';
 import { FavoritesPage } from '@/pages/FavoritesPage';
 import { CheckoutPage } from '@/pages/CheckoutPage';
@@ -31,11 +33,19 @@ import { MessagingPage } from '@/pages/MessagingPage';
 function App() {
   return (
     <BrowserRouter>
+      <AuthProvider>
       <AccessibilityProvider>
       <CartProvider>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/merchant" element={<MerchantLayout />}>
+        <Route
+          path="/merchant"
+          element={
+            <ProtectedRoute>
+              <MerchantLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<MerchantDashboardPage />} />
           <Route path="inventario" element={<MerchantInventoryPage />} />
           <Route path="productos" element={<MerchantProductsPage />} />
@@ -55,18 +65,68 @@ function App() {
           <Route path="notificaciones" element={<NotificationsPage />} />
           <Route path="ofertas" element={<OffersPage />} />
           <Route path="carrito" element={<CartPage />} />
-          <Route path="favoritos" element={<FavoritesPage />} />
-          <Route path="perfil" element={<ProfilePage />} />
-          <Route path="configuracion" element={<SettingsPage />} />
-          <Route path="checkout" element={<CheckoutPage />} />
-          <Route path="historial" element={<PurchaseHistoryPage />} />
-          <Route path="recuperar-carrito" element={<CartRecoveryPage />} />
-          <Route path="facturas" element={<InvoicesPage />} />
+          <Route
+            path="favoritos"
+            element={
+              <ProtectedRoute>
+                <FavoritesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="perfil"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="configuracion"
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="checkout"
+            element={
+              <ProtectedRoute>
+                <CheckoutPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="historial"
+            element={
+              <ProtectedRoute>
+                <PurchaseHistoryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="recuperar-carrito"
+            element={
+              <ProtectedRoute>
+                <CartRecoveryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="facturas"
+            element={
+              <ProtectedRoute>
+                <InvoicesPage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       </CartProvider>
       </AccessibilityProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

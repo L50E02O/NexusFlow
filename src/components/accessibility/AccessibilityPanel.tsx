@@ -1,5 +1,7 @@
 import { Icon } from '@/shared/ui/Icon';
 import { useAccessibility } from '@/shared/context/AccessibilityContext';
+import { useMenuAccesibilidad } from '@/shared/hooks/useMenuAccesibilidad';
+import { DataStatus } from '@/shared/ui/DataStatus';
 
 function Toggle({
   checked,
@@ -41,6 +43,7 @@ export function AccessibilityPanel() {
     textScale,
     setTextScale,
   } = useAccessibility();
+  const { groupedByCategoria, loading, error } = useMenuAccesibilidad();
 
   if (!panelOpen) return null;
 
@@ -118,6 +121,43 @@ export function AccessibilityPanel() {
                 ))}
               </div>
             </div>
+          </section>
+
+          <section className="flex flex-col gap-md">
+            <h3 className="font-label-md text-label-md text-primary uppercase tracking-widest border-b border-outline-variant pb-2">
+              Criterios F1-3-UA-2026
+            </h3>
+            <DataStatus loading={loading} error={error} isEmpty={Object.keys(groupedByCategoria).length === 0}>
+              <div className="flex flex-col gap-lg">
+                {Object.entries(groupedByCategoria).map(([categoria, items]) => (
+                  <div key={categoria} className="flex flex-col gap-sm">
+                    <h4 className="font-button text-button text-primary">{categoria}</h4>
+                    {items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="p-md bg-surface border border-outline-variant rounded-xl space-y-xs"
+                      >
+                        <div className="flex items-center justify-between gap-sm">
+                          <span className="font-label-md text-primary">{item.elemento_criterio}</span>
+                          <span
+                            className={`text-[10px] font-bold uppercase px-sm py-xs rounded-full ${
+                              item.aplica_todos_formularios
+                                ? 'bg-secondary-container text-on-secondary-container'
+                                : 'bg-surface-container-high text-on-surface-variant'
+                            }`}
+                          >
+                            {item.aplica_todos_formularios ? 'Todos los formularios' : 'Formulario específico'}
+                          </span>
+                        </div>
+                        <p className="text-[12px] text-on-surface-variant leading-snug">
+                          {item.descripcion_criterio}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </DataStatus>
           </section>
         </div>
 
