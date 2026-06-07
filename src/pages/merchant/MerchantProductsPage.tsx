@@ -96,7 +96,7 @@ export function MerchantProductsPage() {
                 <tr key={p.sku} className="hover:bg-surface-container-low group">
                   <td className="px-lg py-md">
                     <div className="flex items-center gap-md">
-                      <img src={p.image} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                      <img src={p.image} alt={p.name} className="w-12 h-12 rounded-lg object-cover" />
                       <div>
                         <p className="font-label-md text-primary">{p.name}</p>
                         <p className="text-xs text-on-surface-variant">{p.sku}</p>

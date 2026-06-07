@@ -51,7 +51,7 @@ const tutorials = [
 
 export function SupportPage() {
   return (
-    <main className="max-w-container-max mx-auto w-full px-lg py-xl space-y-xxl">
+    <div className="max-w-container-max mx-auto w-full px-lg py-xl space-y-xxl">
       <section className="relative overflow-hidden rounded-xl bg-primary-container p-xl flex flex-col items-center justify-center text-center min-h-[300px]">
         <h1 className="font-headline-lg text-headline-lg text-white mb-md">Centro de Ayuda y Soporte</h1>
         <p className="text-on-primary-container font-body-lg max-w-2xl mb-xl">
@@ -174,7 +174,8 @@ export function SupportPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-lg">
           {tutorials.map((t) => (
             <div key={t.title} className="group relative overflow-hidden rounded-xl h-64 shadow-sm cursor-pointer">
-              <img src={t.image} alt="" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              {/* WCAG 2.2 — 1.1.1 ✓ */}
+              <img src={t.image} alt={t.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent flex flex-col justify-end p-xl">
                 <span className="bg-secondary text-white text-[10px] px-sm py-xs rounded-full w-fit mb-sm uppercase font-bold tracking-widest">
                   {t.tag}
@@ -185,6 +186,6 @@ export function SupportPage() {
           ))}
         </div>
       </section>
-    </main>
+    </div>
   );
 }

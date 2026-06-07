@@ -34,7 +34,7 @@ export function NotificationsPage() {
   };
 
   return (
-    <main className="max-w-container-max mx-auto px-lg py-xl flex-grow">
+    <div className="max-w-container-max mx-auto px-lg py-xl flex-grow">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl">
         <div className="lg:col-span-8 space-y-lg">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-md">
@@ -163,6 +163,6 @@ export function NotificationsPage() {
           </div>
         </aside>
       </div>
-    </main>
+    </div>
   );
 }

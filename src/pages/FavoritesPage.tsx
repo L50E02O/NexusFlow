@@ -26,7 +26,7 @@ export function FavoritesPage() {
   };
 
   return (
-    <main className="max-w-container-max mx-auto px-lg py-xl">
+    <div className="max-w-container-max mx-auto px-lg py-xl">
       <header className="mb-xl">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-md">
           <div>
@@ -203,6 +203,6 @@ export function FavoritesPage() {
           </Link>
         </p>
       )}
-    </main>
+    </div>
   );
 }

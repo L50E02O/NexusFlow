@@ -51,8 +51,8 @@ export function ProductCard({ product, variant = 'grid', onAddToCart }: ProductC
         )}
         <button
           type="button"
-          aria-label="Favorito"
-          className="absolute top-md right-md bg-white/80 backdrop-blur-md p-xs rounded-full text-primary hover:bg-white transition-colors"
+          aria-label={`Añadir ${product.name} a favoritos`}
+          className="absolute top-md right-md min-w-11 min-h-11 bg-white/80 backdrop-blur-md p-xs rounded-full text-primary hover:bg-white transition-colors focus-ring"
         >
           <Icon name="favorite" />
         </button>

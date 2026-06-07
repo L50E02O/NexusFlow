@@ -52,8 +52,9 @@ export function OffersPage() {
   const countdown = useCountdown(45 * 60 + 12);
 
   return (
-    <main className="max-w-container-max mx-auto px-gutter py-xl">
+    <div className="max-w-container-max mx-auto px-gutter py-xl">
       <section className="relative w-full rounded-xl overflow-hidden mb-xxl h-[400px] flex items-center">
+        {/* WCAG 2.2 — 1.1.1 ✓ Imagen decorativa de fondo */}
         <img
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
@@ -115,13 +116,21 @@ export function OffersPage() {
             <h2 className="font-headline-lg text-headline-lg text-primary flex items-center gap-sm">
               <Icon name="bolt" className="text-error" /> Ofertas Relámpago
             </h2>
-            <div className="bg-error text-white font-label-md px-md py-xs rounded-lg flex items-center gap-xs">
+            <div className="bg-error text-white font-label-md px-md py-xs rounded-lg flex items-center gap-xs" role="timer" aria-live="polite">
               <Icon name="timer" className="text-lg" />
               <span>
                 Termina en: {countdown.pad(countdown.hours)}:{countdown.pad(countdown.minutes)}:
                 {countdown.pad(countdown.secs)}
               </span>
             </div>
+            <button
+              type="button"
+              onClick={countdown.togglePause}
+              aria-label={countdown.paused ? 'Reanudar cuenta regresiva' : 'Pausar animación'}
+              className="min-h-11 px-md py-xs border border-outline-variant rounded-lg font-label-md focus-ring"
+            >
+              {countdown.paused ? 'Reanudar' : 'Pausar'}
+            </button>
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-lg">
@@ -188,6 +197,6 @@ export function OffersPage() {
           </button>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

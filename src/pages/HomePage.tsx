@@ -22,6 +22,7 @@ export function HomePage() {
     <div className="max-w-container-max mx-auto px-lg space-y-xxl pb-xxl">
       <section className="mt-lg rounded-xl overflow-hidden relative min-h-[500px] flex items-center shadow-sm">
         <div className="absolute inset-0 z-0">
+          {/* WCAG 2.2 — 1.1.1 ✓ Imagen decorativa de fondo del hero */}
           <img src={heroImage} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/40 to-transparent" />
         </div>
@@ -145,7 +146,15 @@ export function HomePage() {
               <span className="font-label-md tracking-widest uppercase">Oferta Relámpago</span>
             </div>
             <h2 className="font-headline-lg text-headline-lg mb-md">La Venta de Medianoche termina en:</h2>
-            <div className="flex gap-md mb-xl">
+            <button
+              type="button"
+              onClick={countdown.togglePause}
+              aria-label={countdown.paused ? 'Reanudar cuenta regresiva' : 'Pausar animación'}
+              className="mb-md min-h-11 px-md py-sm bg-white/20 rounded-lg font-label-md hover:bg-white/30 focus-ring"
+            >
+              {countdown.paused ? 'Reanudar temporizador' : 'Pausar temporizador'}
+            </button>
+            <div className="flex gap-md mb-xl" role="timer" aria-live="polite" aria-label="Tiempo restante de la oferta">
               <div className="text-center">
                 <span className="block text-[32px] font-bold">{countdown.pad(countdown.hours)}</span>
                 <span className="text-xs opacity-70 uppercase">HOR</span>

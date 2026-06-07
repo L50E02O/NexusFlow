@@ -85,7 +85,7 @@ export function MerchantDashboardPage() {
             <div className="space-y-md">
               {lowStockItems.map((item) => (
                 <div key={item.name} className="flex items-center gap-md p-sm hover:bg-surface-container rounded-lg">
-                  <img src={item.image} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                  <img src={item.image} alt={item.name} className="w-12 h-12 rounded-lg object-cover" />
                   <div className="flex-1 min-w-0">
                     <p className="text-label-md text-primary truncate">{item.name}</p>
                     <p className="text-xs text-error font-bold">Solo {item.stock} unidades</p>

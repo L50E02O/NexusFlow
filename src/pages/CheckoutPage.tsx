@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+// WCAG 2.2 — 1.3.5 ✓ autocomplete en formulario de envío; 3.3.4 ✓ confirmación antes de compra
 import { Link } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import { useCart } from '@/shared/context/CartContext';
@@ -10,6 +11,8 @@ export function CheckoutPage() {
   const { items } = useCart();
   const [step, setStep] = useState(0);
   const [addressValidated] = useState(true);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [orderComplete, setOrderComplete] = useState(false);
 
   const subtotal = useMemo(
     () => items.reduce((sum, line) => sum + line.product.price * line.quantity, 0),
@@ -23,18 +26,18 @@ export function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <main className="max-w-container-max mx-auto px-lg py-xxl text-center">
+      <div className="max-w-container-max mx-auto px-lg py-xxl text-center">
         <h1 className="font-headline-lg text-headline-lg text-primary mb-md">Checkout</h1>
         <p className="text-on-surface-variant mb-lg">Tu carrito está vacío.</p>
         <Link to="/tienda" className="text-primary font-button hover:underline">
           Ir a la tienda
         </Link>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="max-w-container-max mx-auto px-lg py-xl">
+    <div className="max-w-container-max mx-auto px-lg py-xl">
       <nav aria-label="Progreso del checkout" className="mb-xl max-w-3xl mx-auto">
         <ol className="flex items-center w-full">
           {steps.map((label, index) => (
@@ -84,8 +87,10 @@ export function CheckoutPage() {
                 </label>
                 <input
                   id="full_name"
+                  name="full_name"
+                  autoComplete="name"
                   defaultValue="Alejandro Nexus"
-                  className="h-12 px-md rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary outline-none"
+                  className="h-12 px-md rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div className="md:col-span-2 flex flex-col gap-xs">
@@ -95,8 +100,11 @@ export function CheckoutPage() {
                 <div className="relative">
                   <input
                     id="address"
+                    name="address"
+                    autoComplete="street-address"
                     defaultValue="123 Luxury Lane, Penthouse A"
-                    className={`w-full h-12 px-md pr-xl rounded-lg border focus:ring-2 focus:ring-green-600 outline-none ${
+                    aria-describedby={addressValidated ? 'address-valid-msg' : undefined}
+                    className={`w-full h-12 px-md pr-xl rounded-lg border focus:ring-2 focus:ring-green-600 ${
                       addressValidated ? 'border-green-600' : 'border-outline-variant'
                     }`}
                   />
@@ -104,12 +112,13 @@ export function CheckoutPage() {
                     <Icon
                       name="check_circle"
                       className="absolute right-md top-1/2 -translate-y-1/2 text-green-600"
+                      aria-label="Dirección validada"
                     />
                   )}
                 </div>
                 {addressValidated && (
-                  <span className="text-green-600 text-xs font-semibold">
-                    Dirección validada mediante SmartMatch AI
+                  <span id="address-valid-msg" className="text-green-600 text-xs font-semibold flex items-center gap-xs">
+                    <span aria-hidden="true">✓</span> Dirección validada mediante SmartMatch AI
                   </span>
                 )}
               </div>
@@ -205,12 +214,23 @@ export function CheckoutPage() {
             </div>
             <button
               type="button"
-              onClick={() => setStep((s) => Math.min(s + 1, steps.length - 1))}
-              className="w-full bg-primary text-white py-xl rounded-xl font-button hover:bg-primary-container transition-all flex items-center justify-center gap-md focus-ring"
+              onClick={() => {
+                if (step < steps.length - 1) {
+                  setStep((s) => s + 1);
+                } else {
+                  setShowConfirm(true);
+                }
+              }}
+              className="w-full bg-primary text-white py-xl rounded-xl font-button hover:bg-primary-container transition-all flex items-center justify-center gap-md focus-ring min-h-11"
             >
-              {step < steps.length - 1 ? 'Continuar' : 'Completar Compra'}
+              {step < steps.length - 1 ? 'Continuar al siguiente paso' : 'Completar compra'}
               <Icon name="arrow_forward" />
             </button>
+            {orderComplete && (
+              <p role="status" className="text-green-700 font-label-md text-center">
+                Pedido confirmado correctamente.
+              </p>
+            )}
             {step > 0 && (
               <button
                 type="button"
@@ -241,6 +261,43 @@ export function CheckoutPage() {
           ))}
         </div>
       </section>
-    </main>
+
+      {showConfirm && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="confirm-purchase-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-lg bg-primary/30"
+        >
+          <div className="bg-surface-container-lowest rounded-xl p-xl max-w-md w-full shadow-2xl border border-outline-variant">
+            <h2 id="confirm-purchase-title" className="font-headline-md text-headline-md text-primary mb-md">
+              ¿Confirmar compra?
+            </h2>
+            <p className="text-on-surface-variant mb-lg">
+              Revisa el total de {formatPrice(total)} antes de confirmar. Esta acción procesará el pago.
+            </p>
+            <div className="flex gap-md">
+              <button
+                type="button"
+                onClick={() => setShowConfirm(false)}
+                className="flex-1 min-h-11 border border-outline-variant rounded-xl font-button focus-ring"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowConfirm(false);
+                  setOrderComplete(true);
+                }}
+                className="flex-1 min-h-11 bg-primary text-on-primary rounded-xl font-button focus-ring"
+              >
+                Confirmar pedido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

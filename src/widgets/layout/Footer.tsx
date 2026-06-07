@@ -1,15 +1,19 @@
 import { Link } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
+import { useAccessibility } from '@/shared/context/AccessibilityContext';
 
 const footerLinks = [
-  { to: '/soporte', label: 'Accesibilidad' },
+  { to: '/soporte', label: 'Centro de soporte y accesibilidad' },
   { to: '/configuracion', label: 'Privacidad' },
-  { to: '#', label: 'Términos' },
-  { to: '#', label: 'Devoluciones' },
-  { to: '#', label: 'Métodos de Pago' },
+  { to: '#', label: 'Términos de uso' },
+  { to: '#', label: 'Política de devoluciones' },
+  { to: '#', label: 'Métodos de pago' },
 ];
 
+// WCAG 2.2 — 3.2.6 ✓ Ayuda consistente en todas las páginas vía footer compartido
 export function Footer() {
+  const { openPanel } = useAccessibility();
+
   return (
     <footer className="bg-surface-container-low border-t border-outline-variant">
       <div className="max-w-container-max mx-auto px-lg py-xl flex flex-col md:flex-row justify-between items-start gap-xl">
@@ -22,19 +26,22 @@ export function Footer() {
           <div className="flex gap-md">
             <button
               type="button"
-              className="w-10 h-10 rounded-full border border-outline flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all focus-ring"
+              aria-label="Visitar sitio web de NexusFlow"
+              className="min-w-11 min-h-11 rounded-full border border-outline flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all focus-ring"
             >
               <Icon name="public" />
             </button>
             <button
               type="button"
-              className="w-10 h-10 rounded-full border border-outline flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all focus-ring"
+              aria-label="Contactar por correo electrónico"
+              className="min-w-11 min-h-11 rounded-full border border-outline flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all focus-ring"
             >
               <Icon name="alternate_email" />
             </button>
             <button
               type="button"
-              className="w-10 h-10 rounded-full border border-outline flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all focus-ring"
+              aria-label="Compartir NexusFlow"
+              className="min-w-11 min-h-11 rounded-full border border-outline flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all focus-ring"
             >
               <Icon name="share" />
             </button>
@@ -46,7 +53,7 @@ export function Footer() {
             <ul className="space-y-xs">
               <li>
                 <Link to="#" className="text-on-surface-variant hover:text-primary transition-all">
-                  Sobre Nosotros
+                  Sobre nosotros
                 </Link>
               </li>
               <li>
@@ -76,16 +83,21 @@ export function Footer() {
           <div className="space-y-sm hidden md:block col-span-1">
             <p className="font-bold text-primary uppercase text-xs tracking-widest">Boletín</p>
             <div className="flex">
+              <label htmlFor="newsletter-email" className="sr-only">
+                Correo electrónico para el boletín
+              </label>
               <input
+                id="newsletter-email"
                 type="email"
+                autoComplete="email"
                 placeholder="Correo electrónico"
-                className="bg-surface border border-outline-variant rounded-l-lg px-md py-sm w-full focus:ring-1 focus:ring-primary outline-none"
+                className="bg-surface border border-outline-variant rounded-l-lg px-md py-sm w-full focus:ring-1 focus:ring-primary"
               />
               <button
                 type="button"
-                className="bg-primary text-on-primary px-md rounded-r-lg hover:opacity-90 focus-ring"
+                className="bg-primary text-on-primary px-md rounded-r-lg hover:opacity-90 focus-ring min-h-11"
               >
-                Unirse
+                Unirse al boletín
               </button>
             </div>
           </div>
@@ -97,12 +109,16 @@ export function Footer() {
             © 2024 NexusFlow. Cifrado SSL seguro certificado.
           </p>
           <div className="flex items-center gap-md">
-            <button type="button" className="flex items-center gap-xs text-xs text-on-surface-variant hover:text-primary focus-ring">
-              <Icon name="text_fields" className="text-lg" /> Tamaño de fuente
+            <button
+              type="button"
+              onClick={openPanel}
+              className="flex items-center gap-xs text-xs text-on-surface-variant hover:text-primary focus-ring min-h-11"
+            >
+              <Icon name="accessibility_new" className="text-lg" /> Menú de accesibilidad
             </button>
-            <span className="w-px h-4 bg-outline-variant" />
-            <button type="button" className="flex items-center gap-xs text-xs text-on-surface-variant hover:text-primary focus-ring">
-              <Icon name="translate" className="text-lg" /> Español (ES)
+            <span className="w-px h-4 bg-outline-variant" aria-hidden="true" />
+            <button type="button" className="flex items-center gap-xs text-xs text-on-surface-variant hover:text-primary focus-ring min-h-11">
+              <Icon name="translate" className="text-lg" /> <span lang="es">Español (ES)</span>
             </button>
           </div>
         </div>

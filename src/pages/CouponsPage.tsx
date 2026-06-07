@@ -12,7 +12,7 @@ export function CouponsPage() {
   };
 
   return (
-    <main className="max-w-container-max mx-auto px-lg py-xl">
+    <div className="max-w-container-max mx-auto px-lg py-xl">
       <section className="mb-xxl">
         <div className="relative rounded-xl overflow-hidden bg-primary-container h-[300px] flex items-center p-xl">
           <div className="relative z-10 max-w-2xl">
@@ -62,7 +62,15 @@ export function CouponsPage() {
           </h2>
           <div className="bg-primary-container text-on-primary-container p-lg rounded-xl relative overflow-hidden">
             <div className="text-secondary-fixed font-bold mb-xs">TERMINA EN:</div>
-            <div className="flex gap-sm mb-md">
+            <button
+              type="button"
+              onClick={countdown.togglePause}
+              aria-label={countdown.paused ? 'Reanudar cuenta regresiva' : 'Pausar animación'}
+              className="mb-sm min-h-11 px-md py-xs bg-primary/50 rounded-lg text-label-md focus-ring"
+            >
+              {countdown.paused ? 'Reanudar' : 'Pausar temporizador'}
+            </button>
+            <div className="flex gap-sm mb-md" role="timer" aria-live="polite">
               <span className="bg-primary px-3 py-1 rounded text-headline-md font-bold">
                 {countdown.pad(countdown.hours)}
               </span>
@@ -122,6 +130,6 @@ export function CouponsPage() {
           ))}
         </div>
       </section>
-    </main>
+    </div>
   );
 }

@@ -19,7 +19,7 @@ export function CartPage() {
   const recommendations = catalogProducts.slice(0, 4);
 
   return (
-    <main className="max-w-container-max mx-auto px-lg py-xxl">
+    <div className="max-w-container-max mx-auto px-lg py-xxl">
       <header className="mb-xl">
         <h1 className="font-headline-lg text-headline-lg text-primary">Carrito de Compras</h1>
         <p className="text-on-surface-variant mt-2">
@@ -153,6 +153,6 @@ export function CartPage() {
           ))}
         </div>
       </section>
-    </main>
+    </div>
   );
 }

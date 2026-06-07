@@ -18,7 +18,7 @@ export function InvoicesPage() {
   );
 
   return (
-    <main className="flex-grow w-full max-w-container-max mx-auto px-lg py-xl">
+    <div className="flex-grow w-full max-w-container-max mx-auto px-lg py-xl">
       <div className="flex flex-col gap-xl">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-lg">
           <h1 className="font-headline-lg text-headline-lg text-primary">Facturas y Pagos</h1>
@@ -126,6 +126,6 @@ export function InvoicesPage() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

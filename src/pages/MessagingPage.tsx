@@ -44,7 +44,7 @@ export function MessagingPage() {
   };
 
   return (
-    <main className="max-w-container-max w-full mx-auto flex h-[calc(100vh-8rem)] min-h-[520px] bg-surface overflow-hidden border-t border-outline-variant">
+    <div className="max-w-container-max w-full mx-auto flex h-[calc(100vh-8rem)] min-h-[520px] bg-surface overflow-hidden border-t border-outline-variant">
       <aside className="w-full md:w-1/3 lg:w-1/4 border-r border-outline-variant flex flex-col bg-surface-container-lowest">
         <div className="p-md space-y-md">
           <div className="relative">
@@ -97,7 +97,8 @@ export function MessagingPage() {
               }`}
             >
               <div className="relative shrink-0">
-                <img src={thread.avatar} alt="" className="w-12 h-12 rounded-full object-cover" />
+                {/* WCAG 2.2 — 1.1.1 ✓ */}
+                <img src={thread.avatar} alt={`Avatar de ${thread.name}`} className="w-12 h-12 rounded-full object-cover" />
                 {thread.online && (
                   <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
                 )}
@@ -131,7 +132,7 @@ export function MessagingPage() {
             <header className="p-md border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
               <div className="flex items-center gap-md">
                 <div className="relative">
-                  <img src={active.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                  <img src={active.avatar} alt={`Avatar de ${active.name}`} className="w-10 h-10 rounded-full object-cover" />
                   {active.online && (
                     <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full" />
                   )}
@@ -253,6 +254,6 @@ export function MessagingPage() {
           'Selecciona un chat de la lista'
         )}
       </div>
-    </main>
+    </div>
   );
 }

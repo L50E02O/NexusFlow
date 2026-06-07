@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import { homeAiQuickReplies } from '@/shared/data/mock';
+import { useFocusTrap } from '@/shared/hooks/useFocusTrap';
 
 const welcome =
   '¡Hola! Soy tu conserje de IA. ¿Buscas algo específico hoy? Puedo ayudarte con pedidos, ofertas o devoluciones.';
@@ -12,6 +13,10 @@ export function AiChatWidget() {
   const [messages, setMessages] = useState<{ role: 'user' | 'bot'; text: string }[]>([
     { role: 'bot', text: welcome },
   ]);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // WCAG 2.2 — 2.1.2 ✓ Focus trap en panel de chat
+  useFocusTrap(panelRef, open, () => setOpen(false));
 
   const reply = (text: string) => {
     const lower = text.toLowerCase();
@@ -38,22 +43,33 @@ export function AiChatWidget() {
   return (
     <div className="fixed bottom-xl right-xl z-[60] flex flex-col items-end gap-md">
       {open && (
-        <div className="w-[min(360px,calc(100vw-2rem))] bg-surface shadow-2xl rounded-xl border border-outline-variant overflow-hidden flex flex-col max-h-[min(480px,70vh)]">
+        <div
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Asistente NexusFlow"
+          className="w-[min(22.5rem,calc(100vw-2rem))] bg-surface shadow-2xl rounded-xl border border-outline-variant overflow-hidden flex flex-col max-h-[min(30rem,70vh)]"
+        >
           <div className="bg-primary text-on-primary px-lg py-md flex items-center justify-between">
             <div className="flex items-center gap-sm">
-              <Icon name="smart_toy" filled className="text-[28px]" />
+              <Icon name="smart_toy" filled className="text-[1.75rem]" />
               <span className="font-headline-md text-headline-md">Asistente NexusFlow</span>
             </div>
             <button
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Cerrar chat"
-              className="p-1 rounded-full hover:bg-white/10"
+              className="min-w-11 min-h-11 p-1 rounded-full hover:bg-white/10 focus-ring flex items-center justify-center"
             >
               <Icon name="close" />
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto p-md space-y-md custom-scrollbar bg-surface-container-lowest min-h-[200px]">
+          <div
+            className="flex-1 overflow-y-auto p-md space-y-md custom-scrollbar bg-surface-container-lowest min-h-[12.5rem]"
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions"
+          >
             {messages.map((msg, i) => (
               <div
                 key={i}
@@ -68,20 +84,24 @@ export function AiChatWidget() {
             ))}
           </div>
           <div className="p-md border-t border-outline-variant space-y-sm bg-surface">
-            <div className="flex flex-wrap gap-xs">
+            <div className="flex flex-wrap gap-xs" role="group" aria-label="Respuestas rápidas">
               {homeAiQuickReplies.map((q) => (
                 <button
                   key={q}
                   type="button"
                   onClick={() => send(q)}
-                  className="px-3 py-1 text-label-md border border-outline-variant rounded-full hover:border-primary hover:text-primary transition-colors"
+                  className="px-3 py-1 text-label-md border border-outline-variant rounded-full hover:border-primary hover:text-primary transition-colors min-h-11"
                 >
                   {q}
                 </button>
               ))}
             </div>
             <div className="flex gap-sm items-center">
+              <label htmlFor="chat-input" className="sr-only">
+                Escribe tu mensaje al asistente
+              </label>
               <input
+                id="chat-input"
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -92,8 +112,8 @@ export function AiChatWidget() {
               <button
                 type="button"
                 onClick={() => send()}
-                aria-label="Enviar"
-                className="w-10 h-10 bg-primary text-on-primary rounded-lg flex items-center justify-center focus-ring"
+                aria-label="Enviar mensaje"
+                className="min-w-11 min-h-11 bg-primary text-on-primary rounded-lg flex items-center justify-center focus-ring"
               >
                 <Icon name="send" filled />
               </button>
@@ -106,7 +126,7 @@ export function AiChatWidget() {
       )}
 
       {!open && (
-        <div className="bg-surface shadow-xl rounded-xl border border-outline-variant p-md max-w-[280px] hidden md:block">
+        <div className="bg-surface shadow-xl rounded-xl border border-outline-variant p-md max-w-[17.5rem] hidden md:block" role="status">
           <p className="text-body-md text-primary font-medium">{welcome}</p>
         </div>
       )}
@@ -114,12 +134,13 @@ export function AiChatWidget() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        aria-label="Asistente IA"
+        aria-label="Abrir asistente de IA"
         aria-expanded={open}
-        className="w-16 h-16 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all focus-ring relative"
+        aria-controls={open ? 'chat-panel' : undefined}
+        className="min-w-16 min-h-16 w-16 h-16 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all focus-ring relative"
       >
-        <Icon name="smart_toy" className="text-[32px]" filled />
-        <span className="absolute -top-1 -right-1 w-4 h-4 bg-error rounded-full border-2 border-surface" />
+        <Icon name="smart_toy" className="text-[2rem]" filled />
+        <span className="absolute -top-1 -right-1 w-4 h-4 bg-error rounded-full border-2 border-surface" aria-hidden="true" />
       </button>
     </div>
   );

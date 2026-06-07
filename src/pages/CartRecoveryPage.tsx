@@ -7,7 +7,7 @@ import { useCart } from '@/shared/context/CartContext';
 const PROMO_CODE = 'NEXUS10';
 
 export function CartRecoveryPage() {
-  const { pad, minutes, secs, total } = useCountdown(14 * 60 + 59);
+  const { pad, minutes, secs, total, paused, togglePause } = useCountdown(14 * 60 + 59);
   const { addToCart } = useCart();
 
   const subtotal = abandonedCartLines.reduce((s, l) => s + l.product.price * l.quantity, 0);
@@ -21,7 +21,7 @@ export function CartRecoveryPage() {
   };
 
   return (
-    <main className="max-w-container-max mx-auto px-lg py-xl">
+    <div className="max-w-container-max mx-auto px-lg py-xl">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl">
         <div className="lg:col-span-8 space-y-xl">
           <section>
@@ -47,7 +47,15 @@ export function CartRecoveryPage() {
               <span className="text-label-md font-bold uppercase tracking-wider mb-sm text-primary">
                 Expira en:
               </span>
-              <div className="flex gap-md font-headline-md font-bold text-primary">
+              <button
+                type="button"
+                onClick={togglePause}
+                aria-label={paused ? 'Reanudar cuenta regresiva' : 'Pausar animación'}
+                className="mb-sm min-h-11 px-sm py-xs text-label-md underline focus-ring"
+              >
+                {paused ? 'Reanudar' : 'Pausar'}
+              </button>
+              <div className="flex gap-md font-headline-md font-bold text-primary" role="timer" aria-live="polite">
                 <div className="flex flex-col items-center">
                   <span>{pad(Math.floor(total / 3600))}</span>
                   <span className="text-[10px] uppercase">Hrs</span>
@@ -132,6 +140,6 @@ export function CartRecoveryPage() {
           </section>
         </aside>
       </div>
-    </main>
+    </div>
   );
 }

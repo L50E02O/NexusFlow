@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import { AccessibilityPanel } from '@/components/accessibility/AccessibilityPanel';
 import { useAccessibility } from '@/shared/context/AccessibilityContext';
 import { useAuth } from '@/shared/context/AuthContext';
+import { SkipLink } from '@/shared/ui/SkipLink';
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const adaptiveProfiles = [
   { icon: 'smartphone', title: 'Comprador Joven Digital', desc: 'Rápida, fluida y optimizada para dispositivos móviles.' },
@@ -28,7 +31,9 @@ export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [submitting, setSubmitting] = useState(false);
+  const emailRef = useRef<HTMLInputElement>(null);
 
   const redirectTo = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/';
 
@@ -40,7 +45,8 @@ export function LoginPage() {
 
   return (
     <div className="bg-surface text-on-surface font-body-md min-h-screen flex flex-col">
-      <main className="flex-grow flex flex-col md:flex-row min-h-screen">
+      <SkipLink />
+      <main id="main-content" className="flex-grow flex flex-col md:flex-row min-h-screen" tabIndex={-1}>
         <section className="hidden md:flex md:w-1/2 lg:w-3/5 bg-primary-container relative overflow-hidden flex-col justify-between p-xxl text-white">
           <div className="relative z-10 space-y-xl">
             <div className="flex items-center gap-sm">
@@ -66,6 +72,7 @@ export function LoginPage() {
               </ul>
             </div>
           </div>
+          {/* WCAG 2.2 — 1.1.1 ✓ Imagen decorativa de fondo */}
           <img
             alt=""
             className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none"
@@ -140,16 +147,35 @@ export function LoginPage() {
             )}
 
             {authError && (
-              <p className="text-error font-label-md p-md bg-error-container/20 rounded-xl border border-error/20" role="alert">
+              <p className="form-error p-md bg-error-container/20 rounded-xl border border-error/20" role="alert" id="form-error-summary">
                 {authError}
               </p>
             )}
 
             <form
               className="space-y-lg"
+              noValidate
               onSubmit={async (e) => {
                 e.preventDefault();
                 setAuthError(null);
+                setFieldErrors({});
+
+                if (tab === 'login') {
+                  const errors: { email?: string; password?: string } = {};
+                  if (!email.trim()) {
+                    errors.email = 'El correo electrónico es obligatorio.';
+                  } else if (!EMAIL_RE.test(email)) {
+                    errors.email = 'El email debe tener el formato usuario@dominio.com';
+                  }
+                  if (!password) {
+                    errors.password = 'La contraseña es obligatoria.';
+                  }
+                  if (Object.keys(errors).length > 0) {
+                    setFieldErrors(errors);
+                    emailRef.current?.focus();
+                    return;
+                  }
+                }
 
                 if (tab === 'register') {
                   if (selectedProfile === 'merchant') {
@@ -175,26 +201,32 @@ export function LoginPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-lg">
                   <div className="space-y-sm">
                     <label className="block font-label-md text-on-surface-variant" htmlFor="firstName">
-                      Nombres
+                      Nombres (requerido)
                     </label>
                     <input
                       id="firstName"
+                      name="firstName"
                       type="text"
                       required
+                      autoComplete="given-name"
+                      aria-required="true"
                       placeholder="Ej. Juan"
-                      className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                      className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary"
                     />
                   </div>
                   <div className="space-y-sm">
                     <label className="block font-label-md text-on-surface-variant" htmlFor="lastName">
-                      Apellidos
+                      Apellidos (requerido)
                     </label>
                     <input
                       id="lastName"
+                      name="lastName"
                       type="text"
                       required
+                      autoComplete="family-name"
+                      aria-required="true"
                       placeholder="Ej. Pérez"
-                      className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                      className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary"
                     />
                   </div>
                 </div>
@@ -202,17 +234,31 @@ export function LoginPage() {
 
               <div className="space-y-sm">
                 <label className="block font-label-md text-on-surface-variant" htmlFor="email">
-                  Correo electrónico
+                  Correo electrónico (requerido)
                 </label>
+                <p className="text-label-md text-on-surface-variant" id="email-format-hint">
+                  Formato: usuario@dominio.com
+                </p>
                 <input
+                  ref={emailRef}
                   id="email"
+                  name="email"
                   type="email"
                   required
+                  autoComplete="email"
+                  aria-required="true"
+                  aria-invalid={fieldErrors.email ? true : undefined}
+                  aria-describedby={fieldErrors.email ? 'email-error email-format-hint' : 'email-format-hint'}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="ejemplo@nexusflow.com"
-                  className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary"
                 />
+                {fieldErrors.email && (
+                  <p id="email-error" className="form-error" role="alert">
+                    {fieldErrors.email}
+                  </p>
+                )}
               </div>
 
               {tab === 'register' ? (
@@ -220,26 +266,32 @@ export function LoginPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-lg">
                     <div className="space-y-sm">
                       <label className="block font-label-md text-on-surface-variant" htmlFor="password">
-                        Contraseña
+                        Contraseña (requerido)
                       </label>
                       <input
                         id="password"
+                        name="password"
                         type="password"
                         required
+                        autoComplete="new-password"
+                        aria-required="true"
                         placeholder="••••••••"
-                        className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                        className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary"
                       />
                     </div>
                     <div className="space-y-sm">
                       <label className="block font-label-md text-on-surface-variant" htmlFor="confirmPassword">
-                        Confirmar contraseña
+                        Confirmar contraseña (requerido)
                       </label>
                       <input
                         id="confirmPassword"
+                        name="confirmPassword"
                         type="password"
                         required
+                        autoComplete="new-password"
+                        aria-required="true"
                         placeholder="••••••••"
-                        className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                        className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary"
                       />
                     </div>
                   </div>
@@ -249,9 +301,11 @@ export function LoginPage() {
                     </label>
                     <input
                       id="phone"
+                      name="phone"
                       type="tel"
+                      autoComplete="tel"
                       placeholder="+52 000 000 0000"
-                      className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                      className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary"
                     />
                   </div>
                   <div className="space-y-sm">
@@ -300,12 +354,17 @@ export function LoginPage() {
                     <div className="relative">
                       <input
                         id="password"
+                        name="password"
                         type={showPassword ? 'text' : 'password'}
                         required
+                        autoComplete="current-password"
+                        aria-required="true"
+                        aria-invalid={fieldErrors.password ? true : undefined}
+                        aria-describedby={fieldErrors.password ? 'password-error' : undefined}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
-                        className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                        className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary"
                       />
                       <button
                         type="button"
@@ -316,6 +375,11 @@ export function LoginPage() {
                         <Icon name={showPassword ? 'visibility_off' : 'visibility'} />
                       </button>
                     </div>
+                    {fieldErrors.password && (
+                      <p id="password-error" className="form-error" role="alert">
+                        {fieldErrors.password}
+                      </p>
+                    )}
                   </div>
                   <label className="flex items-center gap-sm cursor-pointer">
                     <input
@@ -372,10 +436,12 @@ export function LoginPage() {
       <button
         type="button"
         onClick={openPanel}
-        aria-label="Opciones de Accesibilidad"
-        className="fixed bottom-8 right-8 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-primary text-on-primary shadow-lg hover:scale-110 transition-all focus-ring"
+        aria-label="Abrir menú de accesibilidad"
+        className="fixed bottom-8 right-8 z-50 flex items-center justify-center min-w-14 min-h-14 w-14 h-14 rounded-full bg-primary text-on-primary shadow-lg hover:scale-110 transition-all focus-ring"
       >
-        <Icon name="accessibility_new" className="text-[28px]" />
+        <span className="text-[1.75rem]" aria-hidden="true">
+          ♿
+        </span>
       </button>
       <AccessibilityPanel />
     </div>

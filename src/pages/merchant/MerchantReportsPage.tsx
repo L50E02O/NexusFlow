@@ -59,7 +59,14 @@ export function MerchantReportsPage() {
             </div>
           </div>
           <div className="h-64 relative">
-            <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 800 200">
+            {/* WCAG 2.2 — 1.1.1 ✓ Gráfico informativo con nombre accesible */}
+            <svg
+              role="img"
+              aria-label="Gráfico de ventas a lo largo del tiempo: tendencia ascendente en los últimos 30 días"
+              className="absolute inset-0 w-full h-full"
+              preserveAspectRatio="none"
+              viewBox="0 0 800 200"
+            >
               <defs>
                 <linearGradient id="reportGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" stopColor="#031635" stopOpacity="0.15" />

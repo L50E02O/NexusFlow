@@ -43,7 +43,7 @@ export function PurchaseHistoryPage() {
   const recommendations = catalogProducts.slice(0, 4);
 
   return (
-    <main className="max-w-container-max mx-auto px-lg py-xl min-h-screen">
+    <div className="max-w-container-max mx-auto px-lg py-xl min-h-screen">
       <header className="mb-xl">
         <h1 className="font-headline-lg text-headline-lg text-primary mb-sm">Historial de Compras</h1>
         <p className="font-body-md text-on-surface-variant">
@@ -127,7 +127,7 @@ export function PurchaseHistoryPage() {
                 <div className="flex gap-md overflow-x-auto">
                   <img
                     src={order.product.image}
-                    alt=""
+                    alt={order.product.name}
                     className="w-20 h-20 rounded-lg object-cover bg-surface-container-high shrink-0"
                   />
                 </div>
@@ -190,6 +190,6 @@ export function PurchaseHistoryPage() {
           Seguir comprando en la tienda
         </Link>
       </p>
-    </main>
+    </div>
   );
 }

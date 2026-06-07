@@ -16,7 +16,7 @@ export function ProfilePage() {
   const [activeTab, setActiveTab] = useState<(typeof activityTabs)[number]>('Pedidos Recientes');
 
   return (
-    <main className="pb-xxl max-w-container-max mx-auto px-lg py-xl">
+    <div className="pb-xxl max-w-container-max mx-auto px-lg py-xl">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg">
         <section className="lg:col-span-12">
           <div className="bg-surface-container-lowest rounded-xl p-xl shadow-soft flex flex-col md:flex-row items-center justify-between gap-xl">
@@ -171,7 +171,7 @@ export function ProfilePage() {
                 <div key={order.id} className="flex items-center justify-between gap-md pb-md border-b border-surface-container last:border-0">
                   <div className="flex items-center gap-md">
                     <div className="w-16 h-16 bg-surface-container rounded-lg overflow-hidden shrink-0">
-                      <img src={order.product.image} alt="" className="w-full h-full object-cover" />
+                      <img src={order.product.image} alt={order.product.name} className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <p className="font-label-md text-primary">{order.product.name}</p>
@@ -221,7 +221,7 @@ export function ProfilePage() {
           </section>
         </aside>
       </div>
-    </main>
+    </div>
   );
 }
 

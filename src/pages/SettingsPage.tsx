@@ -38,7 +38,7 @@ export function SettingsPage() {
   };
 
   return (
-    <main className="pb-xxl max-w-container-max mx-auto px-gutter w-full py-xl">
+    <div className="pb-xxl max-w-container-max mx-auto px-gutter w-full py-xl">
       <div className="flex flex-col md:flex-row gap-lg">
         <aside className="md:w-64 shrink-0">
           <div className="sticky top-24 bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant/30">
@@ -65,9 +65,10 @@ export function SettingsPage() {
 
         <div className="flex-grow space-y-lg">
           <section className="bg-surface-container-lowest rounded-xl p-xl shadow-md border border-outline-variant/20 flex flex-col md:flex-row items-center gap-lg">
+            {/* WCAG 2.2 — 1.1.1 ✓ */}
             <img
               src={userProfile.avatar}
-              alt=""
+              alt={`Foto de perfil de ${userProfile.name}`}
               className="w-24 h-24 rounded-full object-cover border-4 border-secondary-container"
             />
             <div className="text-center md:text-left">
@@ -85,8 +86,8 @@ export function SettingsPage() {
             </div>
             <div className="p-lg space-y-lg">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
-                <Field label="Nombre Completo" value={name} onChange={setName} />
-                <Field label="Correo Electrónico" value={email} onChange={setEmail} type="email" />
+                <Field id="settings-name" label="Nombre Completo" value={name} onChange={setName} autoComplete="name" required />
+                <Field id="settings-email" label="Correo Electrónico" value={email} onChange={setEmail} type="email" autoComplete="email" required />
               </div>
               <div className="flex flex-wrap gap-md">
                 <button type="button" className="bg-primary text-on-primary px-lg py-md rounded-xl font-button min-h-11 hover:shadow-lg">
@@ -286,7 +287,7 @@ export function SettingsPage() {
           </section>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
 
@@ -295,20 +296,33 @@ function Field({
   value,
   onChange,
   type = 'text',
+  id,
+  autoComplete,
+  required,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   type?: string;
+  id: string;
+  autoComplete?: string;
+  required?: boolean;
 }) {
   return (
     <div className="space-y-xs">
-      <label className="font-label-md text-on-surface-variant">{label}</label>
+      {/* WCAG 2.2 — 3.3.2 ✓ Etiqueta asociada; 1.3.5 ✓ autocomplete */}
+      <label className="font-label-md text-on-surface-variant" htmlFor={id}>
+        {label}
+        {required ? ' (requerido)' : ''}
+      </label>
       <input
+        id={id}
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full h-12 px-md rounded-xl border-2 border-outline-variant/50 focus:border-primary transition-all outline-none"
+        autoComplete={autoComplete}
+        aria-required={required || undefined}
+        className="w-full h-12 px-md rounded-xl border-2 border-outline-variant/50 focus:border-primary transition-all"
       />
     </div>
   );

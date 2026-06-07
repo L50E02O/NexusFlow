@@ -68,9 +68,10 @@ export function MerchantAssistantPage() {
               </div>
             ) : (
               <div key={i} className="flex gap-md max-w-[80%] ml-auto flex-row-reverse items-start">
+                {/* WCAG 2.2 — 1.1.1 ✓ */}
                 <img
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuAp-7J5kTNeel5W0NDC66l_BJqh1HInMr3EaxDPHDyroPlEZNFCV9y-7jWkmiWVXk_v69bNlT7OQoHlmpM6Hay160GtZcBeqawsfzP76nPmvoynitgTpEA4JWjKHeUugRt0QqiNM0-1Bfz0KG0Ckl-cI8h_CMJ9J_Q4xLha7VJfO4MlxHSwvuTNoEhCjb57NW8yXQPzj6WeJsqaEhs_CfLvVeBrc6hSPl2VJS_Rx9GtVG8JNt_Xt0S_c22mFQQ_3czBrg5HVJnbQLs"
-                  alt=""
+                  alt="Avatar del comerciante"
                   className="w-8 h-8 rounded-full border border-primary"
                 />
                 <div className="bg-primary p-md rounded-xl rounded-tr-none text-white shadow-sm">

@@ -14,7 +14,7 @@ export function ShopPage() {
     : catalogProducts;
 
   return (
-    <main className="max-w-container-max mx-auto px-lg py-xl">
+    <div className="max-w-container-max mx-auto px-lg py-xl">
       <nav aria-label="Miga de pan" className="flex items-center gap-xs text-on-surface-variant mb-xl font-label-md">
         <Link to="/" className="hover:text-primary transition-colors">
           Inicio
@@ -83,6 +83,6 @@ export function ShopPage() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

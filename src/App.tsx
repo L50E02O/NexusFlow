@@ -29,10 +29,12 @@ import { MerchantReturnsPage } from '@/pages/merchant/MerchantReturnsPage';
 import { MerchantSecurityPage } from '@/pages/merchant/MerchantSecurityPage';
 import { MerchantAssistantPage } from '@/pages/merchant/MerchantAssistantPage';
 import { MessagingPage } from '@/pages/MessagingPage';
+import { PageTitleManager } from '@/shared/ui/PageTitleManager';
 
 function App() {
   return (
     <BrowserRouter>
+      <PageTitleManager />
       <AuthProvider>
       <AccessibilityProvider>
       <CartProvider>

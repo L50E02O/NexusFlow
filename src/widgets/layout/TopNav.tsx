@@ -9,16 +9,17 @@ type TopNavProps = {
   searchPlaceholder?: string;
 };
 
+// WCAG 2.2 — 3.2.3 ✓ Navegación coherente compartida en todas las páginas
 export function TopNav({
   showSearch = true,
-  searchPlaceholder = "Búsqueda por IA: 'Atuendo de oficina para el verano'...",
+  searchPlaceholder = "Búsqueda por IA: escribe tu consulta y pulsa Enter",
 }: TopNavProps) {
   const { itemCount: cartCount } = useCart();
   const { openPanel } = useAccessibility();
 
   return (
     <header className="bg-surface sticky top-0 z-50 shadow-sm">
-      <nav className="flex justify-between items-center w-full px-lg max-w-container-max mx-auto py-sm gap-md">
+      <nav aria-label="Navegación principal" className="flex justify-between items-center w-full px-lg max-w-container-max mx-auto py-sm gap-md">
         <div className="flex items-center gap-xl">
           <Link to="/" className="text-headline-md font-headline-md font-bold text-primary">
             NexusFlow
@@ -29,7 +30,7 @@ export function TopNav({
                 key={link.to}
                 to={link.to}
                 className={({ isActive }) =>
-                  `font-body-md text-body-md transition-colors duration-200 ${
+                  `font-body-md text-body-md transition-colors duration-200 min-h-11 flex items-center ${
                     isActive
                       ? 'text-primary border-b-2 border-primary pb-1 font-bold'
                       : 'text-on-surface-variant hover:text-primary'
@@ -45,14 +46,18 @@ export function TopNav({
         {showSearch && (
           <div className="flex-1 max-w-md mx-xl hidden lg:block">
             <div className="relative group">
+              <label htmlFor="main-search" className="sr-only">
+                Buscar productos y categorías
+              </label>
               <Icon
                 name="search"
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none"
               />
               <input
-                type="text"
+                id="main-search"
+                type="search"
                 placeholder={searchPlaceholder}
-                className="w-full h-12 pl-11 pr-24 bg-surface-container border border-outline-variant rounded-full text-body-md focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none"
+                className="w-full h-12 pl-11 pr-24 bg-surface-container border border-outline-variant rounded-full text-body-md focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
               />
               <div className="absolute inset-y-0 right-0 pr-sm flex items-center">
                 <button
@@ -70,7 +75,7 @@ export function TopNav({
         <div className="flex items-center gap-md">
           <button
             type="button"
-            aria-label="Accesibilidad"
+            aria-label="Abrir menú de accesibilidad"
             onClick={openPanel}
             className="hidden sm:flex min-w-11 min-h-11 items-center justify-center text-on-surface-variant hover:text-primary focus-ring rounded-full"
           >
@@ -78,34 +83,34 @@ export function TopNav({
           </button>
           <Link
             to="/notificaciones"
-            aria-label="Notificaciones"
+            aria-label={`Notificaciones${cartCount > 0 ? '' : ''}`}
             className="relative flex min-w-11 min-h-11 items-center justify-center text-on-surface-variant hover:text-primary focus-ring rounded-full"
           >
             <Icon name="notifications" />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full" />
+            <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full" aria-hidden="true" />
           </Link>
           <button
             type="button"
-            aria-label="Asistente"
+            aria-label="Abrir asistente de IA"
             className="flex min-w-11 min-h-11 items-center justify-center text-on-surface-variant hover:text-primary focus-ring rounded-full"
           >
             <Icon name="smart_toy" />
           </button>
           <Link
             to="/carrito"
-            aria-label="Carrito"
+            aria-label={`Carrito de compras${cartCount > 0 ? `, ${cartCount} artículos` : ''}`}
             className="relative flex min-w-11 min-h-11 items-center justify-center text-on-surface-variant hover:text-primary focus-ring rounded-full"
           >
             <Icon name="shopping_cart" />
             {cartCount > 0 && (
-              <span className="absolute top-1 right-1 bg-error text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">
+              <span className="absolute top-1 right-1 bg-error text-white text-label-md w-4 h-4 flex items-center justify-center rounded-full font-bold" aria-hidden="true">
                 {cartCount}
               </span>
             )}
           </Link>
           <Link
             to="/perfil"
-            aria-label="Perfil"
+            aria-label="Ir a mi perfil"
             className="flex min-w-11 min-h-11 items-center justify-center text-on-surface-variant hover:text-primary focus-ring rounded-full"
           >
             <Icon name="account_circle" />
