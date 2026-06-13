@@ -20,7 +20,7 @@ export function HomePage() {
 
   return (
     <div className="max-w-container-max mx-auto px-lg space-y-xxl pb-xxl">
-      <section className="mt-lg rounded-xl overflow-hidden relative min-h-[500px] flex items-center shadow-sm">
+      <section className="mt-lg rounded-xl overflow-hidden relative min-h-[280px] sm:min-h-[380px] md:min-h-[500px] flex items-center shadow-sm">
         <div className="absolute inset-0 z-0">
           {/* WCAG 2.2 — 1.1.1 ✓ Imagen decorativa de fondo del hero */}
           <img src={heroImage} alt="" className="w-full h-full object-cover" />

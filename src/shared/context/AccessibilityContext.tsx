@@ -149,6 +149,6 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
 
 export function useAccessibility() {
   const ctx = useContext(AccessibilityContext);
-  if (!ctx) throw new Error('useAccessibility must be used within AccessibilityProvider');
+  if (!ctx) throw new Error('useAccessibility debe usarse dentro de AccessibilityProvider');
   return ctx;
 }

@@ -52,7 +52,7 @@ export const aiPicks: Product[] = [
     price: 399,
     image:
       'https://lh3.googleusercontent.com/aida-public/AB6AXuCvwbvFVHpqXWsJSwuFt8SvR6o8DYaPPwVu51d02_RWOgtUvlSywkGVDxHxH_jFHy8JnqbZG2c0y5h2zNMM-Ya65wI6766Oj1swIEe68TN1DEBTY35qWXlNvA8btm-KcOASvO6kYAHwH5f9YBbJtO9MHUPk4p7wx-kAhusWOP6l83DMvzDFA0wl-PICuvVoCG8LipHsdIVXeI0zDUe0MQUvb_qILwrVCLA1cuAofRJ3CTvOdm3RGDJJd2m6eVvZqBRBchjQFKCpstw',
-    category: 'Tech Essentials',
+    category: 'Esenciales tecnológicos',
     rating: 4.8,
     reviewCount: 89,
   },
@@ -62,7 +62,7 @@ export const aiPicks: Product[] = [
     price: 599,
     image:
       'https://lh3.googleusercontent.com/aida-public/AB6AXuAbH2rIV6DSEfmwTlL8K6SmtZ0jUl3Yf9E9hZcNn1byUmCrVdiu7F2cwwrqukNbJgQyvCCQwLuwgTalll4op0rioXLsUl1wjF14C9WE6rymkvZb6LbvN5Le88JoIo6aKy7q9VtOOTWFdZZsJAn_lfmRUJm3-tct9D8AFeFSFiQbsBojpFKyJV55qVRnDRy9NzfZq8HgVqrY4brSypsQOO7bPyC_2AgwavlO27Y14fabX1Vc5a8PLCMS6dvwG88jd09dCeKx6DZtfKE',
-    category: 'Smart Life',
+    category: 'Vida inteligente',
     rating: 4.9,
     reviewCount: 56,
   },
@@ -148,7 +148,7 @@ export const coupons = [
   },
   {
     code: 'SHIPFREE',
-    discount: 'FREE',
+    discount: 'GRATIS',
     title: 'Envío Gratis',
     description: 'Sin mínimo de compra en tu primera orden del mes.',
     expires: '05/12/2024',
@@ -437,7 +437,7 @@ export const orderHistoryExtended: Order[] = [
 export function formatPrice(amount: number) {
   return new Intl.NumberFormat('es-MX', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'MXN',
   }).format(amount);
 }
 

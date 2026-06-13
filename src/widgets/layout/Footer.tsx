@@ -1,88 +1,121 @@
+import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
-import { useAccessibility } from '@/shared/context/AccessibilityContext';
+import { useI18n } from '@/shared/i18n/I18nContext';
 
 const footerLinks = [
   { to: '/soporte', label: 'Centro de soporte y accesibilidad' },
-  { to: '/configuracion', label: 'Privacidad' },
-  { to: '#', label: 'Términos de uso' },
-  { to: '#', label: 'Política de devoluciones' },
-  { to: '#', label: 'Métodos de pago' },
+  { to: '/privacidad', label: 'Privacidad' },
+  { to: '/terminos', label: 'Términos de uso' },
+  { to: '/politicas-devoluciones', label: 'Política de devoluciones' },
+  { to: '/metodos-pago', label: 'Métodos de pago' },
+];
+
+const companyLinks = [
+  { to: '/sobre-nosotros', label: 'Sobre nosotros' },
+  { to: '/sostenibilidad', label: 'Sostenibilidad' },
+  { to: '/carreras', label: 'Carreras' },
 ];
 
 // WCAG 2.2 — 3.2.6 ✓ Ayuda consistente en todas las páginas vía footer compartido
 export function Footer() {
-  const { openPanel } = useAccessibility();
+  const { locale, setLocale } = useI18n();
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterMsg, setNewsletterMsg] = useState<string | null>(null);
+
+  const handleNewsletter = (e: FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+    setNewsletterMsg('¡Gracias! Te hemos suscrito al boletín de NexusFlow.');
+    setNewsletterEmail('');
+    setTimeout(() => setNewsletterMsg(null), 4000);
+  };
+
+  const toggleLocale = () => {
+    setLocale(locale === 'es' ? 'en' : 'es');
+  };
 
   return (
-    <footer className="bg-surface-container-low border-t border-outline-variant">
-      <div className="max-w-container-max mx-auto px-lg py-xl flex flex-col md:flex-row justify-between items-start gap-xl">
-        <div className="space-y-md max-w-sm">
-          <span className="text-headline-md font-headline-md font-bold text-primary">NexusFlow</span>
-          <p className="text-on-surface-variant font-body-md">
-            La próxima generación de comercio de lujo personalizado, impulsado por inteligencia
-            inteligente.
-          </p>
-          <div className="flex gap-md">
-            <button
-              type="button"
-              aria-label="Visitar sitio web de NexusFlow"
-              className="min-w-11 min-h-11 rounded-full border border-outline flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all focus-ring"
-            >
-              <Icon name="public" />
-            </button>
-            <button
-              type="button"
-              aria-label="Contactar por correo electrónico"
-              className="min-w-11 min-h-11 rounded-full border border-outline flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all focus-ring"
-            >
-              <Icon name="alternate_email" />
-            </button>
-            <button
-              type="button"
-              aria-label="Compartir NexusFlow"
-              className="min-w-11 min-h-11 rounded-full border border-outline flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all focus-ring"
-            >
-              <Icon name="share" />
-            </button>
+    <footer className="border-t border-outline-variant bg-surface-container-low">
+      <div className="mx-auto max-w-container-max px-lg py-xl">
+        <div className="grid grid-cols-1 gap-xl sm:grid-cols-2 xl:grid-cols-12 xl:gap-12">
+          <div className="space-y-md sm:col-span-2 xl:col-span-4">
+            <span className="text-headline-md font-headline-md font-bold text-primary">NexusFlow</span>
+            <p className="max-w-sm text-on-surface-variant font-body-md leading-relaxed">
+              La próxima generación de comercio de lujo personalizado, impulsado por inteligencia
+              inteligente.
+            </p>
+            <div className="flex flex-wrap gap-md">
+              <a
+                href="https://nexusflow.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visitar sitio web de NexusFlow"
+                className="flex min-h-11 min-w-11 items-center justify-center rounded-full border border-outline text-primary transition-all hover:bg-primary hover:text-on-primary focus-ring"
+              >
+                <Icon name="public" />
+              </a>
+              <a
+                href="mailto:soporte@nexusflow.com"
+                aria-label="Contactar por correo electrónico"
+                className="flex min-h-11 min-w-11 items-center justify-center rounded-full border border-outline text-primary transition-all hover:bg-primary hover:text-on-primary focus-ring"
+              >
+                <Icon name="alternate_email" />
+              </a>
+              <button
+                type="button"
+                aria-label="Compartir NexusFlow"
+                onClick={() => {
+                  if (navigator.share) {
+                    void navigator.share({
+                      title: 'NexusFlow',
+                      text: 'Descubre NexusFlow — comercio de lujo personalizado',
+                      url: window.location.origin,
+                    });
+                  }
+                }}
+                className="flex min-h-11 min-w-11 items-center justify-center rounded-full border border-outline text-primary transition-all hover:bg-primary hover:text-on-primary focus-ring"
+              >
+                <Icon name="share" />
+              </button>
+            </div>
           </div>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-xl w-full md:w-auto">
-          <div className="space-y-sm">
-            <p className="font-bold text-primary uppercase text-xs tracking-widest">Empresa</p>
-            <ul className="space-y-xs">
-              <li>
-                <Link to="#" className="text-on-surface-variant hover:text-primary transition-all">
-                  Sobre nosotros
-                </Link>
-              </li>
-              <li>
-                <Link to="/sostenibilidad" className="text-on-surface-variant hover:text-primary transition-all">
-                  Sostenibilidad
-                </Link>
-              </li>
-              <li>
-                <Link to="#" className="text-on-surface-variant hover:text-primary transition-all">
-                  Carreras
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div className="space-y-sm">
-            <p className="font-bold text-primary uppercase text-xs tracking-widest">Soporte</p>
-            <ul className="space-y-xs">
-              {footerLinks.map((link) => (
-                <li key={link.label}>
-                  <Link to={link.to} className="text-on-surface-variant hover:text-primary transition-all">
+
+          <div className="min-w-0 space-y-sm xl:col-span-2">
+            <p className="text-xs font-bold uppercase tracking-widest text-primary">Empresa</p>
+            <ul className="space-y-sm">
+              {companyLinks.map((link) => (
+                <li key={link.to}>
+                  <Link
+                    to={link.to}
+                    className="block break-words py-0.5 text-on-surface-variant leading-snug transition-all hover:text-primary"
+                  >
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
-          <div className="space-y-sm hidden md:block col-span-1">
-            <p className="font-bold text-primary uppercase text-xs tracking-widest">Boletín</p>
-            <div className="flex">
+
+          <div className="min-w-0 space-y-sm xl:col-span-3">
+            <p className="text-xs font-bold uppercase tracking-widest text-primary">Soporte</p>
+            <ul className="space-y-sm">
+              {footerLinks.map((link) => (
+                <li key={link.to}>
+                  <Link
+                    to={link.to}
+                    className="block break-words py-0.5 text-on-surface-variant leading-snug transition-all hover:text-primary"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="min-w-0 space-y-sm sm:col-span-2 xl:col-span-3">
+            <p className="text-xs font-bold uppercase tracking-widest text-primary">Boletín</p>
+            <form onSubmit={handleNewsletter} className="flex flex-col gap-sm sm:flex-row sm:items-stretch">
               <label htmlFor="newsletter-email" className="sr-only">
                 Correo electrónico para el boletín
               </label>
@@ -90,35 +123,42 @@ export function Footer() {
                 id="newsletter-email"
                 type="email"
                 autoComplete="email"
+                required
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
                 placeholder="Correo electrónico"
-                className="bg-surface border border-outline-variant rounded-l-lg px-md py-sm w-full focus:ring-1 focus:ring-primary"
+                className="min-h-11 min-w-0 flex-1 rounded-lg border border-outline-variant bg-surface px-md py-sm focus:ring-1 focus:ring-primary sm:rounded-r-none"
               />
               <button
-                type="button"
-                className="bg-primary text-on-primary px-md rounded-r-lg hover:opacity-90 focus-ring min-h-11"
+                type="submit"
+                className="min-h-11 shrink-0 rounded-lg bg-primary px-md text-on-primary hover:opacity-90 focus-ring sm:rounded-l-none sm:whitespace-nowrap"
               >
                 Unirse al boletín
               </button>
-            </div>
+            </form>
+            {newsletterMsg && (
+              <p className="text-label-md text-secondary" role="status">
+                {newsletterMsg}
+              </p>
+            )}
           </div>
         </div>
       </div>
+
       <div className="border-t border-outline-variant">
-        <div className="max-w-container-max mx-auto px-lg py-md flex flex-col md:flex-row justify-between items-center gap-md">
-          <p className="font-label-md text-label-md text-on-surface-variant">
-            © 2024 NexusFlow. Cifrado SSL seguro certificado.
+        <div className="mx-auto flex max-w-container-max flex-col items-center justify-between gap-md px-lg py-md md:flex-row">
+          <p className="text-center font-label-md text-label-md text-on-surface-variant md:text-left">
+            © 2026 NexusFlow. Cifrado SSL seguro certificado.
           </p>
-          <div className="flex items-center gap-md">
+          <div className="flex flex-wrap items-center justify-center gap-md">
             <button
               type="button"
-              onClick={openPanel}
-              className="flex items-center gap-xs text-xs text-on-surface-variant hover:text-primary focus-ring min-h-11"
+              onClick={toggleLocale}
+              aria-label={`Cambiar idioma. Actual: ${locale === 'es' ? 'Español' : 'Inglés'}`}
+              className="flex min-h-11 items-center gap-xs text-xs text-on-surface-variant hover:text-primary focus-ring"
             >
-              <Icon name="accessibility_new" className="text-lg" /> Menú de accesibilidad
-            </button>
-            <span className="w-px h-4 bg-outline-variant" aria-hidden="true" />
-            <button type="button" className="flex items-center gap-xs text-xs text-on-surface-variant hover:text-primary focus-ring min-h-11">
-              <Icon name="translate" className="text-lg" /> <span lang="es">Español (ES)</span>
+              <Icon name="translate" className="text-lg" />
+              <span lang={locale}>{locale === 'es' ? 'Español (ES)' : 'Inglés (EN)'}</span>
             </button>
           </div>
         </div>

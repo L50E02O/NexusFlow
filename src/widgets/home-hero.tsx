@@ -1,75 +1,82 @@
-import { Link } from 'react-router-dom';
-
-import { stitchRepository } from '../entities/stitch/api/stitch.repository';
-import { commerceScreenPath } from '../shared/lib/commerce-screens';
-import { heroMetrics } from '../shared/lib/site-data';
-import { stitchDomains } from '../shared/lib/stitch-domains';
+import { heroMetrics, navigationItems } from '../shared/lib/site-data';
 
 export function HomeHero() {
-  const featuredScreens = stitchRepository.listScreens().slice(0, 3);
-
   return (
-    <section className="hero" id="top" aria-labelledby="hero-title">
-      <div className="hero-copy-panel">
-        <p className="eyebrow">Landing de comercio y navegación Stitch</p>
-        <h1 className="hero-title" id="hero-title" tabIndex={-1} data-route-focus>
-          Comprá, explorá y bajá a cada UI Stitch sin perder el hilo.
-        </h1>
-        <p className="hero-copy">
-          NexusFlow arranca como una portada tipo marketplace, con catálogo, accesos rápidos y las vistas Stitch
-          ya conectadas para que el producto se recorra como una experiencia real.
-        </p>
+    <>
+      <header className="site-header">
+        <a className="brand" href="#top" aria-label="Ir al inicio de NexusFlow">
+          <span className="brand-mark" aria-hidden="true">
+            NF
+          </span>
+          <span>NexusFlow</span>
+        </a>
 
-        <div className="market-categories" aria-label="Categorías destacadas">
-          {stitchDomains.map(domain => (
-            <Link key={domain.anchor} className="market-chip" to={`/ui/domain/${domain.anchor}`}>
-              {domain.title}
-            </Link>
+        <nav className="top-nav" aria-label="Secciones principales">
+          {navigationItems.map(item => (
+            <a key={item.href} className="nav-link" href={item.href}>
+              {item.label}
+            </a>
           ))}
+        </nav>
+      </header>
+
+      <section className="hero" id="top" aria-labelledby="hero-title">
+        <div>
+          <p className="eyebrow">Plantilla adaptada al proyecto actual</p>
+          <h1 className="hero-title" id="hero-title">
+            Ecommerce modular, limpio y listo para crecer.
+          </h1>
+          <p className="hero-copy">
+            La base de la plantilla se trasladó a una estructura Vite real, con capas claras y
+            una estética de alto contraste para priorizar legibilidad, jerarquía y foco visual.
+          </p>
+
+          <div className="hero-actions">
+            <a className="button button-primary" href="#capas">
+              Ver capas
+            </a>
+            <a className="button button-secondary" href="#flujo">
+              Ver flujo
+            </a>
+          </div>
+
+          <div className="hero-metrics" aria-label="Resumen de la base">
+            {heroMetrics.map(metric => (
+              <article className="metric" key={metric.label}>
+                <strong>{metric.value}</strong>
+                <span>{metric.label}</span>
+              </article>
+            ))}
+          </div>
         </div>
 
-        <div className="hero-actions">
-          <Link className="button button-primary" to="/comercio">
-            Comercio adaptativo
-          </Link>
-          <Link className="button button-secondary" to={commerceScreenPath('catalog')}>
-            Catálogo Stitch
-          </Link>
-          <Link className="button button-secondary" to="/ui">
-            Hub UI
-          </Link>
-          <a className="button button-ghost" href="#datos">
-            Conectar Supabase
-          </a>
-        </div>
-
-        <div className="hero-metrics" aria-label="Resumen de la base">
-          {heroMetrics.map(metric => (
-            <article className="metric" key={metric.label}>
-              <strong>{metric.value}</strong>
-              <span>{metric.label}</span>
+        <aside className="hero-panel" aria-label="Resumen de adaptación">
+          <span className="panel-kicker">Adaptación segura</span>
+          <div className="panel-list">
+            <article className="panel-item">
+              <strong>Lo que se conservó</strong>
+              <p>
+                La intención visual de la plantilla: negro, blanco, tipografía contundente y
+                bloques amplios con aire.
+              </p>
             </article>
-          ))}
-        </div>
-      </div>
-
-      <aside className="hero-panel" aria-label="Vistas destacadas de Stitch">
-        <span className="panel-kicker">Vistas listas para usar</span>
-        <div className="panel-list">
-          {featuredScreens.map(screen => (
-            <article className="panel-item hero-screen-item" key={screen.screenId}>
-              <div className="hero-screen-topline">
-                <strong>{screen.title}</strong>
-                <span>{stitchRepository.getStage(screen.screenId)?.title ?? 'Vista independiente'}</span>
-              </div>
-              <p>{screen.summary}</p>
-              <Link className="button button-secondary" to={`/ui/${screen.screenId}`}>
-                Abrir vista
-              </Link>
+            <article className="panel-item">
+              <strong>Lo que se retiró</strong>
+              <p>
+                Dependencias y archivos ligados a Next que no pertenecen al runtime actual del
+                proyecto.
+              </p>
             </article>
-          ))}
-        </div>
-      </aside>
-    </section>
+            <article className="panel-item">
+              <strong>Lo que queda listo</strong>
+              <p>
+                Una base visual modular sobre la que luego puedes conectar Supabase, catálogo y
+                autenticación.
+              </p>
+            </article>
+          </div>
+        </aside>
+      </section>
+    </>
   );
 }

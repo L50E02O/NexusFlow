@@ -45,7 +45,7 @@ export const merchantMetrics = [
   {
     label: 'Alertas de Fraude',
     value: '2 Activas',
-    delta: 'CRITICAL',
+    delta: 'CRÍTICO',
     critical: true,
     icon: 'gpp_maybe',
     iconBg: 'bg-error text-on-error',

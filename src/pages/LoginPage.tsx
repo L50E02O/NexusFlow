@@ -8,6 +8,9 @@ import { SkipLink } from '@/shared/ui/SkipLink';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const INPUT_CLASS =
+  'h-12 w-full rounded-xl border border-outline-variant bg-white px-md text-body-md transition-colors focus:border-primary focus:ring-1 focus:ring-primary';
+
 const adaptiveProfiles = [
   { icon: 'smartphone', title: 'Comprador Joven Digital', desc: 'Rápida, fluida y optimizada para dispositivos móviles.' },
   { icon: 'work', title: 'Adulto Profesional', desc: 'Organizada, eficiente y centrada en la productividad.' },
@@ -24,12 +27,17 @@ export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { openPanel } = useAccessibility();
-  const { signIn, session } = useAuth();
+  const { signIn, signUp, resetPassword, session } = useAuth();
   const [tab, setTab] = useState<'login' | 'register'>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<string>('young');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [resetSent, setResetSent] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [submitting, setSubmitting] = useState(false);
@@ -44,60 +52,97 @@ export function LoginPage() {
   }, [session, navigate, redirectTo]);
 
   return (
-    <div className="bg-surface text-on-surface font-body-md min-h-screen flex flex-col">
+    <div className="flex min-h-screen flex-col bg-surface font-body-md text-on-surface">
       <SkipLink />
-      <main id="main-content" className="flex-grow flex flex-col md:flex-row min-h-screen" tabIndex={-1}>
-        <section className="hidden md:flex md:w-1/2 lg:w-3/5 bg-primary-container relative overflow-hidden flex-col justify-between p-xxl text-white">
-          <div className="relative z-10 space-y-xl">
+      <header className="flex items-center justify-between border-b border-outline-variant px-gutter py-sm lg:hidden">
+        <div className="flex items-center gap-sm">
+          <Icon name="hub" className="shrink-0 text-[28px] text-primary" filled />
+          <span className="font-headline-md font-bold text-primary">NexusFlow</span>
+        </div>
+        <button
+          type="button"
+          onClick={openPanel}
+          aria-label="Abrir menú de accesibilidad"
+          className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container hover:text-primary focus-ring"
+        >
+          <Icon name="accessibility_new" />
+        </button>
+      </header>
+
+      <section className="border-b border-outline-variant bg-primary-container px-gutter py-lg text-on-primary-container lg:hidden">
+        <h1 className="mb-sm font-headline-md text-headline-md leading-tight text-white">
+          Bienvenido a NexusFlow
+        </h1>
+        <p className="max-w-xl text-body-md leading-relaxed opacity-90">
+          Comercio electrónico adaptativo impulsado por IA que evoluciona contigo.
+        </p>
+      </section>
+
+      <main
+        id="main-content"
+        className="flex min-h-0 flex-1 flex-col lg:flex-row"
+        tabIndex={-1}
+      >
+        <section className="relative hidden min-h-[320px] flex-col justify-between overflow-hidden bg-primary-container p-xl text-white lg:flex lg:min-h-0 lg:w-[58%] lg:p-xxl xl:w-[60%]">
+          <img
+            alt=""
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-35"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuB85QyyEpojHDVjr0kGWAWmK-fkJsBL4JVj_GuasQas4o09vOkIPV7GBo_LyZOI5wXZq4Hojsb6K8eGbZtB1eqajezxPWy15irE46UmRUIDixolZIjVYHpQKU1MJpQftYpsWpTuDwC1w126Q2xh4c0DailZCzkqxzW9l7zlTi3y-o6hXQWVUROTkS-ZJF8y5aKIw2a1GGkp34lEw25UI8j8j8cSr4ccpY7iIh9n6css6gixuwqUtspYDSBMPtg_aUpbzzlnrM7sg48"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-container/95 via-primary-container/80 to-primary-container/60" aria-hidden="true" />
+
+          <div className="relative z-10 flex flex-col gap-xl py-md">
             <div className="flex items-center gap-sm">
-              <Icon name="hub" className="text-primary-fixed text-[40px]" filled />
+              <Icon name="hub" className="shrink-0 text-[40px] text-primary-fixed" filled />
               <span className="font-headline-lg text-headline-lg tracking-tight">NexusFlow</span>
             </div>
-            <div className="max-w-lg space-y-md">
-              <h1 className="font-display-lg text-display-lg">Bienvenido a NexusFlow</h1>
-              <p className="font-body-lg text-body-lg text-on-primary-container">
+            <div className="max-w-xl space-y-md">
+              <h1 className="text-balance font-display-lg text-[clamp(2rem,4vw,3rem)] leading-tight">
+                Bienvenido a NexusFlow
+              </h1>
+              <p className="max-w-lg font-body-lg text-body-lg leading-relaxed text-on-primary-container">
                 Comercio electrónico adaptativo impulsado por IA que evoluciona contigo.
               </p>
-              <ul className="space-y-md pt-md">
+              <ul className="space-y-md pt-sm">
                 {[
                   { icon: 'verified_user', text: 'Experiencia personalizada' },
                   { icon: 'lock_open', text: 'Seguridad inteligente' },
                   { icon: 'devices', text: 'Gestión omnicanal' },
                 ].map((item) => (
-                  <li key={item.text} className="flex items-center gap-md">
-                    <Icon name={item.icon} className="text-secondary-container" />
-                    <span className="font-body-md">{item.text}</span>
+                  <li key={item.text} className="flex items-start gap-md">
+                    <Icon name={item.icon} className="mt-0.5 shrink-0 text-secondary-container" />
+                    <span className="font-body-md leading-snug">{item.text}</span>
                   </li>
                 ))}
               </ul>
             </div>
           </div>
-          {/* WCAG 2.2 — 1.1.1 ✓ Imagen decorativa de fondo */}
-          <img
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuB85QyyEpojHDVjr0kGWAWmK-fkJsBL4JVj_GuasQas4o09vOkIPV7GBo_LyZOI5wXZq4Hojsb6K8eGbZtB1eqajezxPWy15irE46UmRUIDixolZIjVYHpQKU1MJpQftYpsWpTuDwC1w126Q2xh4c0DailZCzkqxzW9l7zlTi3y-o6hXQWVUROTkS-ZJF8y5aKIw2a1GGkp34lEw25UI8j8j8cSr4ccpY7iIh9n6css6gixuwqUtspYDSBMPtg_aUpbzzlnrM7sg48"
-          />
-          <p className="relative z-10 text-sm opacity-60">© 2024 NexusFlow Cloud Solutions.</p>
+          <p className="relative z-10 text-sm opacity-70">© 2026 NexusFlow Cloud Solutions.</p>
         </section>
 
-        <section className="w-full md:w-1/2 lg:w-2/5 flex flex-col justify-center p-gutter md:p-xxl bg-surface">
-          <div className="max-w-md w-full mx-auto space-y-xl">
-            <div className="flex md:hidden items-center gap-sm mb-xl">
-              <Icon name="hub" className="text-primary text-[32px]" filled />
-              <span className="font-headline-md text-headline-md text-primary font-bold">NexusFlow</span>
+        <section className="flex min-h-0 flex-1 flex-col bg-surface lg:max-h-screen lg:overflow-y-auto">
+          <div className="flex flex-1 items-start justify-center px-gutter py-xl sm:items-center sm:px-lg sm:py-xxl lg:px-xl">
+          <div className="w-full max-w-md space-y-lg sm:max-w-lg lg:space-y-xl">
+            <div className="hidden justify-end lg:flex">
+              <button
+                type="button"
+                onClick={openPanel}
+                aria-label="Abrir menú de accesibilidad"
+                className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container hover:text-primary focus-ring"
+              >
+                <Icon name="accessibility_new" />
+              </button>
             </div>
-
-            <div className="flex items-center gap-xs text-secondary font-label-md uppercase mb-sm tracking-wide">
+            <div className="mb-sm flex items-center gap-xs font-label-md uppercase tracking-wide text-secondary">
               <Icon name="lock" className="text-lg" />
               <span>Inicio de Sesión Seguro</span>
             </div>
 
-            <div className="p-1 bg-surface-container rounded-2xl flex items-center shadow-sm border border-outline-variant mb-xl">
+            <div className="mb-lg flex items-center rounded-2xl border border-outline-variant bg-surface-container p-1 shadow-sm">
               <button
                 type="button"
                 onClick={() => setTab('login')}
-                className={`flex-1 h-10 rounded-xl font-button transition-all ${
+                className={`h-11 min-h-11 flex-1 rounded-xl font-button transition-all ${
                   tab === 'login' ? 'bg-white text-primary shadow' : 'text-on-surface-variant hover:bg-surface-container-high'
                 }`}
               >
@@ -106,7 +151,7 @@ export function LoginPage() {
               <button
                 type="button"
                 onClick={() => setTab('register')}
-                className={`flex-1 h-10 rounded-xl font-button transition-all ${
+                className={`h-11 min-h-11 flex-1 rounded-xl font-button transition-all ${
                   tab === 'register' ? 'bg-white text-primary shadow' : 'text-on-surface-variant hover:bg-surface-container-high'
                 }`}
               >
@@ -126,26 +171,31 @@ export function LoginPage() {
             </header>
 
             {tab === 'register' && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-md mb-lg">
+              <div className="mb-lg grid grid-cols-1 gap-sm min-[520px]:grid-cols-3 min-[520px]:gap-md">
                 {registerProfiles.map((p) => (
                   <button
                     key={p.id}
                     type="button"
                     onClick={() => setSelectedProfile(p.id)}
-                    className={`border-2 p-md rounded-xl flex flex-col items-center text-center transition-all focus-ring ${
+                    className={`flex min-h-[7.5rem] flex-col items-center justify-center rounded-xl border-2 p-sm text-center transition-all focus-ring sm:p-md ${
                       selectedProfile === p.id
                         ? 'border-primary bg-surface-container-low profile-card-active'
                         : 'border-outline-variant bg-white hover:border-primary'
                     }`}
                   >
-                    <Icon name={p.icon} className="text-secondary mb-sm text-3xl" />
-                    <h3 className="text-label-md text-primary mb-1">{p.title}</h3>
-                    <p className="text-[12px] text-on-surface-variant leading-tight">{p.desc}</p>
+                    <Icon name={p.icon} className="mb-sm shrink-0 text-3xl text-secondary" />
+                    <h3 className="mb-1 text-label-md leading-tight text-primary">{p.title}</h3>
+                    <p className="text-[12px] leading-snug text-on-surface-variant">{p.desc}</p>
                   </button>
                 ))}
               </div>
             )}
 
+            {resetSent && (
+              <p className="p-md bg-secondary-container/30 rounded-xl border border-secondary/20 text-on-surface" role="status">
+                Te enviamos un correo con instrucciones para restablecer tu contraseña.
+              </p>
+            )}
             {authError && (
               <p className="form-error p-md bg-error-container/20 rounded-xl border border-error/20" role="alert" id="form-error-summary">
                 {authError}
@@ -153,7 +203,7 @@ export function LoginPage() {
             )}
 
             <form
-              className="space-y-lg"
+              className="space-y-md sm:space-y-lg"
               noValidate
               onSubmit={async (e) => {
                 e.preventDefault();
@@ -178,10 +228,37 @@ export function LoginPage() {
                 }
 
                 if (tab === 'register') {
-                  if (selectedProfile === 'merchant') {
-                    navigate('/merchant');
-                  } else {
-                    navigate('/');
+                  const errors: { email?: string; password?: string } = {};
+                  if (!email.trim()) {
+                    errors.email = 'El correo electrónico es obligatorio.';
+                  } else if (!EMAIL_RE.test(email)) {
+                    errors.email = 'El email debe tener el formato usuario@dominio.com';
+                  }
+                  if (!registerPassword) {
+                    errors.password = 'La contraseña es obligatoria.';
+                  } else if (registerPassword.length < 6) {
+                    errors.password = 'La contraseña debe tener al menos 6 caracteres.';
+                  } else if (registerPassword !== confirmPassword) {
+                    errors.password = 'Las contraseñas no coinciden.';
+                  }
+                  if (Object.keys(errors).length > 0) {
+                    setFieldErrors(errors);
+                    emailRef.current?.focus();
+                    return;
+                  }
+
+                  setSubmitting(true);
+                  try {
+                    await signUp(email, registerPassword, {
+                      role: selectedProfile === 'merchant' ? 'merchant' : 'consumer',
+                      firstName,
+                      lastName,
+                    });
+                    navigate(selectedProfile === 'merchant' ? '/merchant' : '/', { replace: true });
+                  } catch (err) {
+                    setAuthError(err instanceof Error ? err.message : 'No se pudo crear la cuenta.');
+                  } finally {
+                    setSubmitting(false);
                   }
                   return;
                 }
@@ -198,7 +275,7 @@ export function LoginPage() {
               }}
             >
               {tab === 'register' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-lg">
+                <div className="grid grid-cols-1 gap-md sm:grid-cols-2 sm:gap-lg">
                   <div className="space-y-sm">
                     <label className="block font-label-md text-on-surface-variant" htmlFor="firstName">
                       Nombres (requerido)
@@ -210,8 +287,10 @@ export function LoginPage() {
                       required
                       autoComplete="given-name"
                       aria-required="true"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
                       placeholder="Ej. Juan"
-                      className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary"
+                      className={INPUT_CLASS}
                     />
                   </div>
                   <div className="space-y-sm">
@@ -225,8 +304,10 @@ export function LoginPage() {
                       required
                       autoComplete="family-name"
                       aria-required="true"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
                       placeholder="Ej. Pérez"
-                      className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary"
+                      className={INPUT_CLASS}
                     />
                   </div>
                 </div>
@@ -252,7 +333,7 @@ export function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="ejemplo@nexusflow.com"
-                  className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary"
+                  className={INPUT_CLASS}
                 />
                 {fieldErrors.email && (
                   <p id="email-error" className="form-error" role="alert">
@@ -263,7 +344,7 @@ export function LoginPage() {
 
               {tab === 'register' ? (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-lg">
+                  <div className="grid grid-cols-1 gap-md sm:grid-cols-2 sm:gap-lg">
                     <div className="space-y-sm">
                       <label className="block font-label-md text-on-surface-variant" htmlFor="password">
                         Contraseña (requerido)
@@ -275,8 +356,10 @@ export function LoginPage() {
                         required
                         autoComplete="new-password"
                         aria-required="true"
+                        value={registerPassword}
+                        onChange={(e) => setRegisterPassword(e.target.value)}
                         placeholder="••••••••"
-                        className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary"
+                        className={INPUT_CLASS}
                       />
                     </div>
                     <div className="space-y-sm">
@@ -290,8 +373,10 @@ export function LoginPage() {
                         required
                         autoComplete="new-password"
                         aria-required="true"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="••••••••"
-                        className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary"
+                        className={INPUT_CLASS}
                       />
                     </div>
                   </div>
@@ -305,7 +390,7 @@ export function LoginPage() {
                       type="tel"
                       autoComplete="tel"
                       placeholder="+52 000 000 0000"
-                      className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary"
+                      className={INPUT_CLASS}
                     />
                   </div>
                   <div className="space-y-sm">
@@ -317,9 +402,9 @@ export function LoginPage() {
                       />
                       <span className="text-label-md text-on-surface-variant font-normal">
                         Acepto los{' '}
-                        <a href="#" className="text-primary font-bold hover:underline">
+                        <Link to="/terminos" className="text-primary font-bold hover:underline">
                           términos y condiciones
-                        </a>{' '}
+                        </Link>{' '}
                         y la política de privacidad.
                       </span>
                     </label>
@@ -343,13 +428,28 @@ export function LoginPage() {
               ) : (
                 <>
                   <div className="space-y-sm">
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col gap-xs sm:flex-row sm:items-center sm:justify-between">
                       <label className="block font-label-md text-on-surface-variant" htmlFor="password">
                         Contraseña
                       </label>
-                      <a href="#" className="text-secondary font-label-md hover:underline">
+                      <button
+                        type="button"
+                        className="self-start text-left font-label-md text-secondary hover:underline sm:self-auto"
+                        onClick={async () => {
+                          if (!email.trim()) {
+                            setFieldErrors({ email: 'Ingresa tu correo para recuperar la contraseña.' });
+                            return;
+                          }
+                          try {
+                            await resetPassword(email);
+                            setResetSent(true);
+                          } catch (err) {
+                            setAuthError(err instanceof Error ? err.message : 'No se pudo enviar el correo de recuperación.');
+                          }
+                        }}
+                      >
                         ¿Recuperar contraseña?
-                      </a>
+                      </button>
                     </div>
                     <div className="relative">
                       <input
@@ -364,7 +464,7 @@ export function LoginPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
-                        className="w-full h-12 px-md bg-white border border-outline-variant rounded-xl focus:border-primary focus:ring-1 focus:ring-primary"
+                        className={`${INPUT_CLASS} pr-12`}
                       />
                       <button
                         type="button"
@@ -405,44 +505,35 @@ export function LoginPage() {
               )}
             </form>
           </div>
+          </div>
         </section>
       </main>
 
-      <section className="bg-surface-container-low py-xl px-gutter md:px-xxl border-t border-outline-variant">
-        <div className="max-w-container-max mx-auto space-y-lg">
+      <section className="border-t border-outline-variant bg-surface-container-low px-gutter py-xl md:px-xxl">
+        <div className="mx-auto max-w-container-max space-y-lg">
           <div className="text-center md:text-left">
             <h3 className="font-headline-md text-headline-md text-primary">Experiencia Adaptativa</h3>
             <p className="text-on-surface-variant">Selecciona el perfil que mejor se adapta a tus necesidades actuales.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+          <div className="grid grid-cols-1 gap-gutter md:grid-cols-3">
             {adaptiveProfiles.map((p) => (
               <button
                 key={p.title}
                 type="button"
                 onClick={() => navigate(p.title === 'Portal Comerciante' ? '/merchant' : '/')}
-                className="group bg-white p-lg rounded-2xl shadow-sm hover:shadow-md border border-transparent hover:border-secondary cursor-pointer transition-all text-left w-full focus-ring"
+                className="group w-full cursor-pointer rounded-2xl border border-transparent bg-white p-lg text-left shadow-sm transition-all hover:border-secondary hover:shadow-md focus-ring"
               >
-                <div className="w-12 h-12 rounded-xl bg-secondary-fixed flex items-center justify-center mb-md group-hover:scale-110 transition-transform">
+                <div className="mb-md flex h-12 w-12 items-center justify-center rounded-xl bg-secondary-fixed transition-transform group-hover:scale-110">
                   <Icon name={p.icon} className="text-on-secondary-fixed" />
                 </div>
-                <h4 className="font-headline-md text-lg text-primary mb-xs">{p.title}</h4>
-                <p className="text-on-surface-variant font-body-md">{p.desc}</p>
+                <h4 className="mb-xs font-headline-md text-lg leading-snug text-primary">{p.title}</h4>
+                <p className="font-body-md leading-relaxed text-on-surface-variant">{p.desc}</p>
               </button>
             ))}
           </div>
         </div>
       </section>
 
-      <button
-        type="button"
-        onClick={openPanel}
-        aria-label="Abrir menú de accesibilidad"
-        className="fixed bottom-8 right-8 z-50 flex items-center justify-center min-w-14 min-h-14 w-14 h-14 rounded-full bg-primary text-on-primary shadow-lg hover:scale-110 transition-all focus-ring"
-      >
-        <span className="text-[1.75rem]" aria-hidden="true">
-          ♿
-        </span>
-      </button>
       <AccessibilityPanel />
     </div>
   );

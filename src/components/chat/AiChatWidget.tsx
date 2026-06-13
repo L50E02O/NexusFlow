@@ -1,22 +1,32 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import { homeAiQuickReplies } from '@/shared/data/mock';
 import { useFocusTrap } from '@/shared/hooks/useFocusTrap';
+import { useChat } from '@/shared/context/ChatContext';
+import { useDraggable } from '@/shared/hooks/useDraggable';
 
 const welcome =
   '¡Hola! Soy tu conserje de IA. ¿Buscas algo específico hoy? Puedo ayudarte con pedidos, ofertas o devoluciones.';
 
 export function AiChatWidget() {
-  const [open, setOpen] = useState(false);
+  const { isOpen, open, close, toggle } = useChat();
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<{ role: 'user' | 'bot'; text: string }[]>([
     { role: 'bot', text: welcome },
   ]);
   const panelRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const widgetDrag = useDraggable();
 
-  // WCAG 2.2 — 2.1.2 ✓ Focus trap en panel de chat
-  useFocusTrap(panelRef, open, () => setOpen(false));
+  useFocusTrap(panelRef, isOpen, close);
+
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(el.scrollHeight, 128)}px`;
+  }, [input]);
 
   const reply = (text: string) => {
     const lower = text.toLowerCase();
@@ -37,35 +47,59 @@ export function AiChatWidget() {
     if (!body) return;
     setMessages((m) => [...m, { role: 'user', text: body }, { role: 'bot', text: reply(body) }]);
     setInput('');
-    if (!open) setOpen(true);
+    if (!isOpen) open();
   };
 
+  const handleFabPointerUp = (e: PointerEvent<HTMLButtonElement>) => {
+    widgetDrag.onPointerEnd(e);
+    if (!widgetDrag.wasDragged()) toggle();
+  };
+
+  const dragHandlers = {
+    onPointerDown: widgetDrag.onPointerDown,
+    onPointerMove: widgetDrag.onPointerMove,
+    onPointerUp: widgetDrag.onPointerEnd,
+    onPointerCancel: widgetDrag.onPointerEnd,
+  };
+
+  const wrapperClass = widgetDrag.fixedStyle
+    ? 'flex max-w-[calc(100vw-1rem)] flex-col items-end gap-md'
+    : 'fixed bottom-xl right-xl z-[60] flex max-w-[calc(100vw-2rem)] flex-col items-end gap-md';
+
   return (
-    <div className="fixed bottom-xl right-xl z-[60] flex flex-col items-end gap-md">
-      {open && (
+    <div data-draggable className={wrapperClass} style={widgetDrag.fixedStyle}>
+      {isOpen && (
         <div
           ref={panelRef}
+          id="chat-panel"
           role="dialog"
           aria-modal="true"
           aria-label="Asistente NexusFlow"
-          className="w-[min(22.5rem,calc(100vw-2rem))] bg-surface shadow-2xl rounded-xl border border-outline-variant overflow-hidden flex flex-col max-h-[min(30rem,70vh)]"
+          className="flex max-h-[min(32rem,75vh)] w-[min(22.5rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-xl border border-outline-variant bg-surface shadow-2xl"
         >
-          <div className="bg-primary text-on-primary px-lg py-md flex items-center justify-between">
-            <div className="flex items-center gap-sm">
-              <Icon name="smart_toy" filled className="text-[1.75rem]" />
-              <span className="font-headline-md text-headline-md">Asistente NexusFlow</span>
+          <div
+            className="flex cursor-grab touch-none items-center justify-between bg-primary px-lg py-md active:cursor-grabbing"
+            {...dragHandlers}
+            aria-label="Arrastrar ventana de chat"
+          >
+            <div className="flex min-w-0 items-center gap-sm">
+              <Icon name="drag_indicator" className="shrink-0 text-on-primary/70" />
+              <Icon name="smart_toy" filled className="shrink-0 text-[1.75rem]" />
+              <span className="truncate font-headline-md text-headline-md text-on-primary">
+                Asistente NexusFlow
+              </span>
             </div>
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={close}
               aria-label="Cerrar chat"
-              className="min-w-11 min-h-11 p-1 rounded-full hover:bg-white/10 focus-ring flex items-center justify-center"
+              className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-full p-1 hover:bg-white/10 focus-ring"
             >
               <Icon name="close" />
             </button>
           </div>
           <div
-            className="flex-1 overflow-y-auto p-md space-y-md custom-scrollbar bg-surface-container-lowest min-h-[12.5rem]"
+            className="custom-scrollbar min-h-[12.5rem] flex-1 space-y-md overflow-y-auto bg-surface-container-lowest p-md"
             role="log"
             aria-live="polite"
             aria-relevant="additions"
@@ -73,74 +107,92 @@ export function AiChatWidget() {
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`max-w-[90%] p-md rounded-xl text-body-md ${
+                className={`max-w-[92%] break-words rounded-xl p-md text-body-md leading-relaxed [overflow-wrap:anywhere] ${
                   msg.role === 'bot'
-                    ? 'bg-surface-container-high text-on-surface rounded-tl-none'
-                    : 'bg-primary text-on-primary ml-auto rounded-br-none'
+                    ? 'rounded-tl-none bg-surface-container-high text-on-surface'
+                    : 'ml-auto rounded-br-none bg-primary text-on-primary whitespace-pre-wrap'
                 }`}
               >
                 {msg.text}
               </div>
             ))}
           </div>
-          <div className="p-md border-t border-outline-variant space-y-sm bg-surface">
+          <div className="space-y-sm border-t border-outline-variant bg-surface p-md">
             <div className="flex flex-wrap gap-xs" role="group" aria-label="Respuestas rápidas">
               {homeAiQuickReplies.map((q) => (
                 <button
                   key={q}
                   type="button"
                   onClick={() => send(q)}
-                  className="px-3 py-1 text-label-md border border-outline-variant rounded-full hover:border-primary hover:text-primary transition-colors min-h-11"
+                  className="min-h-11 rounded-full border border-outline-variant px-3 py-1 text-label-md transition-colors hover:border-primary hover:text-primary"
                 >
                   {q}
                 </button>
               ))}
             </div>
-            <div className="flex gap-sm items-center">
+            <div className="flex items-end gap-sm">
               <label htmlFor="chat-input" className="sr-only">
                 Escribe tu mensaje al asistente
               </label>
-              <input
+              <textarea
                 id="chat-input"
-                type="text"
+                ref={textareaRef}
+                rows={1}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && send()}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    send();
+                  }
+                }}
                 placeholder="Escribe aquí..."
-                className="flex-1 bg-surface-container rounded-lg px-md py-2 text-body-md border-none focus:ring-2 focus:ring-primary"
+                className="max-h-32 min-h-11 min-w-0 flex-1 resize-none overflow-y-auto rounded-lg border-none bg-surface-container px-md py-2.5 text-body-md leading-relaxed focus:ring-2 focus:ring-primary [overflow-wrap:anywhere]"
               />
               <button
                 type="button"
                 onClick={() => send()}
                 aria-label="Enviar mensaje"
-                className="min-w-11 min-h-11 bg-primary text-on-primary rounded-lg flex items-center justify-center focus-ring"
+                className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg bg-primary text-on-primary focus-ring"
               >
                 <Icon name="send" filled />
               </button>
             </div>
-            <Link to="/mensajeria" className="text-label-md text-secondary hover:underline block text-center">
+            <Link
+              to="/mensajeria"
+              className="block text-center text-label-md text-secondary hover:underline"
+            >
               Ir a Mensajería y Comunicación
             </Link>
           </div>
         </div>
       )}
 
-      {!open && (
-        <div className="bg-surface shadow-xl rounded-xl border border-outline-variant p-md max-w-[17.5rem] hidden md:block" role="status">
-          <p className="text-body-md text-primary font-medium">{welcome}</p>
+      {!isOpen && (
+        <div
+          className="hidden max-w-[17.5rem] rounded-xl border border-outline-variant bg-surface p-md shadow-xl md:block"
+          role="status"
+        >
+          <p className="text-body-md font-medium leading-relaxed text-primary">{welcome}</p>
         </div>
       )}
 
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-label="Abrir asistente de IA"
-        aria-expanded={open}
-        aria-controls={open ? 'chat-panel' : undefined}
-        className="min-w-16 min-h-16 w-16 h-16 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all focus-ring relative"
+        onPointerDown={widgetDrag.onPointerDown}
+        onPointerMove={widgetDrag.onPointerMove}
+        onPointerUp={handleFabPointerUp}
+        onPointerCancel={widgetDrag.onPointerEnd}
+        aria-label="Abrir asistente de IA. Mantén y arrastra para mover."
+        aria-expanded={isOpen}
+        aria-controls="chat-panel"
+        className="relative flex h-16 w-16 min-h-16 min-w-16 cursor-grab touch-none items-center justify-center rounded-full bg-primary text-on-primary shadow-2xl transition-all hover:scale-105 active:cursor-grabbing active:scale-95 focus-ring"
       >
         <Icon name="smart_toy" className="text-[2rem]" filled />
-        <span className="absolute -top-1 -right-1 w-4 h-4 bg-error rounded-full border-2 border-surface" aria-hidden="true" />
+        <span
+          className="absolute -right-1 -top-1 h-4 w-4 rounded-full border-2 border-surface bg-error"
+          aria-hidden="true"
+        />
       </button>
     </div>
   );

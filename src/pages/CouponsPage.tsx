@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import { coupons } from '@/shared/data/mock';
 import { useCountdown } from '@/shared/hooks/useCountdown';
@@ -23,9 +24,9 @@ export function CouponsPage() {
               Optimiza tus compras con ahorros exclusivos diseñados por nuestra inteligencia artificial.
             </p>
             <div className="flex gap-md flex-wrap">
-              <button type="button" className="bg-primary-fixed text-on-primary-fixed px-lg py-md rounded-xl font-button hover:opacity-90 focus-ring">
+              <Link to="/ofertas" className="bg-primary-fixed text-on-primary-fixed px-lg py-md rounded-xl font-button hover:opacity-90 focus-ring inline-flex items-center min-h-11">
                 Explorar Ofertas
-              </button>
+              </Link>
               <button type="button" className="border-2 border-primary-fixed text-primary-fixed px-lg py-md rounded-xl font-button hover:bg-primary-fixed/10 focus-ring">
                 Mis Recompensas
               </button>

@@ -26,7 +26,7 @@ export function MerchantAssistantPage() {
   };
 
   return (
-    <div className="p-lg h-[calc(100vh-4rem)] flex flex-col lg:flex-row gap-lg max-w-[1600px] mx-auto">
+    <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-[1400px] flex-col gap-lg p-lg lg:flex-row">
       <section className="flex-1 flex flex-col bg-white rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden min-h-[500px]">
         <div className="h-16 px-xl flex items-center justify-between border-b border-outline-variant bg-surface-container-lowest">
           <div className="flex items-center gap-md">

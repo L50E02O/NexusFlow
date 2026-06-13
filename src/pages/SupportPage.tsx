@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
+import { useChat } from '@/shared/context/ChatContext';
+import { useAccessibility } from '@/shared/context/AccessibilityContext';
 
 const helpCategories = [
   {
@@ -7,24 +9,28 @@ const helpCategories = [
     title: 'Pedidos',
     description: 'Rastreo, cancelaciones y problemas con entregas.',
     tags: ['Rastreo', 'Cancelación'],
+    to: '/historial',
   },
   {
     icon: 'payments',
     title: 'Pagos',
     description: 'Métodos de pago, facturas y reembolsos.',
     tags: ['Facturas', 'Seguridad'],
+    to: '/metodos-pago',
   },
   {
     icon: 'assignment_return',
     title: 'Devoluciones',
     description: 'Garantías y políticas de retorno de productos.',
     tags: ['Política', 'Proceso'],
+    to: '/politicas-devoluciones',
   },
   {
     icon: 'account_circle',
     title: 'Cuenta',
     description: 'Seguridad, perfil y preferencias de usuario.',
     tags: ['Contraseña', 'Privacidad'],
+    to: '/configuracion',
   },
 ];
 
@@ -50,6 +56,9 @@ const tutorials = [
 ];
 
 export function SupportPage() {
+  const { open: openChat } = useChat();
+  const { openPanel } = useAccessibility();
+
   return (
     <div className="max-w-container-max mx-auto w-full px-lg py-xl space-y-xxl">
       <section className="relative overflow-hidden rounded-xl bg-primary-container p-xl flex flex-col items-center justify-center text-center min-h-[300px]">
@@ -58,12 +67,12 @@ export function SupportPage() {
           ¿En qué podemos ayudarte hoy? Busca artículos, gestiona tus tickets o contacta con nuestro equipo.
         </p>
         <div className="flex flex-wrap justify-center gap-md">
-          <button type="button" className="min-h-11 px-xl bg-white text-primary rounded-xl font-button hover:shadow-lg flex items-center gap-sm focus-ring">
+          <Link to="/mensajeria" className="min-h-11 px-xl bg-white text-primary rounded-xl font-button hover:shadow-lg flex items-center gap-sm focus-ring">
             <Icon name="add_circle" /> Crear Ticket
-          </button>
-          <button type="button" className="min-h-11 px-xl border-2 border-white text-white rounded-xl font-button hover:bg-white/10 flex items-center gap-sm focus-ring">
+          </Link>
+          <Link to="/mensajeria" className="min-h-11 px-xl border-2 border-white text-white rounded-xl font-button hover:bg-white/10 flex items-center gap-sm focus-ring">
             <Icon name="assignment" /> Seguimiento de Tickets
-          </button>
+          </Link>
           <Link
             to="/mensajeria"
             className="min-h-11 px-xl bg-secondary text-white rounded-xl font-button hover:bg-secondary/90 flex items-center gap-sm focus-ring"
@@ -78,9 +87,10 @@ export function SupportPage() {
           <h2 className="font-headline-md text-headline-md text-primary">Categorías de Ayuda</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
             {helpCategories.map((cat) => (
-              <div
+              <Link
                 key={cat.title}
-                className="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-surface-container hover:-translate-y-1 transition-transform cursor-pointer group"
+                to={cat.to}
+                className="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-surface-container hover:-translate-y-1 transition-transform cursor-pointer group block focus-ring"
               >
                 <Icon name={cat.icon} className="text-[32px] text-primary mb-md group-hover:scale-110 transition-transform" filled />
                 <h3 className="font-bold text-body-lg mb-xs">{cat.title}</h3>
@@ -92,7 +102,7 @@ export function SupportPage() {
                     </span>
                   ))}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
 
@@ -105,7 +115,11 @@ export function SupportPage() {
               <p className="text-on-secondary-fixed-variant mb-md">
                 NexusFlow se compromete con la inclusión. Encuentra guías sobre lectores de pantalla y navegación asistida.
               </p>
-              <button type="button" className="min-h-11 px-lg bg-primary text-white rounded-xl font-button hover:bg-primary-container focus-ring">
+              <button
+                type="button"
+                onClick={openPanel}
+                className="min-h-11 px-lg bg-primary text-white rounded-xl font-button hover:bg-primary-container focus-ring"
+              >
                 Ver Guías de Accesibilidad
               </button>
             </div>
@@ -121,18 +135,26 @@ export function SupportPage() {
               Analizando tu actividad reciente para ofrecerte soluciones inmediatas.
             </p>
             <div className="space-y-sm mb-xl">
-              {['¿Dónde está mi último pedido?', 'Cambiar método de pago'].map((q) => (
-                <button
-                  key={q}
-                  type="button"
-                  className="w-full text-left p-md bg-white/10 hover:bg-white/20 rounded-lg text-label-md flex justify-between items-center transition-colors"
-                >
-                  {q}
-                  <Icon name="arrow_forward" className="text-sm" />
-                </button>
-              ))}
+              <Link
+                to="/historial"
+                className="w-full text-left p-md bg-white/10 hover:bg-white/20 rounded-lg text-label-md flex justify-between items-center transition-colors min-h-11"
+              >
+                ¿Dónde está mi último pedido?
+                <Icon name="arrow_forward" className="text-sm" />
+              </Link>
+              <Link
+                to="/configuracion"
+                className="w-full text-left p-md bg-white/10 hover:bg-white/20 rounded-lg text-label-md flex justify-between items-center transition-colors min-h-11"
+              >
+                Cambiar método de pago
+                <Icon name="arrow_forward" className="text-sm" />
+              </Link>
             </div>
-            <button type="button" className="w-full min-h-11 bg-secondary text-white rounded-xl font-button hover:bg-secondary/90 shadow-md focus-ring">
+            <button
+              type="button"
+              onClick={openChat}
+              className="w-full min-h-11 bg-secondary text-white rounded-xl font-button hover:bg-secondary/90 shadow-md focus-ring"
+            >
               Iniciar Chat con IA
             </button>
           </div>

@@ -10,15 +10,30 @@ import {
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/shared/lib/supabase';
 
+type SignUpMetadata = {
+	role?: 'merchant' | 'consumer';
+	firstName?: string;
+	lastName?: string;
+};
+
 type AuthContextValue = {
 	session: Session | null;
 	user: User | null;
 	loading: boolean;
+	isMerchant: boolean;
 	signIn: (email: string, password: string) => Promise<void>;
+	signUp: (email: string, password: string, metadata?: SignUpMetadata) => Promise<void>;
 	signOut: () => Promise<void>;
+	resetPassword: (email: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+function resolveIsMerchant(user: User | null): boolean {
+	if (!user) return false;
+	const role = user.user_metadata?.role as string | undefined;
+	return role === 'merchant';
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const [session, setSession] = useState<Session | null>(null);
@@ -54,6 +69,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		}
 	}, []);
 
+	const signUp = useCallback(async (email: string, password: string, metadata?: SignUpMetadata) => {
+		const { error } = await supabase.auth.signUp({
+			email,
+			password,
+			options: {
+				data: {
+					role: metadata?.role ?? 'consumer',
+					first_name: metadata?.firstName,
+					last_name: metadata?.lastName,
+				},
+			},
+		});
+		if (error) {
+			throw error;
+		}
+	}, []);
+
 	const signOut = useCallback(async () => {
 		const { error } = await supabase.auth.signOut();
 		if (error) {
@@ -61,15 +93,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		}
 	}, []);
 
+	const resetPassword = useCallback(async (email: string) => {
+		const { error } = await supabase.auth.resetPasswordForEmail(email, {
+			redirectTo: `${window.location.origin}/login`,
+		});
+		if (error) {
+			throw error;
+		}
+	}, []);
+
+	const user = session?.user ?? null;
+	const isMerchant = resolveIsMerchant(user);
+
 	const value = useMemo(
 		() => ({
 			session,
-			user: session?.user ?? null,
+			user,
 			loading,
+			isMerchant,
 			signIn,
+			signUp,
 			signOut,
+			resetPassword,
 		}),
-		[session, loading, signIn, signOut],
+		[session, user, loading, isMerchant, signIn, signUp, signOut, resetPassword],
 	);
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

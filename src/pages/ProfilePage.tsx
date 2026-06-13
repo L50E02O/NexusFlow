@@ -1,6 +1,9 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
+import { useAccessibility } from '@/shared/context/AccessibilityContext';
+import { useAuth } from '@/shared/context/AuthContext';
+import { useI18n } from '@/shared/i18n/I18nContext';
 import {
   userProfile,
   userAddresses,
@@ -13,7 +16,16 @@ import {
 const activityTabs = ['Pedidos Recientes', 'Historial', 'Productos vistos'] as const;
 
 export function ProfilePage() {
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
+  const { darkMode, setDarkMode } = useAccessibility();
+  const { locale, setLocale } = useI18n();
   const [activeTab, setActiveTab] = useState<(typeof activityTabs)[number]>('Pedidos Recientes');
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
     <div className="pb-xxl max-w-container-max mx-auto px-lg py-xl">
@@ -61,6 +73,14 @@ export function ProfilePage() {
                 <Icon name="settings" />
                 Configuración
               </Link>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="px-lg py-md border-2 border-error text-error rounded-xl font-button hover:bg-error-container/20 transition-all min-h-11 flex items-center gap-xs"
+              >
+                <Icon name="logout" />
+                Cerrar sesión
+              </button>
             </div>
           </div>
         </section>
@@ -197,13 +217,37 @@ export function ProfilePage() {
             <h3 className="font-headline-md text-headline-md text-primary mb-xl">Preferencias</h3>
             <div className="flex flex-col gap-xl">
               <div>
-                <label className="font-label-md text-primary">Idioma</label>
-                <select className="w-full mt-xs p-md border border-outline-variant rounded-xl bg-surface-bright h-12 focus:ring-2 focus:ring-primary outline-none">
-                  <option>Español</option>
-                  <option>English</option>
+                <label htmlFor="profile-language" className="font-label-md text-primary">
+                  Idioma
+                </label>
+                <select
+                  id="profile-language"
+                  value={locale}
+                  onChange={(e) => setLocale(e.target.value as 'es' | 'en')}
+                  className="w-full mt-xs p-md border border-outline-variant rounded-xl bg-surface-bright h-12 focus:ring-2 focus:ring-primary outline-none"
+                >
+                  <option value="es">Español</option>
+                  <option value="en">Inglés</option>
                 </select>
               </div>
-              <ToggleRow label="Modo Oscuro" hint="Ajustar interfaz para la noche" defaultOn={false} />
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="font-label-md text-primary">Modo Oscuro</span>
+                  <p className="text-[12px] text-on-surface-variant">Ajustar interfaz para la noche</p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={darkMode}
+                  aria-label="Activar modo oscuro"
+                  onClick={() => setDarkMode(!darkMode)}
+                  className={`w-12 h-6 rounded-full relative transition-colors ${darkMode ? 'bg-primary' : 'bg-surface-container-high'}`}
+                >
+                  <span
+                    className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${darkMode ? 'right-1' : 'left-1'}`}
+                  />
+                </button>
+              </div>
               <ToggleRow label="Notificaciones" hint="Email y notificaciones push" defaultOn />
             </div>
           </section>

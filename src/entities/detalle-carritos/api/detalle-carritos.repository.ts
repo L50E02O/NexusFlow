@@ -1,27 +1,23 @@
+import { supabase } from '../../../shared/lib/supabase';
 import type { DetalleCarritoInsert, DetalleCarritoUpdate } from '../../../shared/types/database/detalle-carritos';
-import { isSupabaseConfigured, requireSupabaseClient } from '../../../shared/lib/supabase';
 
 const tableName = 'detalle_carritos';
-
-function getTable() {
-	return requireSupabaseClient().from(tableName) as any;
-}
+const table = supabase.from(tableName) as any;
 
 export const detalleCarritosRepository = {
-	isConfigured: isSupabaseConfigured,
 	list() {
-		return getTable().select('*');
+		return table.select('*');
 	},
 	findById(idDetalle: string) {
-		return getTable().select('*').eq('id_detalle', idDetalle).maybeSingle();
+		return table.select('*').eq('id_detalle', idDetalle).maybeSingle();
 	},
 	create(payload: DetalleCarritoInsert) {
-		return getTable().insert(payload).select('*').single();
+		return table.insert(payload).select('*').single();
 	},
 	update(idDetalle: string, payload: DetalleCarritoUpdate) {
-		return getTable().update(payload).eq('id_detalle', idDetalle).select('*').single();
+		return table.update(payload).eq('id_detalle', idDetalle).select('*').single();
 	},
 	remove(idDetalle: string) {
-		return getTable().delete().eq('id_detalle', idDetalle);
+		return table.delete().eq('id_detalle', idDetalle);
 	},
 } as const;

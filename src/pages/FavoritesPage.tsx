@@ -1,29 +1,64 @@
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import { useCart } from '@/shared/context/CartContext';
+import { useFavorites } from '@/shared/context/FavoritesContext';
 import {
-  favoriteProducts,
   favoriteRecommendations,
   catalogProducts,
+  trendingProducts,
+  aiPicks,
+  favoriteProducts,
   formatPrice,
+  type Product,
 } from '@/shared/data/mock';
+
+function buildProductCatalog(): Map<string, Product> {
+  const map = new Map<string, Product>();
+  for (const p of [
+    ...catalogProducts,
+    ...trendingProducts,
+    ...aiPicks,
+    ...favoriteProducts,
+    ...favoriteRecommendations,
+  ]) {
+    map.set(p.id, p);
+  }
+  return map;
+}
+
+const productCatalog = buildProductCatalog();
 
 export function FavoritesPage() {
   const { addToCart } = useCart();
-  const [favorites, setFavorites] = useState(favoriteProducts);
+  const { favoriteIds, removeFavorite } = useFavorites();
 
-  const removeFavorite = (id: string) => {
-    setFavorites((prev) => prev.filter((p) => p.id !== id));
-  };
+  const favorites = useMemo(
+    () =>
+      favoriteIds
+        .map((id) => productCatalog.get(id))
+        .filter((p): p is Product => p !== undefined),
+    [favoriteIds],
+  );
 
   const handleAdd = (id: string) => {
-    const product =
-      favorites.find((p) => p.id === id) ??
-      catalogProducts.find((p) => p.id === id) ??
-      favoriteRecommendations.find((p) => p.id === id);
+    const product = productCatalog.get(id);
     if (product && product.stock !== 'out') addToCart(product);
   };
+
+  if (favorites.length === 0) {
+    return (
+      <div className="max-w-container-max mx-auto px-lg py-xl text-center">
+        <h1 className="font-headline-lg text-headline-lg text-primary mb-md">Mis Favoritos</h1>
+        <p className="text-on-surface-variant py-xxl">
+          No tienes favoritos.{' '}
+          <Link to="/tienda" className="text-primary font-bold hover:underline">
+            Explorar tienda
+          </Link>
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-container-max mx-auto px-lg py-xl">
@@ -35,32 +70,6 @@ export function FavoritesPage() {
               Tienes <span className="font-bold text-on-surface">{favorites.length} productos</span>{' '}
               guardados en tu lista de deseos.
             </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-md">
-            <button
-              type="button"
-              className="px-md py-sm bg-surface-container-high rounded-full font-label-md text-label-md hover:bg-primary hover:text-white transition-colors"
-            >
-              Categoría
-            </button>
-            <button
-              type="button"
-              className="px-md py-sm bg-surface-container-high rounded-full font-label-md text-label-md hover:bg-primary hover:text-white transition-colors"
-            >
-              Disponibilidad
-            </button>
-            <div className="relative min-w-[180px]">
-              <select className="w-full h-11 bg-white border border-outline-variant rounded-lg px-md font-label-md text-label-md appearance-none focus:ring-2 focus:ring-primary outline-none">
-                <option>Ordenar por: Relevancia</option>
-                <option>Precio: Menor a Mayor</option>
-                <option>Precio: Mayor a Menor</option>
-                <option>Recientes</option>
-              </select>
-              <Icon
-                name="expand_more"
-                className="absolute right-md top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant"
-              />
-            </div>
           </div>
         </div>
       </header>
@@ -76,11 +85,13 @@ export function FavoritesPage() {
               }`}
             >
               <div className={`relative aspect-square overflow-hidden rounded-t-xl ${outOfStock ? 'grayscale' : ''}`}>
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className={`w-full h-full object-cover transition-transform duration-500 ${outOfStock ? '' : 'group-hover:scale-110'}`}
-                />
+                <Link to={`/tienda?q=${encodeURIComponent(product.name)}`}>
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className={`w-full h-full object-cover transition-transform duration-500 ${outOfStock ? '' : 'group-hover:scale-110'}`}
+                  />
+                </Link>
                 {product.originalPrice && (
                   <div className="absolute top-md left-md bg-error text-white px-sm py-xs rounded-md text-label-md font-bold">
                     -
@@ -108,8 +119,8 @@ export function FavoritesPage() {
               </div>
               <div className="p-lg flex flex-col flex-1">
                 <div className="flex items-center gap-xs mb-sm">
-                  <div className="flex text-tertiary-container">
-                    {[1, 2, 3, 4].map((i) => (
+                  <div className="flex text-tertiary-container" aria-label={`Valoración: ${product.rating} de 5`}>
+                    {[1, 2, 3, 4, 5].map((i) => (
                       <Icon key={i} name="star" className="text-[18px]" filled={i <= Math.floor(product.rating)} />
                     ))}
                   </div>
@@ -131,12 +142,12 @@ export function FavoritesPage() {
                   {!outOfStock ? (
                     <div className="flex items-center gap-xs text-green-600 mb-lg">
                       <Icon name="check_circle" className="text-base" />
-                      <span className="text-label-md">En Stock</span>
+                      <span className="text-label-md">En stock</span>
                     </div>
                   ) : (
                     <div className="flex items-center gap-xs text-error mb-lg">
                       <Icon name="info" className="text-base" />
-                      <span className="text-label-md">Sin Stock</span>
+                      <span className="text-label-md">Sin stock</span>
                     </div>
                   )}
                   <button
@@ -150,7 +161,7 @@ export function FavoritesPage() {
                     }`}
                   >
                     <Icon name={outOfStock ? 'notifications_active' : 'shopping_cart'} />
-                    {outOfStock ? 'Avísame cuando vuelva' : 'Añadir al Carrito'}
+                    {outOfStock ? 'Avísame cuando vuelva' : 'Añadir al carrito'}
                   </button>
                 </div>
               </div>
@@ -161,7 +172,7 @@ export function FavoritesPage() {
 
       <section className="bg-surface-container-low rounded-xxl p-xl md:p-xxl">
         <div className="flex items-center gap-md mb-xl">
-          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shrink-0">
             <Icon name="auto_awesome" className="text-white" filled />
           </div>
           <div>
@@ -183,26 +194,16 @@ export function FavoritesPage() {
               </div>
               <h4 className="font-label-md text-body-md text-primary truncate mb-xs">{item.name}</h4>
               <span className="text-label-md text-on-surface font-bold mb-md">{formatPrice(item.price)}</span>
-              <button
-                type="button"
-                onClick={() => handleAdd(item.id)}
-                className="w-full py-sm border-2 border-primary text-primary rounded-lg font-button text-label-md hover:bg-primary hover:text-white transition-all"
+              <Link
+                to={`/tienda?q=${encodeURIComponent(item.name)}`}
+                className="w-full py-sm border-2 border-primary text-primary rounded-lg font-button text-label-md hover:bg-primary hover:text-white transition-all text-center min-h-11 flex items-center justify-center"
               >
                 Ver detalle
-              </button>
+              </Link>
             </div>
           ))}
         </div>
       </section>
-
-      {favorites.length === 0 && (
-        <p className="text-center text-on-surface-variant py-xxl">
-          No tienes favoritos.{' '}
-          <Link to="/tienda" className="text-primary font-bold hover:underline">
-            Explorar tienda
-          </Link>
-        </p>
-      )}
     </div>
   );
 }

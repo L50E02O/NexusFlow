@@ -8,7 +8,7 @@ import { catalogProducts, formatPrice } from '@/shared/data/mock';
 const steps = ['Envío', 'Entrega', 'Pago'] as const;
 
 export function CheckoutPage() {
-  const { items } = useCart();
+  const { items, clearCart } = useCart();
   const [step, setStep] = useState(0);
   const [addressValidated] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -27,7 +27,7 @@ export function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="max-w-container-max mx-auto px-lg py-xxl text-center">
-        <h1 className="font-headline-lg text-headline-lg text-primary mb-md">Checkout</h1>
+        <h1 className="font-headline-lg text-headline-lg text-primary mb-md">Finalizar compra</h1>
         <p className="text-on-surface-variant mb-lg">Tu carrito está vacío.</p>
         <Link to="/tienda" className="text-primary font-button hover:underline">
           Ir a la tienda
@@ -289,6 +289,7 @@ export function CheckoutPage() {
                 onClick={() => {
                   setShowConfirm(false);
                   setOrderComplete(true);
+                  clearCart();
                 }}
                 className="flex-1 min-h-11 bg-primary text-on-primary rounded-xl font-button focus-ring"
               >

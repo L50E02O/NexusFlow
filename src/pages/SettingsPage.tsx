@@ -3,6 +3,8 @@ import { Icon } from '@/shared/ui/Icon';
 import { userProfile } from '@/shared/data/mock';
 import { useWcagCriterios } from '@/shared/hooks/useWcagCriterios';
 import { DataStatus } from '@/shared/ui/DataStatus';
+import { useAccessibility } from '@/shared/context/AccessibilityContext';
+import { useI18n } from '@/shared/i18n/I18nContext';
 import type { WcagEstado } from '@/shared/types/database/wcag-criterios';
 
 const estadoLabels: Record<WcagEstado, { label: string; className: string }> = {
@@ -21,9 +23,12 @@ const settingsNav = [
 
 type SettingsSection = (typeof settingsNav)[number]['id'];
 
+const textScaleLabels = { sm: '14px (Pequeño)', md: '16px (Normal)', lg: '18px (Grande)' };
+
 export function SettingsPage() {
   const [active, setActive] = useState<SettingsSection>('cuenta');
-  const [darkMode, setDarkMode] = useState(false);
+  const { darkMode, setDarkMode, textScale, setTextScale } = useAccessibility();
+  const { locale, setLocale } = useI18n();
   const [name, setName] = useState(userProfile.name);
   const [email, setEmail] = useState(userProfile.email);
   const [notifEmail, setNotifEmail] = useState(true);
@@ -158,10 +163,17 @@ export function SettingsPage() {
             <div className="p-lg space-y-lg">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
                 <div>
-                  <label className="font-label-md text-on-surface-variant">Idioma</label>
-                  <select className="w-full h-12 px-md rounded-xl border-2 border-outline-variant/50 mt-xs bg-white">
-                    <option>Español</option>
-                    <option>Inglés</option>
+                  <label htmlFor="settings-language" className="font-label-md text-on-surface-variant">
+                    Idioma
+                  </label>
+                  <select
+                    id="settings-language"
+                    value={locale}
+                    onChange={(e) => setLocale(e.target.value as 'es' | 'en')}
+                    className="w-full h-12 px-md rounded-xl border-2 border-outline-variant/50 mt-xs bg-white"
+                  >
+                    <option value="es">Español</option>
+                    <option value="en">Inglés</option>
                   </select>
                 </div>
                 <div>
@@ -184,10 +196,8 @@ export function SettingsPage() {
                   type="button"
                   role="switch"
                   aria-checked={darkMode}
-                  onClick={() => {
-                    setDarkMode(!darkMode);
-                    document.documentElement.classList.toggle('dark', !darkMode);
-                  }}
+                  aria-label="Activar modo oscuro"
+                  onClick={() => setDarkMode(!darkMode)}
                   className={`w-14 h-7 rounded-full relative ${darkMode ? 'bg-secondary-container' : 'bg-white/20'}`}
                 >
                   <span className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow-sm transition-all ${darkMode ? 'right-1' : 'left-1'}`} />
@@ -206,10 +216,27 @@ export function SettingsPage() {
             <div className="p-lg space-y-xl">
               <div>
                 <div className="flex justify-between items-center mb-sm">
-                  <label className="font-bold">Tamaño de texto</label>
-                  <span className="text-primary font-bold">16px (Normal)</span>
+                  <label htmlFor="text-scale" className="font-bold">
+                    Tamaño de texto
+                  </label>
+                  <span className="text-primary font-bold">{textScaleLabels[textScale]}</span>
                 </div>
-                <input type="range" min={12} max={24} defaultValue={16} className="w-full accent-primary" />
+                <input
+                  id="text-scale"
+                  type="range"
+                  min={0}
+                  max={2}
+                  step={1}
+                  value={textScale === 'sm' ? 0 : textScale === 'md' ? 1 : 2}
+                  onChange={(e) => {
+                    const scales = ['sm', 'md', 'lg'] as const;
+                    setTextScale(scales[Number(e.target.value)]);
+                  }}
+                  className="w-full accent-primary"
+                  aria-valuemin={0}
+                  aria-valuemax={2}
+                  aria-valuenow={textScale === 'sm' ? 0 : textScale === 'md' ? 1 : 2}
+                />
               </div>
               <label className="flex items-center justify-between p-md border border-outline-variant/20 rounded-xl cursor-pointer">
                 <div>
