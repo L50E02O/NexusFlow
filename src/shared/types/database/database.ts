@@ -9,6 +9,8 @@ import type { ProductoInsert, ProductoRow, ProductoUpdate } from './productos';
 import type { ProfileInsert, ProfileRow, ProfileUpdate } from './profiles';
 import type { RecomendacionInsert, RecomendacionRow, RecomendacionUpdate } from './recomendacion';
 import type { ResenaInsert, ResenaRow, ResenaUpdate } from './resenas';
+import type { WcagCriterioInsert, WcagCriterioRow, WcagCriterioUpdate } from './wcag-criterios';
+import type { MenuAccesibilidadInsert, MenuAccesibilidadRow, MenuAccesibilidadUpdate } from './menu-accesibilidad';
 
 export interface Database {
 	public: {
@@ -67,6 +69,16 @@ export interface Database {
 				Row: RecomendacionRow;
 				Insert: RecomendacionInsert;
 				Update: RecomendacionUpdate;
+			};
+			wcag_criterios: {
+				Row: WcagCriterioRow;
+				Insert: WcagCriterioInsert;
+				Update: WcagCriterioUpdate;
+			};
+			menu_accesibilidad: {
+				Row: MenuAccesibilidadRow;
+				Insert: MenuAccesibilidadInsert;
+				Update: MenuAccesibilidadUpdate;
 			};
 		};
 	};

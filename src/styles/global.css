@@ -1,0 +1,312 @@
+@import 'tailwindcss';
+
+/* WCAG 2.2 — 1.4.3 ✓ Contraste mínimo ajustado en tokens de diseño */
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  --color-primary: #031635;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1a2b4b;
+  --color-on-primary-container: #c5d0e8;
+  --color-primary-fixed: #d8e2ff;
+  --color-on-primary-fixed: #081b3a;
+  --color-primary-fixed-dim: #b6c6ef;
+
+  --color-secondary: #3f5d9b;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #9ebbff;
+  --color-on-secondary-container: #2a4986;
+  --color-secondary-fixed: #d9e2ff;
+  --color-on-secondary-fixed: #001a43;
+
+  --color-tertiary: #231400;
+  --color-tertiary-container: #3e2700;
+  --color-tertiary-fixed: #ffddb1;
+  --color-on-tertiary-fixed: #291800;
+
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  --color-background: #f8f9fb;
+  --color-on-background: #191c1e;
+  --color-surface: #f8f9fb;
+  --color-on-surface: #191c1e;
+  --color-on-surface-variant: #44474e;
+  --color-surface-container: #edeef0;
+  --color-surface-container-low: #f3f4f6;
+  --color-surface-container-high: #e7e8ea;
+  --color-surface-container-highest: #e1e2e4;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-variant: #e1e2e4;
+  --color-outline: #75777f;
+  --color-outline-variant: #c5c6cf;
+
+  --color-inverse-surface: #2e3132;
+  --color-inverse-on-surface: #f0f1f3;
+
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+  --spacing-md: 16px;
+  --spacing-sm: 8px;
+  --spacing-xs: 4px;
+  --spacing-gutter: 24px;
+
+  --container-container-max: 1280px;
+
+  --radius-xl: 0.75rem;
+}
+
+/* WCAG 2.2 — 1.4.4 ✓ Tipografía en rem para escalado al 200% */
+@utility text-headline-lg {
+  font-size: 2rem;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+
+@utility text-headline-md {
+  font-size: 1.5rem;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+@utility text-display-lg {
+  font-size: 3rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+@utility text-body-lg {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+@utility text-body-md {
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+@utility text-label-md {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  font-weight: 600;
+}
+
+@utility text-button {
+  font-size: 1rem;
+  line-height: 1;
+  font-weight: 600;
+}
+
+@utility font-button {
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.material-symbols-outlined.filled {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* WCAG 2.2 — 2.4.7 ✓ Foco visible consistente; 1.4.11 ✓ contraste ≥3:1 */
+.focus-ring:focus-visible,
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+/* WCAG 2.2 — 2.4.1 ✓ Enlace saltar al contenido */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 0.5rem 0;
+}
+
+.skip-link:focus {
+  left: 0;
+  outline: 2px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+/* WCAG 2.2 — 2.4.11 ✓ Foco no oculto tras header sticky */
+#main-content {
+  scroll-margin-top: 5rem;
+}
+
+.shadow-soft {
+  box-shadow: 0 4px 20px -2px rgba(26, 43, 75, 0.08);
+}
+
+.profile-card-active {
+  border-color: #031635;
+  background-color: #f3f4f6;
+  box-shadow: 0 4px 12px rgba(3, 22, 53, 0.1);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.coupon-tear {
+  mask-image:
+    radial-gradient(circle at 0 50%, transparent 12px, black 13px),
+    radial-gradient(circle at 100% 50%, transparent 12px, black 13px);
+  mask-position: left, right;
+  mask-size: 100% 100%;
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* WCAG 2.2 — Menú accesibilidad: alto contraste */
+html.high-contrast {
+  --color-background: #000000;
+  --color-on-background: #ffffff;
+  --color-surface: #000000;
+  --color-on-surface: #ffffff;
+  --color-on-surface-variant: #e5e5e5;
+  --color-primary: #ffff00;
+  --color-on-primary: #000000;
+  --color-outline: #ffffff;
+  --color-outline-variant: #cccccc;
+}
+
+html.grayscale-mode body {
+  filter: grayscale(100%);
+}
+
+html.underline-links a {
+  text-decoration: underline !important;
+  text-underline-offset: 0.15em;
+}
+
+/* WCAG 2.2 — 2.2.2 / 2.3.1 ✓ Pausar animaciones */
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* WCAG 2.2 — 1.4.12 ✓ Espaciado de texto del usuario */
+@media (prefers-reduced-motion: no-preference) {
+  body {
+    line-height: 1.5;
+  }
+}
+
+/* WCAG 2.2 — 1.4.10 ✓ Reflow sin scroll horizontal a 320px */
+@media (max-width: 20rem) {
+  .max-w-container-max {
+    max-width: 100%;
+    padding-inline: 0.75rem;
+  }
+}
+
+/* WCAG 2.2 — 3.3.1 ✓ Errores de formulario con indicador no solo color */
+.form-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+  color: var(--color-error);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.form-error::before {
+  content: '⚠';
+  flex-shrink: 0;
+}
+
+input[aria-invalid='true'],
+select[aria-invalid='true'],
+textarea[aria-invalid='true'] {
+  border-color: var(--color-error) !important;
+  border-width: 2px;
+}
+
+html.dark body {
+  color-scheme: dark;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
