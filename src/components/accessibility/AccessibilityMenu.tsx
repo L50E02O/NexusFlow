@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { MouseEvent } from 'react';
+import type { MouseEvent as ReactMouseEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAccessibility } from '@/shared/context/AccessibilityContext';
 import { useFocusTrap } from '@/shared/hooks/useFocusTrap';
@@ -63,7 +63,7 @@ export function AccessibilityMenu() {
   const [settings, setSettings] = useState<AccessibilitySettings>(DEFAULT_SETTINGS);
   const [subtitleNotice, setSubtitleNotice] = useState<string | null>(null);
   const [transcriptNotice, setTranscriptNotice] = useState<string | null>(null);
-  const menuRef = useRef<HTMLElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const open = panelOpen;
 
@@ -86,7 +86,7 @@ export function AccessibilityMenu() {
   useEffect(() => {
     if (!open) return;
 
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: Event) => {
       const target = event.target as Node;
       if (menuRef.current && !menuRef.current.contains(target)) {
         const button = document.querySelector('[aria-label*="accesibilidad"]');
@@ -183,7 +183,7 @@ export function AccessibilityMenu() {
     sessionStorage.removeItem(SESSION_AUDIO_KEY);
   };
 
-  const handleQuickLink = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleQuickLink = (event: ReactMouseEvent<HTMLAnchorElement>, href: string) => {
     event.preventDefault();
     closePanel();
 

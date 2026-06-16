@@ -1,0 +1,80 @@
+
+> neuxflow@0.1.0 build
+> tsc -b && vite build
+
+src/components/accessibility/AccessibilityMenu.tsx(99,44): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(type: "mousedown", listener: (this: Document, ev: MouseEvent) => any, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(event: MouseEvent) => void' is not assignable to parameter of type '(this: Document, ev: MouseEvent) => any'.
+      Types of parameters 'event' and 'ev' are incompatible.
+        Type 'MouseEvent' is missing the following properties from type 'MouseEvent<Element, MouseEvent>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
+  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(event: MouseEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
+      Type '(event: MouseEvent) => void' is not assignable to type 'EventListener'.
+        Types of parameters 'event' and 'evt' are incompatible.
+          Type 'Event' is missing the following properties from type 'MouseEvent<Element, MouseEvent>': altKey, button, buttons, clientX, and 18 more.
+src/components/accessibility/AccessibilityMenu.tsx(101,49): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(type: "mousedown", listener: (this: Document, ev: MouseEvent) => any, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(event: MouseEvent) => void' is not assignable to parameter of type '(this: Document, ev: MouseEvent) => any'.
+      Types of parameters 'event' and 'ev' are incompatible.
+        Type 'MouseEvent' is missing the following properties from type 'MouseEvent<Element, MouseEvent>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
+  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(event: MouseEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
+      Type '(event: MouseEvent) => void' is not assignable to type 'EventListener'.
+        Types of parameters 'event' and 'evt' are incompatible.
+          Type 'Event' is missing the following properties from type 'MouseEvent<Element, MouseEvent>': altKey, button, buttons, clientX, and 18 more.
+src/components/accessibility/AccessibilityMenu.tsx(220,11): error TS2322: Type 'RefObject<HTMLElement | null>' is not assignable to type 'Ref<HTMLDivElement> | undefined'.
+  Type 'RefObject<HTMLElement | null>' is not assignable to type 'RefObject<HTMLDivElement | null>'.
+    Type 'HTMLElement | null' is not assignable to type 'HTMLDivElement | null'.
+      Property 'align' is missing in type 'HTMLElement' but required in type 'HTMLDivElement'.
+src/pages/LoginPage.tsx(72,23): error TS2304: Cannot find name 'Dispatch'.
+src/pages/LoginPage.tsx(72,32): error TS2304: Cannot find name 'SetStateAction'.
+src/pages/LoginPage.tsx(97,20): error TS2304: Cannot find name 'Dispatch'.
+src/pages/LoginPage.tsx(97,29): error TS2304: Cannot find name 'SetStateAction'.
+src/pages/LoginPage.tsx(99,28): error TS2304: Cannot find name 'Dispatch'.
+src/pages/LoginPage.tsx(99,37): error TS2304: Cannot find name 'SetStateAction'.
+src/pages/LoginPage.tsx(101,16): error TS2304: Cannot find name 'Dispatch'.
+src/pages/LoginPage.tsx(101,25): error TS2304: Cannot find name 'SetStateAction'.
+src/pages/LoginPage.tsx(103,24): error TS2304: Cannot find name 'Dispatch'.
+src/pages/LoginPage.tsx(103,33): error TS2304: Cannot find name 'SetStateAction'.
+src/pages/LoginPage.tsx(105,23): error TS2304: Cannot find name 'Dispatch'.
+src/pages/LoginPage.tsx(105,32): error TS2304: Cannot find name 'SetStateAction'.
+src/pages/LoginPage.tsx(306,11): error TS2304: Cannot find name 'setRegistrationSent'.
+src/pages/LoginPage.tsx(432,35): error TS2322: Type 'string' is not assignable to type 'ProfileOption'.
+src/pages/LoginPage.tsx(526,23): error TS2322: Type '"merchant" | "consumer"' is not assignable to type 'ProfileRole | undefined'.
+  Type '"merchant"' is not assignable to type 'ProfileRole | undefined'.
+src/pages/LoginPage.tsx(810,37): error TS2304: Cannot find name 'showRegisterPassword'.
+src/pages/LoginPage.tsx(811,40): error TS2304: Cannot find name 'setShowRegisterPassword'.
+src/shared/context/FavoritesContext.tsx(50,68): error TS18047: 'user' is possibly 'null'.
+src/shared/context/FavoritesContext.tsx(61,17): error TS7006: Parameter 'favorite' implicitly has an 'any' type.
+src/shared/context/FavoritesContext.tsx(62,20): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/shared/context/FavoritesContext.tsx(90,15): error TS7006: Parameter 'favorite' implicitly has an 'any' type.
+src/shared/context/FavoritesContext.tsx(91,18): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/shared/hooks/useProductos.ts(33,29): error TS2347: Untyped function calls may not accept type arguments.
+src/shared/hooks/useProductos.ts(34,10): error TS7006: Parameter 'map' implicitly has an 'any' type.
+src/shared/hooks/useProductos.ts(34,15): error TS7006: Parameter 'row' implicitly has an 'any' type.
+src/shared/hooks/useProductos.ts(43,55): error TS7006: Parameter 'row' implicitly has an 'any' type.
+src/shared/lib/cart-service.ts(32,29): error TS2353: Object literal may only specify known properties, and 'id_usuario' does not exist in type 'never[]'.
+src/shared/lib/cart-service.ts(39,14): error TS2339: Property 'id_carrito' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(43,28): error TS2339: Property 'id_carrito' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(48,29): error TS2339: Property 'id_producto' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(61,33): error TS2339: Property 'id_producto' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(61,65): error TS2339: Property 'id_producto' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(64,26): error TS2339: Property 'id_detalle' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(65,26): error TS2339: Property 'cantidad' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(85,31): error TS2339: Property 'data' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(91,46): error TS2339: Property 'cantidad' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(95,47): error TS2339: Property 'id_detalle' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(98,15): error TS2345: Argument of type '{ cantidad: any; }' is not assignable to parameter of type 'never'.
+src/shared/lib/cart-service.ts(99,45): error TS2339: Property 'id_detalle' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(105,5): error TS2353: Object literal may only specify known properties, and 'cantidad' does not exist in type 'never[]'.
+src/shared/lib/cart-service.ts(113,49): error TS2339: Property 'id_carrito' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(115,65): error TS2339: Property 'id_carrito' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(118,44): error TS2339: Property 'cantidad' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(120,71): error TS2339: Property 'id_detalle' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(124,13): error TS2345: Argument of type '{ cantidad: any; }' is not assignable to parameter of type 'never'.
+src/shared/lib/cart-service.ts(125,43): error TS2339: Property 'id_detalle' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(132,49): error TS2339: Property 'id_carrito' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(136,41): error TS2339: Property 'id_carrito' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(142,49): error TS2339: Property 'id_carrito' does not exist on type 'never'.
+src/shared/lib/cart-service.ts(144,67): error TS2339: Property 'id_carrito' does not exist on type 'never'.
+src/shared/lib/product-mappers.ts(49,5): error TS2353: Object literal may only specify known properties, and 'description' does not exist in type 'Product'.

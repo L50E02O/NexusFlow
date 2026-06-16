@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import { AccessibilityMenu } from '@/components/accessibility/AccessibilityMenu';
@@ -232,7 +232,8 @@ export function LoginPage() {
   const { signIn, signUp, resetPassword, session } = useAuth();
   const [tab, setTab] = useState<'login' | 'register'>('login');
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState<string>('young');
+  const [selectedProfile, setSelectedProfile] = useState<ProfileOption>('young');
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
@@ -241,7 +242,7 @@ export function LoginPage() {
   const [lastName, setLastName] = useState('');
   const [resetSent, setResetSent] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const emailRef = useRef<HTMLInputElement>(null);
 
@@ -303,7 +304,7 @@ export function LoginPage() {
         });
 
         if (result.requiresEmailConfirmation) {
-          setRegistrationSent(true);
+          setResetSent(true);
           return;
         }
 
@@ -350,16 +351,16 @@ export function LoginPage() {
 
       <main
         id="main-content"
-        className="flex min-h-0 flex-1 flex-col lg:flex-row"
+        className="flex min-h-0 flex-1 flex-col lg:flex-row lg:h-screen"
         tabIndex={-1}
       >
-        <section className="relative hidden min-h-[320px] flex-col justify-between overflow-hidden bg-primary-container p-xl text-white lg:flex lg:h-screen lg:min-h-screen lg:w-[48%] lg:p-xxl xl:w-[48%]">
+        <section className="relative hidden min-h-[320px] flex-col justify-between overflow-hidden bg-primary-container p-xl text-white lg:flex lg:h-full lg:w-[48%] lg:p-xxl xl:w-[48%]">
           <img
             alt=""
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-35"
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-40"
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuB85QyyEpojHDVjr0kGWAWmK-fkJsBL4JVj_GuasQas4o09vOkIPV7GBo_LyZOI5wXZq4Hojsb6K8eGbZtB1eqajezxPWy15irE46UmRUIDixolZIjVYHpQKU1MJpQftYpsWpTuDwC1w126Q2xh4c0DailZCzkqxzW9l7zlTi3y-o6hXQWVUROTkS-ZJF8y5aKIw2a1GGkp34lEw25UI8j8j8cSr4ccpY7iIh9n6css6gixuwqUtspYDSBMPtg_aUpbzzlnrM7sg48"
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-container/90 via-primary-container/80 to-primary-container/65" aria-hidden="true" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-container/40 via-primary-container/50 to-primary-container/45" aria-hidden="true" />
 
           <div className="relative z-10 flex flex-col gap-xl justify-center py-0">
             <div className="flex items-center gap-sm">
@@ -390,8 +391,8 @@ export function LoginPage() {
           <p className="relative z-10 text-sm opacity-70">© 2026 NexusFlow Cloud Solutions.</p>
         </section>
 
-        <section className="flex min-h-0 flex-1 flex-col bg-surface lg:max-h-screen lg:overflow-y-auto">
-          <div className="flex flex-1 items-center justify-center px-gutter py-xl sm:px-lg sm:py-lg lg:px-xl lg:py-lg">
+        <section className="flex min-h-0 flex-1 flex-col bg-surface lg:min-h-full lg:overflow-y-auto">
+          <div className="flex flex-col items-center justify-start px-gutter py-xl sm:px-lg sm:py-lg lg:px-xl lg:py-lg lg:justify-center">
           <div className="w-full max-w-2xl space-y-lg lg:space-y-lg">
             <div className="hidden justify-end lg:flex">
               <button
@@ -428,9 +429,6 @@ export function LoginPage() {
                 Registrarse
               </button>
             </div>
-        {tab === 'register' && (
-          <RegisterProfileChooser selectedProfile={selectedProfile} setSelectedProfile={setSelectedProfile} />
-        )}
 
             <header className="space-y-sm">
               <h2 className="font-headline-lg text-headline-lg text-primary">
@@ -442,27 +440,6 @@ export function LoginPage() {
                   : 'Selecciona tu perfil y comienza hoy mismo.'}
               </p>
             </header>
-
-            {tab === 'register' && (
-              <div className="mb-md grid grid-cols-1 gap-lg min-[520px]:grid-cols-3 min-[520px]:gap-xl">
-                {registerProfiles.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => setSelectedProfile(p.id)}
-                    className={`flex min-h-[7.5rem] flex-col items-center justify-center rounded-xl border-2 p-sm text-center transition-all focus-ring sm:p-md ${
-                      selectedProfile === p.id
-                        ? 'border-primary bg-surface-container-low profile-card-active'
-                        : 'border-outline-variant bg-white hover:border-primary'
-                    }`}
-                  >
-                    <Icon name={p.icon} className="mb-sm shrink-0 text-3xl text-secondary" />
-                    <h3 className="mb-1 text-label-md leading-tight text-primary">{p.title}</h3>
-                    <p className="text-[12px] leading-snug text-on-surface-variant">{p.desc}</p>
-                  </button>
-                ))}
-              </div>
-            )}
 
             {resetSent && (
               <p className="p-md bg-secondary-container/30 rounded-xl border border-secondary/20 text-on-surface text-sm" role="status">
@@ -523,7 +500,7 @@ export function LoginPage() {
                   setSubmitting(true);
                   try {
                     await signUp(email, registerPassword, {
-                      role: selectedProfile === 'merchant' ? 'merchant' : 'consumer',
+                      role: selectedProfile === 'merchant' ? 'comerciante' : 'cliente',
                       firstName,
                       lastName,
                     });
@@ -585,7 +562,6 @@ export function LoginPage() {
                   </div>
                 </div>
               )}
-        <form className="space-y-4" noValidate onSubmit={handleSubmit}>
 
               <div className="space-y-md">
                 <label className="block font-label-md text-on-surface-variant" htmlFor="email">
@@ -623,35 +599,55 @@ export function LoginPage() {
                       <label className="block font-label-md text-on-surface-variant" htmlFor="password">
                         Contraseña (requerido)
                       </label>
-                      <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        required
-                        autoComplete="new-password"
-                        aria-required="true"
-                        value={registerPassword}
-                        onChange={(e) => setRegisterPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className={INPUT_CLASS}
-                      />
+                      <div className="relative">
+                        <input
+                          id="password"
+                          name="password"
+                          type={showRegisterPassword ? 'text' : 'password'}
+                          required
+                          autoComplete="new-password"
+                          aria-required="true"
+                          value={registerPassword}
+                          onChange={(e) => setRegisterPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className={`${INPUT_CLASS} pr-12`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                          className="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant min-h-11 min-w-11 inline-flex items-center justify-center"
+                          aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                        >
+                          <Icon name={showRegisterPassword ? 'visibility_off' : 'visibility'} />
+                        </button>
+                      </div>
                     </div>
                     <div className="space-y-md">
                       <label className="block font-label-md text-on-surface-variant" htmlFor="confirmPassword">
                         Confirmar contraseña (requerido)
                       </label>
-                      <input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type="password"
-                        required
-                        autoComplete="new-password"
-                        aria-required="true"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className={INPUT_CLASS}
-                      />
+                      <div className="relative">
+                        <input
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          type={showRegisterPassword ? 'text' : 'password'}
+                          required
+                          autoComplete="new-password"
+                          aria-required="true"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className={`${INPUT_CLASS} pr-12`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                          className="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant min-h-11 min-w-11 inline-flex items-center justify-center"
+                          aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                        >
+                          <Icon name={showRegisterPassword ? 'visibility_off' : 'visibility'} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                   <div className="space-y-md">
@@ -805,47 +801,7 @@ export function LoginPage() {
               </button>
             ))}
           </div>
-          {/* Password fields */}
-          {tab === 'register' ? (
-            <RegisterPasswordFields
-              showRegisterPassword={showRegisterPassword}
-              setShowRegisterPassword={setShowRegisterPassword}
-              registerPassword={registerPassword}
-              setRegisterPassword={setRegisterPassword}
-              confirmPassword={confirmPassword}
-              setConfirmPassword={setConfirmPassword}
-              fieldErrors={fieldErrors}
-            />
-          ) : (
-            <LoginPasswordField
-              showPassword={showPassword}
-              setShowPassword={setShowPassword}
-              password={password}
-              setPassword={setPassword}
-              fieldErrors={fieldErrors}
-            />
-          )}
-
-          {/* Submit button */}
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full py-3 bg-primary text-white rounded-xl font-medium hover:bg-primary/90 transition disabled:opacity-60"
-          >
-            {getSubmitLabel(tab, submitting)}
-          </button>
-        </form>
-
-        {/* Footer links */}
-        <div className="mt-6 flex flex-col items-center space-y-2 text-sm text-on-surface-variant">
-          {tab === 'login' && (
-            <button type="button" className="hover:underline" onClick={handleResetPassword}>
-              ¿Recuperar contraseña?
-            </button>
-          )}
-          <Link to="/" className="hover:underline">Continuar como invitado</Link>
-          <Link to="/terminos" className="hover:underline">Términos y condiciones</Link>
-        </div>
+      </div>
       </section>
 
       <AccessibilityMenu />

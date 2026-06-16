@@ -3,6 +3,8 @@ import { productosRepository } from '@/entities/productos/api/productos.reposito
 import { categoriasRepository } from '@/entities/categorias/api/categorias.repository';
 import { mapProductoRowToProduct } from '@/shared/lib/product-mappers';
 import type { Product } from '@/shared/data/mock';
+import type { CategoriaRow } from '@/shared/types/database/categorias';
+import type { ProductoRow } from '@/shared/types/database/productos';
 
 export function useProductos() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -30,19 +32,17 @@ export function useProductos() {
         return;
       }
 
-      const categoriesMap = (categoriesResult.data ?? []).reduce<Record<string, string>>(
-        (map, row) => {
-          if (row.id_categoria && row.nombre) {
-            map[row.id_categoria] = row.nombre;
-          }
-          return map;
-        },
-        {},
-      );
+      const categories = (categoriesResult.data ?? []) as CategoriaRow[];
+      const products = (productsResult.data ?? []) as ProductoRow[];
 
-      const mapped = (productsResult.data ?? []).map((row) =>
-        mapProductoRowToProduct(row, categoriesMap),
-      );
+      const categoriesMap = categories.reduce<Record<string, string>>((map, row) => {
+        if (row.id_categoria && row.nombre) {
+          map[row.id_categoria] = row.nombre;
+        }
+        return map;
+      }, {});
+
+      const mapped = products.map((row) => mapProductoRowToProduct(row, categoriesMap));
 
       setProducts(mapped);
       setLoading(false);

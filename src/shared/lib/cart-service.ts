@@ -5,9 +5,9 @@ import type { CarritoRow } from '@/shared/types/database/carritos';
 import type { DetalleCarritoRow } from '@/shared/types/database/detalle-carritos';
 import type { ProductoRow } from '@/shared/types/database/productos';
 
-const cartTable = supabase.from('carritos');
-const detailsTable = supabase.from('detalle_carritos');
-const productTable = supabase.from('productos');
+const cartTable = supabase.from('carritos' as const);
+const detailsTable = supabase.from('detalle_carritos' as const);
+const productTable = supabase.from('productos' as const);
 
 export type CartLine = {
   product: Product;

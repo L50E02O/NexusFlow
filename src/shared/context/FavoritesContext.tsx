@@ -10,6 +10,7 @@ import {
 import { favoriteProducts as initialFavorites } from '@/shared/data/mock';
 import { useAuth } from '@/shared/context/AuthContext';
 import { favoritosRepository } from '@/entities/favoritos/api/favoritos.repository';
+import type { FavoritoRow } from '@/shared/types/database/favoritos';
 
 const STORAGE_KEY = 'nexusflow-favorites';
 
@@ -44,10 +45,11 @@ export function FavoritesProvider({ children }: Readonly<{ children: ReactNode }
       return;
     }
 
+    const userId = user.id;
     let cancelled = false;
 
     async function loadFavorites() {
-      const { data, error } = await favoritosRepository.listByUser(user.id);
+      const { data, error } = await favoritosRepository.listByUser(userId);
       if (cancelled) return;
       if (error) {
         console.error('Error cargando favoritos desde Supabase:', error);
@@ -56,8 +58,9 @@ export function FavoritesProvider({ children }: Readonly<{ children: ReactNode }
         return;
       }
       setUseLocalFallback(false);
+      const favorites = (data ?? []) as FavoritoRow[];
       setFavoriteIds(
-        (data ?? [])
+        favorites
           .map((favorite) => favorite.id_producto)
           .filter((id): id is string => Boolean(id)),
       );
@@ -85,8 +88,9 @@ export function FavoritesProvider({ children }: Readonly<{ children: ReactNode }
       console.error('Error recargando favoritos desde Supabase:', error);
       return;
     }
+    const favorites = (data ?? []) as FavoritoRow[];
     setFavoriteIds(
-      (data ?? [])
+      favorites
         .map((favorite) => favorite.id_producto)
         .filter((id): id is string => Boolean(id)),
     );
