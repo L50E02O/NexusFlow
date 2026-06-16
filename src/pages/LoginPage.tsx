@@ -382,35 +382,37 @@ export function LoginPage() {
               </div>
             </>
           ) : (
-            <div className="space-y-1">
-              <label htmlFor="password" className="block text-label-md text-on-surface-variant">Contraseña</label>
-              <div className="relative">
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  placeholder="••••••••"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={`${INPUT_CLASS} pr-12`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant"
-                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                >
-                  <Icon name={showPassword ? 'visibility_off' : 'visibility'} />
-                </button>
+            <>
+              <div className="space-y-1">
+                <label htmlFor="password" className="block text-label-md text-on-surface-variant">Contraseña</label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`${INPUT_CLASS} pr-12`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant"
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  >
+                    <Icon name={showPassword ? 'visibility_off' : 'visibility'} />
+                  </button>
+                </div>
               </div>
-            </div>
-            {fieldErrors.password && (
-              <p id="password-error" className="text-sm text-error" role="alert">
-                {fieldErrors.password}
-              </p>
-            )}
+              {fieldErrors.password && (
+                <p id="password-error" className="text-sm text-error" role="alert">
+                  {fieldErrors.password}
+                </p>
+              )}
+            </>
           )}
 
           {/* Submit button */}
