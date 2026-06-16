@@ -53,6 +53,12 @@
   --spacing-xs: 4px;
   --spacing-gutter: 24px;
 
+  --container-sm: 24rem;
+  --container-md: 28rem;
+  --container-lg: 32rem;
+  --container-xl: 36rem;
+  --container-2xl: 42rem;
+  --container-3xl: 48rem;
   --container-container-max: 1280px;
 
   --radius-xl: 0.75rem;

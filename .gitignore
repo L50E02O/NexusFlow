@@ -14,3 +14,7 @@ pnpm-debug.log*
 *.tsbuildinfo
 vite.svg
 .venv/
+
+# Antigravity
+.cursor/
+.gemini/
