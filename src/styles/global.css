@@ -135,8 +135,18 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #1d4ed8;
+  outline: 3px solid currentColor;
   outline-offset: 2px;
+}
+
+button,
+input[type="button"],
+input[type="submit"],
+input[type="checkbox"],
+input[type="radio"],
+select {
+  min-width: 24px;
+  min-height: 24px;
 }
 
 /* WCAG 2.2 — 2.4.1 ✓ Enlace saltar al contenido */
@@ -161,7 +171,7 @@ textarea:focus-visible {
 
 /* WCAG 2.2 — 2.4.11 ✓ Foco no oculto tras header sticky */
 #main-content {
-  scroll-margin-top: 5rem;
+  scroll-margin-top: 6rem;
 }
 
 .shadow-soft {

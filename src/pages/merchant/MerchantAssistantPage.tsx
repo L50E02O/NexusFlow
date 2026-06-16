@@ -103,7 +103,7 @@ export function MerchantAssistantPage() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && send()}
               placeholder="Escribe un mensaje al asistente..."
-              className="flex-1 bg-transparent border-none focus:ring-0 px-md py-md h-12 outline-none"
+              className="flex-1 bg-transparent border-none focus:ring-2 focus:ring-primary px-md py-md h-12"
             />
             <button type="button" onClick={send} className="w-11 h-11 bg-primary text-white rounded-lg flex items-center justify-center focus-ring" aria-label="Enviar">
               <Icon name="send" filled />

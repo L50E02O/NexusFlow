@@ -64,7 +64,7 @@ export function MerchantProductsPage() {
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder="Nombre o SKU..."
-            className="w-full h-12 px-md rounded-xl border-2 border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+            className="w-full h-12 px-md rounded-xl border-2 border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary"
           />
         </div>
         <select className="h-12 px-md rounded-xl border-2 border-outline-variant bg-surface-bright focus-ring" aria-label="Categoría">

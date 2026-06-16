@@ -224,7 +224,7 @@ export function ProfilePage() {
                   id="profile-language"
                   value={locale}
                   onChange={(e) => setLocale(e.target.value as 'es' | 'en')}
-                  className="w-full mt-xs p-md border border-outline-variant rounded-xl bg-surface-bright h-12 focus:ring-2 focus:ring-primary outline-none"
+                  className="w-full mt-xs p-md border border-outline-variant rounded-xl bg-surface-bright h-12 focus:ring-2 focus:ring-primary"
                 >
                   <option value="es">Español</option>
                   <option value="en">Inglés</option>

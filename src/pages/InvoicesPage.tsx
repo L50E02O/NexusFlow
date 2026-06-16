@@ -79,7 +79,7 @@ export function InvoicesPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="ID de factura..."
-                className="w-full pl-9 pr-4 py-2 bg-surface-container-low border-none rounded-lg text-sm focus:ring-1 focus:ring-primary outline-none"
+                className="w-full pl-9 pr-4 py-2 bg-surface-container-low border-none rounded-lg text-sm focus:ring-1 focus:ring-primary"
               />
             </div>
           </div>

@@ -39,7 +39,14 @@ export function LoginPage() {
   const [resetSent, setResetSent] = useState(false);
   const [registrationSent, setRegistrationSent] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string; firstName?: string; lastName?: string }>({});
+  const [fieldErrors, setFieldErrors] = useState<{
+    email?: string;
+    password?: string;
+    registerPassword?: string;
+    confirmPassword?: string;
+    firstName?: string;
+    lastName?: string;
+  }>({});
   const [submitting, setSubmitting] = useState(false);
   const emailRef = useRef<HTMLInputElement>(null);
   const redirectTo = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/';
@@ -158,13 +165,13 @@ export function LoginPage() {
         )}
 
         {resetSent && (
-          <p className="rounded-xl bg-secondary-container/30 p-3 mb-4 text-on-surface">
+          <p className="rounded-xl bg-secondary-container/30 p-3 mb-4 text-on-surface" role="status" aria-live="polite">
             Te enviamos un correo con instrucciones para restablecer tu contraseña.
           </p>
         )}
 
         {registrationSent && (
-          <p className="rounded-xl bg-primary-container/20 border border-primary/20 p-3 mb-4 text-on-surface">
+          <p className="rounded-xl bg-primary-container/20 border border-primary/20 p-3 mb-4 text-on-surface" role="status" aria-live="polite">
             Revisa tu correo y confirma tu cuenta para continuar. La creación del perfil se completará después de iniciar sesión.
           </p>
         )}
@@ -192,12 +199,19 @@ export function LoginPage() {
               return;
             }
           } else {
-            const errors: { email?: string; password?: string; firstName?: string; lastName?: string } = {};
+            const errors: {
+              email?: string;
+              registerPassword?: string;
+              confirmPassword?: string;
+              firstName?: string;
+              lastName?: string;
+            } = {};
             if (!email.trim()) errors.email = 'El correo electrónico es obligatorio.';
             else if (!EMAIL_RE.test(email)) errors.email = 'Formato de email inválido.';
-            if (!registerPassword) errors.password = 'La contraseña es obligatoria.';
-            else if (registerPassword.length < 6) errors.password = 'Mínimo 6 caracteres.';
-            else if (registerPassword !== confirmPassword) errors.password = 'Las contraseñas no coinciden.';
+            if (!registerPassword) errors.registerPassword = 'La contraseña es obligatoria.';
+            else if (registerPassword.length < 6) errors.registerPassword = 'La contraseña debe tener al menos 6 caracteres.';
+            if (!confirmPassword) errors.confirmPassword = 'Confirma la contraseña.';
+            else if (registerPassword !== confirmPassword) errors.confirmPassword = 'Las contraseñas no coinciden.';
             if (!firstName.trim()) errors.firstName = 'El nombre es obligatorio.';
             if (!lastName.trim()) errors.lastName = 'Los apellidos son obligatorios.';
             if (Object.keys(errors).length) {
@@ -244,11 +258,45 @@ export function LoginPage() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1">
                 <label htmlFor="firstName" className="block text-label-md text-on-surface-variant">Nombres</label>
-                <input id="firstName" name="firstName" type="text" required placeholder="Ej. Juan" autoComplete="given-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} className={INPUT_CLASS} />
+                <input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  required
+                  placeholder="Ej. Juan"
+                  autoComplete="given-name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className={INPUT_CLASS}
+                  aria-invalid={!!fieldErrors.firstName}
+                  aria-describedby={fieldErrors.firstName ? 'firstName-error' : undefined}
+                />
+                {fieldErrors.firstName && (
+                  <p id="firstName-error" className="text-sm text-error" role="alert">
+                    {fieldErrors.firstName}
+                  </p>
+                )}
               </div>
               <div className="space-y-1">
                 <label htmlFor="lastName" className="block text-label-md text-on-surface-variant">Apellidos</label>
-                <input id="lastName" name="lastName" type="text" required placeholder="Ej. Pérez" autoComplete="family-name" value={lastName} onChange={(e) => setLastName(e.target.value)} className={INPUT_CLASS} />
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  required
+                  placeholder="Ej. Pérez"
+                  autoComplete="family-name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className={INPUT_CLASS}
+                  aria-invalid={!!fieldErrors.lastName}
+                  aria-describedby={fieldErrors.lastName ? 'lastName-error' : undefined}
+                />
+                {fieldErrors.lastName && (
+                  <p id="lastName-error" className="text-sm text-error" role="alert">
+                    {fieldErrors.lastName}
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -282,20 +330,54 @@ export function LoginPage() {
                 <div className="space-y-1">
                   <label htmlFor="registerPassword" className="block text-label-md text-on-surface-variant">Contraseña</label>
                   <div className="relative">
-                    <input id="registerPassword" name="registerPassword" type={showRegisterPassword ? 'text' : 'password'} required placeholder="••••••••" autoComplete="new-password" value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} className={INPUT_CLASS} />
-                    <button type="button" onClick={() => setShowRegisterPassword(!showRegisterPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant" aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
+                    <input
+                    id="registerPassword"
+                    name="registerPassword"
+                    type={showRegisterPassword ? 'text' : 'password'}
+                    required
+                    placeholder="••••••••"
+                    autoComplete="new-password"
+                    value={registerPassword}
+                    onChange={(e) => setRegisterPassword(e.target.value)}
+                    className={INPUT_CLASS}
+                    aria-invalid={!!fieldErrors.registerPassword}
+                    aria-describedby={fieldErrors.registerPassword ? 'registerPassword-error' : undefined}
+                  />
+                    <button type="button" onClick={() => setShowRegisterPassword(!showRegisterPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant min-h-11 min-w-11 inline-flex items-center justify-center" aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
                       <Icon name={showRegisterPassword ? 'visibility_off' : 'visibility'} />
                     </button>
                   </div>
+                  {fieldErrors.registerPassword && (
+                    <p id="registerPassword-error" className="text-sm text-error" role="alert">
+                      {fieldErrors.registerPassword}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-1">
                   <label htmlFor="confirmPassword" className="block text-label-md text-on-surface-variant">Confirmar contraseña</label>
                   <div className="relative">
-                    <input id="confirmPassword" name="confirmPassword" type={showRegisterPassword ? 'text' : 'password'} required placeholder="••••••••" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={INPUT_CLASS} />
-                    <button type="button" onClick={() => setShowRegisterPassword(!showRegisterPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant" aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
+                    <input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showRegisterPassword ? 'text' : 'password'}
+                      required
+                      placeholder="••••••••"
+                      autoComplete="new-password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className={INPUT_CLASS}
+                      aria-invalid={!!fieldErrors.confirmPassword}
+                      aria-describedby={fieldErrors.confirmPassword ? 'confirmPassword-error' : undefined}
+                    />
+                    <button type="button" onClick={() => setShowRegisterPassword(!showRegisterPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant min-h-11 min-w-11 inline-flex items-center justify-center" aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
                       <Icon name={showRegisterPassword ? 'visibility_off' : 'visibility'} />
                     </button>
                   </div>
+                  {fieldErrors.confirmPassword && (
+                    <p id="confirmPassword-error" className="text-sm text-error" role="alert">
+                      {fieldErrors.confirmPassword}
+                    </p>
+                  )}
                 </div>
               </div>
             </>
@@ -324,6 +406,11 @@ export function LoginPage() {
                 </button>
               </div>
             </div>
+            {fieldErrors.password && (
+              <p id="password-error" className="text-sm text-error" role="alert">
+                {fieldErrors.password}
+              </p>
+            )}
           )}
 
           {/* Submit button */}

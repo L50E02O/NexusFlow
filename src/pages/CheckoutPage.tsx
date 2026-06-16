@@ -129,7 +129,7 @@ export function CheckoutPage() {
                 <input
                   id="city"
                   defaultValue="Ciudad de México"
-                  className="h-12 px-md rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary outline-none"
+                  className="h-12 px-md rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div className="flex flex-col gap-xs">
@@ -139,15 +139,15 @@ export function CheckoutPage() {
                 <input
                   id="postal"
                   defaultValue="06600"
-                  className="h-12 px-md rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary outline-none"
+                  className="h-12 px-md rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary"
                 />
               </div>
             </form>
           </section>
 
           <section className="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-outline-variant/30">
-            <h2 className="font-headline-md text-headline-md text-primary mb-lg">Opciones de Entrega</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
+            <h2 id="delivery-options-title" className="font-headline-md text-headline-md text-primary mb-lg">Opciones de Entrega</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-md" role="radiogroup" aria-labelledby="delivery-options-title">
               <label className="relative flex p-md border-2 border-primary bg-primary-fixed/10 rounded-xl cursor-pointer">
                 <input type="radio" name="delivery" defaultChecked className="sr-only" />
                 <div className="flex justify-between w-full">

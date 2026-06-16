@@ -115,7 +115,7 @@ export function Footer() {
 
           <div className="min-w-0 space-y-sm sm:col-span-2 xl:col-span-3">
             <p className="text-xs font-bold uppercase tracking-widest text-primary">Boletín</p>
-            <form onSubmit={handleNewsletter} className="flex flex-col gap-sm sm:flex-row sm:items-stretch">
+            <form onSubmit={handleNewsletter} className="flex flex-col gap-sm sm:flex-row sm:items-stretch" aria-label="Formulario de suscripción al boletín">
               <label htmlFor="newsletter-email" className="sr-only">
                 Correo electrónico para el boletín
               </label>

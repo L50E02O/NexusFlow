@@ -111,7 +111,7 @@ export function TopNav({
           </div>
 
           {showSearch ? (
-            <form onSubmit={handleSearch} className="hidden min-w-0 justify-center px-md lg:flex">
+            <form onSubmit={handleSearch} className="hidden min-w-0 justify-center px-md lg:flex" aria-label="Buscar productos y categorías">
               <div className="relative w-full max-w-md">
                 <label htmlFor="main-search" className="sr-only">
                   Buscar productos y categorías
