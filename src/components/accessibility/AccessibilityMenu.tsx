@@ -82,6 +82,26 @@ export function AccessibilityMenu() {
     setSettings(getStoredSettings());
   }, []);
 
+  // Cerrar el menú solo cuando se hace clic fuera de él
+  useEffect(() => {
+    if (!open) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (menuRef.current && !menuRef.current.contains(target)) {
+        const button = document.querySelector('[aria-label*="accesibilidad"]');
+        if (button && !button.contains(target)) {
+          closePanel();
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [open, closePanel]);
+
   useEffect(() => {
     const root = document.documentElement;
     const body = document.body;
@@ -222,7 +242,7 @@ export function AccessibilityMenu() {
               <div className="accessibility-control-group">
                 <label className="accessibility-control-label">Tamaño de texto (1.0× a 2.0×)</label>
                 <div className="accessibility-slider-row">
-                  <button type="button" onClick={() => adjustSetting('textScale', -0.05, 1, 2)} aria-label="Reducir tamaño de texto" className="accessibility-value-button">
+                  <button type="button" onClick={() => adjustSetting('textScale', -0.05, 1, 2)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Reducir tamaño de texto" className="accessibility-value-button">
                     −
                   </button>
                   <input
@@ -232,9 +252,14 @@ export function AccessibilityMenu() {
                     step="0.05"
                     value={settings.textScale}
                     aria-label="Ajustar tamaño del texto"
-                    onChange={(event) => updateSetting('textScale', Number(event.target.value))}
+                    onChange={(event) => {
+                      event.stopPropagation();
+                      updateSetting('textScale', Number(event.target.value));
+                    }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}
                   />
-                  <button type="button" onClick={() => adjustSetting('textScale', 0.05, 1, 2)} aria-label="Aumentar tamaño de texto" className="accessibility-value-button">
+                  <button type="button" onClick={() => adjustSetting('textScale', 0.05, 1, 2)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Aumentar tamaño de texto" className="accessibility-value-button">
                     +
                   </button>
                   <span className="accessibility-value-label">{Math.round(settings.textScale * 100)}%</span>
@@ -244,7 +269,7 @@ export function AccessibilityMenu() {
               <div className="accessibility-control-group">
                 <label className="accessibility-control-label">Interlineado</label>
                 <div className="accessibility-slider-row">
-                  <button type="button" onClick={() => adjustSetting('lineHeight', -0.1, 1.5, 2.5)} aria-label="Disminuir interlineado" className="accessibility-value-button">
+                  <button type="button" onClick={() => adjustSetting('lineHeight', -0.1, 1.5, 2.5)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Disminuir interlineado" className="accessibility-value-button">
                     −
                   </button>
                   <input
@@ -254,9 +279,14 @@ export function AccessibilityMenu() {
                     step="0.1"
                     value={settings.lineHeight}
                     aria-label="Ajustar interlineado"
-                    onChange={(event) => updateSetting('lineHeight', Number(event.target.value))}
+                    onChange={(event) => {
+                      event.stopPropagation();
+                      updateSetting('lineHeight', Number(event.target.value));
+                    }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}
                   />
-                  <button type="button" onClick={() => adjustSetting('lineHeight', 0.1, 1.5, 2.5)} aria-label="Aumentar interlineado" className="accessibility-value-button">
+                  <button type="button" onClick={() => adjustSetting('lineHeight', 0.1, 1.5, 2.5)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Aumentar interlineado" className="accessibility-value-button">
                     +
                   </button>
                   <span className="accessibility-value-label">{settings.lineHeight.toFixed(1)}×</span>
@@ -266,7 +296,7 @@ export function AccessibilityMenu() {
               <div className="accessibility-control-group">
                 <label className="accessibility-control-label">Espaciado entre párrafos</label>
                 <div className="accessibility-slider-row">
-                  <button type="button" onClick={() => adjustSetting('paragraphSpacing', -0.1, 1.5, 2.5)} aria-label="Disminuir espaciado entre párrafos" className="accessibility-value-button">
+                  <button type="button" onClick={() => adjustSetting('paragraphSpacing', -0.1, 1.5, 2.5)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Disminuir espaciado entre párrafos" className="accessibility-value-button">
                     −
                   </button>
                   <input
@@ -276,9 +306,14 @@ export function AccessibilityMenu() {
                     step="0.1"
                     value={settings.paragraphSpacing}
                     aria-label="Ajustar espaciado entre párrafos"
-                    onChange={(event) => updateSetting('paragraphSpacing', Number(event.target.value))}
+                    onChange={(event) => {
+                      event.stopPropagation();
+                      updateSetting('paragraphSpacing', Number(event.target.value));
+                    }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}
                   />
-                  <button type="button" onClick={() => adjustSetting('paragraphSpacing', 0.1, 1.5, 2.5)} aria-label="Aumentar espaciado entre párrafos" className="accessibility-value-button">
+                  <button type="button" onClick={() => adjustSetting('paragraphSpacing', 0.1, 1.5, 2.5)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Aumentar espaciado entre párrafos" className="accessibility-value-button">
                     +
                   </button>
                   <span className="accessibility-value-label">{settings.paragraphSpacing.toFixed(1)}×</span>
@@ -288,7 +323,7 @@ export function AccessibilityMenu() {
               <div className="accessibility-control-group">
                 <label className="accessibility-control-label">Espaciado entre letras</label>
                 <div className="accessibility-slider-row">
-                  <button type="button" onClick={() => adjustSetting('letterSpacing', -0.01, 0, 0.18)} aria-label="Disminuir espaciado entre letras" className="accessibility-value-button">
+                  <button type="button" onClick={() => adjustSetting('letterSpacing', -0.01, 0, 0.18)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Disminuir espaciado entre letras" className="accessibility-value-button">
                     −
                   </button>
                   <input
@@ -298,9 +333,14 @@ export function AccessibilityMenu() {
                     step="0.01"
                     value={settings.letterSpacing}
                     aria-label="Ajustar espaciado entre letras"
-                    onChange={(event) => updateSetting('letterSpacing', Number(event.target.value))}
+                    onChange={(event) => {
+                      event.stopPropagation();
+                      updateSetting('letterSpacing', Number(event.target.value));
+                    }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}
                   />
-                  <button type="button" onClick={() => adjustSetting('letterSpacing', 0.01, 0, 0.18)} aria-label="Aumentar espaciado entre letras" className="accessibility-value-button">
+                  <button type="button" onClick={() => adjustSetting('letterSpacing', 0.01, 0, 0.18)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Aumentar espaciado entre letras" className="accessibility-value-button">
                     +
                   </button>
                   <span className="accessibility-value-label">{settings.letterSpacing.toFixed(2)}em</span>
@@ -310,7 +350,7 @@ export function AccessibilityMenu() {
               <div className="accessibility-control-group">
                 <label className="accessibility-control-label">Espaciado entre palabras</label>
                 <div className="accessibility-slider-row">
-                  <button type="button" onClick={() => adjustSetting('wordSpacing', -0.02, 0, 0.24)} aria-label="Disminuir espaciado entre palabras" className="accessibility-value-button">
+                  <button type="button" onClick={() => adjustSetting('wordSpacing', -0.02, 0, 0.24)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Disminuir espaciado entre palabras" className="accessibility-value-button">
                     −
                   </button>
                   <input
@@ -320,9 +360,14 @@ export function AccessibilityMenu() {
                     step="0.02"
                     value={settings.wordSpacing}
                     aria-label="Ajustar espaciado entre palabras"
-                    onChange={(event) => updateSetting('wordSpacing', Number(event.target.value))}
+                    onChange={(event) => {
+                      event.stopPropagation();
+                      updateSetting('wordSpacing', Number(event.target.value));
+                    }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}
                   />
-                  <button type="button" onClick={() => adjustSetting('wordSpacing', 0.02, 0, 0.24)} aria-label="Aumentar espaciado entre palabras" className="accessibility-value-button">
+                  <button type="button" onClick={() => adjustSetting('wordSpacing', 0.02, 0, 0.24)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Aumentar espaciado entre palabras" className="accessibility-value-button">
                     +
                   </button>
                   <span className="accessibility-value-label">{settings.wordSpacing.toFixed(2)}em</span>
@@ -337,6 +382,8 @@ export function AccessibilityMenu() {
                 <button
                   type="button"
                   onClick={() => updateSetting('highContrast', !settings.highContrast)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
                   className={`accessibility-toggle-button ${settings.highContrast ? 'active' : ''}`}
                   aria-pressed={settings.highContrast}
                   aria-label="Activar alto contraste"
@@ -349,6 +396,8 @@ export function AccessibilityMenu() {
                 <button
                   type="button"
                   onClick={() => updateSetting('inverted', !settings.inverted)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
                   className={`accessibility-toggle-button ${settings.inverted ? 'active' : ''}`}
                   aria-pressed={settings.inverted}
                   aria-label="Activar contraste invertido"
@@ -361,6 +410,8 @@ export function AccessibilityMenu() {
                 <button
                   type="button"
                   onClick={() => updateSetting('protanopia', !settings.protanopia)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
                   className={`accessibility-toggle-button ${settings.protanopia ? 'active' : ''}`}
                   aria-pressed={settings.protanopia}
                   aria-label="Activar daltonismo protanopia"
@@ -373,6 +424,8 @@ export function AccessibilityMenu() {
                 <button
                   type="button"
                   onClick={() => updateSetting('deuteranopia', !settings.deuteranopia)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
                   className={`accessibility-toggle-button ${settings.deuteranopia ? 'active' : ''}`}
                   aria-pressed={settings.deuteranopia}
                   aria-label="Activar daltonismo deuteranopia"
@@ -414,6 +467,8 @@ export function AccessibilityMenu() {
                 <button
                   type="button"
                   onClick={() => updateSetting('showTranscripts', !settings.showTranscripts)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
                   className={`accessibility-toggle-button ${settings.showTranscripts ? 'active' : ''}`}
                   aria-pressed={settings.showTranscripts}
                   aria-label="Mostrar transcripciones"
@@ -426,6 +481,8 @@ export function AccessibilityMenu() {
                 <button
                   type="button"
                   onClick={() => updateSetting('showSubtitles', !settings.showSubtitles)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
                   className={`accessibility-toggle-button ${settings.showSubtitles ? 'active' : ''}`}
                   aria-pressed={settings.showSubtitles}
                   aria-label="Activar subtítulos"
@@ -443,6 +500,8 @@ export function AccessibilityMenu() {
                 <button
                   type="button"
                   onClick={() => updateSetting('audioMuted', !settings.audioMuted)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
                   className={`accessibility-toggle-button ${settings.audioMuted ? 'active' : ''}`}
                   aria-pressed={settings.audioMuted}
                   aria-label={settings.audioMuted ? 'Activar audio' : 'Silenciar todo el audio'}
@@ -455,6 +514,8 @@ export function AccessibilityMenu() {
                 <button
                   type="button"
                   onClick={() => updateSetting('reduceMotion', !settings.reduceMotion)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
                   className={`accessibility-toggle-button ${settings.reduceMotion ? 'active' : ''}`}
                   aria-pressed={settings.reduceMotion}
                   aria-label="Pausar animaciones"
@@ -471,7 +532,13 @@ export function AccessibilityMenu() {
           </div>
 
           <div className="accessibility-menu-footer">
-            <button type="button" onClick={resetAll} className="accessibility-reset-button">
+            <button 
+              type="button" 
+              onClick={resetAll}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              className="accessibility-reset-button"
+            >
               Restablecer todo
             </button>
             <p className="accessibility-footer-note">Las opciones se guardan en localStorage y audio en sessionStorage.</p>

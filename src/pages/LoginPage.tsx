@@ -1,8 +1,7 @@
 // LoginPage.tsx – Updated design matching mockup
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-import { supabase } from '@/shared/lib/supabase';
 import { AccessibilityMenu } from '@/components/accessibility/AccessibilityMenu';
 import { useAccessibility } from '@/shared/context/AccessibilityContext';
 import { useAuth } from '@/shared/context/AuthContext';
@@ -14,11 +13,214 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const INPUT_CLASS =
   'h-12 w-full rounded-xl border border-outline-variant bg-white px-md text-body-md transition-colors focus:border-primary focus:ring-1 focus:ring-primary';
 
+type FieldErrors = {
+  email?: string;
+  password?: string;
+  registerPassword?: string;
+  confirmPassword?: string;
+  firstName?: string;
+  lastName?: string;
+};
+
+type ProfileOption = 'young' | 'pro' | 'merchant';
+
 const registerProfiles = [
   { id: 'young', icon: 'bolt', title: 'Comprador Joven', desc: 'Experiencia rápida y móvil' },
   { id: 'pro', icon: 'verified_user', title: 'Adulto Profesional', desc: 'Organizada y segura' },
   { id: 'merchant', icon: 'storefront', title: 'Comerciante', desc: 'Inventario e IA' },
 ] as const;
+
+const validateLogin = (email: string, password: string) => {
+  const errors: FieldErrors = {};
+  if (!email.trim()) errors.email = 'El correo electrónico es obligatorio.';
+  else if (!EMAIL_RE.test(email)) errors.email = 'Formato de email inválido.';
+  if (!password) errors.password = 'La contraseña es obligatoria.';
+  return errors;
+};
+
+const validateRegister = (
+  email: string,
+  registerPassword: string,
+  confirmPassword: string,
+  firstName: string,
+  lastName: string,
+) => {
+  const errors: FieldErrors = {};
+
+  if (!email.trim()) errors.email = 'El correo electrónico es obligatorio.';
+  else if (!EMAIL_RE.test(email)) errors.email = 'Formato de email inválido.';
+  if (!registerPassword) errors.registerPassword = 'La contraseña es obligatoria.';
+  else if (registerPassword.length < 6) errors.registerPassword = 'La contraseña debe tener al menos 6 caracteres.';
+  if (!confirmPassword) errors.confirmPassword = 'Confirma la contraseña.';
+  else if (registerPassword !== confirmPassword) errors.confirmPassword = 'Las contraseñas no coinciden.';
+  if (!firstName.trim()) errors.firstName = 'El nombre es obligatorio.';
+  if (!lastName.trim()) errors.lastName = 'Los apellidos son obligatorios.';
+
+  return errors;
+};
+
+const getSubmitLabel = (tab: 'login' | 'register', submitting: boolean) => {
+  if (submitting) return tab === 'login' ? 'Iniciando sesión...' : 'Creando cuenta...';
+  return tab === 'login' ? 'Iniciar sesión' : 'Crear cuenta';
+};
+
+type RegisterProfileChooserProps = Readonly<{
+  selectedProfile: ProfileOption;
+  setSelectedProfile: Dispatch<SetStateAction<ProfileOption>>;
+}>;
+
+function RegisterProfileChooser({ selectedProfile, setSelectedProfile }: RegisterProfileChooserProps) {
+  return (
+    <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      {registerProfiles.map((p) => (
+        <button
+          key={p.id}
+          type="button"
+          onClick={() => setSelectedProfile(p.id)}
+          className={`flex flex-col items-center rounded-xl border-2 p-4 text-center transition ${selectedProfile === p.id ? 'border-primary bg-surface-container-low' : 'border-outline-variant bg-white hover:border-primary'}`}
+        >
+          <Icon name={p.icon} className="mb-2 text-3xl text-secondary" />
+          <h3 className="text-label-md font-medium text-primary mb-1">{p.title}</h3>
+          <p className="text-sm text-on-surface-variant">{p.desc}</p>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+type AuthPasswordFieldsProps = Readonly<{
+  tab: 'login' | 'register';
+  showPassword: boolean;
+  setShowPassword: Dispatch<SetStateAction<boolean>>;
+  showRegisterPassword: boolean;
+  setShowRegisterPassword: Dispatch<SetStateAction<boolean>>;
+  password: string;
+  setPassword: Dispatch<SetStateAction<string>>;
+  registerPassword: string;
+  setRegisterPassword: Dispatch<SetStateAction<string>>;
+  confirmPassword: string;
+  setConfirmPassword: Dispatch<SetStateAction<string>>;
+  fieldErrors: FieldErrors;
+}>;
+
+function RegisterPasswordFields({
+  showRegisterPassword,
+  setShowRegisterPassword,
+  registerPassword,
+  setRegisterPassword,
+  confirmPassword,
+  setConfirmPassword,
+  fieldErrors,
+}: Readonly<Pick<AuthPasswordFieldsProps, 'showRegisterPassword' | 'setShowRegisterPassword' | 'registerPassword' | 'setRegisterPassword' | 'confirmPassword' | 'setConfirmPassword' | 'fieldErrors'>>) {
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="space-y-1">
+        <label htmlFor="registerPassword" className="block text-label-md text-on-surface-variant">Contraseña</label>
+        <div className="relative">
+          <input
+            id="registerPassword"
+            name="registerPassword"
+            type={showRegisterPassword ? 'text' : 'password'}
+            required
+            placeholder="••••••••"
+            autoComplete="new-password"
+            value={registerPassword}
+            onChange={(e) => setRegisterPassword(e.target.value)}
+            className={INPUT_CLASS}
+            aria-invalid={!!fieldErrors.registerPassword}
+            aria-describedby={fieldErrors.registerPassword ? 'registerPassword-error' : undefined}
+          />
+          <button
+            type="button"
+            onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant min-h-11 min-w-11 inline-flex items-center justify-center"
+            aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+          >
+            <Icon name={showRegisterPassword ? 'visibility_off' : 'visibility'} />
+          </button>
+        </div>
+        {fieldErrors.registerPassword && (
+          <p id="registerPassword-error" className="text-sm text-error" role="alert">
+            {fieldErrors.registerPassword}
+          </p>
+        )}
+      </div>
+      <div className="space-y-1">
+        <label htmlFor="confirmPassword" className="block text-label-md text-on-surface-variant">Confirmar contraseña</label>
+        <div className="relative">
+          <input
+            id="confirmPassword"
+            name="confirmPassword"
+            type={showRegisterPassword ? 'text' : 'password'}
+            required
+            placeholder="••••••••"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className={INPUT_CLASS}
+            aria-invalid={!!fieldErrors.confirmPassword}
+            aria-describedby={fieldErrors.confirmPassword ? 'confirmPassword-error' : undefined}
+          />
+          <button
+            type="button"
+            onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant min-h-11 min-w-11 inline-flex items-center justify-center"
+            aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+          >
+            <Icon name={showRegisterPassword ? 'visibility_off' : 'visibility'} />
+          </button>
+        </div>
+        {fieldErrors.confirmPassword && (
+          <p id="confirmPassword-error" className="text-sm text-error" role="alert">
+            {fieldErrors.confirmPassword}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function LoginPasswordField({
+  showPassword,
+  setShowPassword,
+  password,
+  setPassword,
+  fieldErrors,
+}: Readonly<Pick<AuthPasswordFieldsProps, 'showPassword' | 'setShowPassword' | 'password' | 'setPassword' | 'fieldErrors'>>) {
+  return (
+    <>
+      <div className="space-y-1">
+        <label htmlFor="password" className="block text-label-md text-on-surface-variant">Contraseña</label>
+        <div className="relative">
+          <input
+            id="password"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            required
+            placeholder="••••••••"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className={`${INPUT_CLASS} pr-12`}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant"
+            aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+          >
+            <Icon name={showPassword ? 'visibility_off' : 'visibility'} />
+          </button>
+        </div>
+      </div>
+      {fieldErrors.password && (
+        <p id="password-error" className="text-sm text-error" role="alert">
+          {fieldErrors.password}
+        </p>
+      )}
+    </>
+  );
+}
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -39,14 +241,7 @@ export function LoginPage() {
   const [resetSent, setResetSent] = useState(false);
   const [registrationSent, setRegistrationSent] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<{
-    email?: string;
-    password?: string;
-    registerPassword?: string;
-    confirmPassword?: string;
-    firstName?: string;
-    lastName?: string;
-  }>({});
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const emailRef = useRef<HTMLInputElement>(null);
   const redirectTo = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/';
@@ -55,6 +250,74 @@ export function LoginPage() {
   useEffect(() => {
     if (session) navigate(redirectTo, { replace: true });
   }, [session, navigate, redirectTo]);
+
+  const handleResetPassword = async () => {
+    setAuthError(null);
+    setFieldErrors({});
+
+    if (!email.trim()) {
+      setFieldErrors({ email: 'Ingresa tu correo para recuperar la contraseña.' });
+      emailRef.current?.focus();
+      return;
+    }
+
+    try {
+      await resetPassword(email);
+      setResetSent(true);
+    } catch (err) {
+      setAuthError(err instanceof Error ? err.message : 'Error al enviar el correo de recuperación.');
+    }
+  };
+
+  const processSubmit = async () => {
+    setAuthError(null);
+    setFieldErrors({});
+
+    const errors = tab === 'login'
+      ? validateLogin(email, password)
+      : validateRegister(email, registerPassword, confirmPassword, firstName, lastName);
+
+    if (Object.keys(errors).length) {
+      setFieldErrors(errors);
+      emailRef.current?.focus();
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      if (tab === 'login') {
+        await signIn(email, password);
+        navigate(redirectTo, { replace: true });
+      } else {
+        const result = await signUp(email, registerPassword, {
+          role: selectedProfile === 'merchant' ? 'comerciante' : 'cliente',
+          firstName,
+          lastName,
+          demoRecords: [
+            { title: 'Registro 1', description: 'Demo record 1' },
+            { title: 'Registro 2', description: 'Demo record 2' },
+            { title: 'Registro 3', description: 'Demo record 3' },
+          ],
+        });
+
+        if (result.requiresEmailConfirmation) {
+          setRegistrationSent(true);
+          return;
+        }
+
+        navigate(selectedProfile === 'merchant' ? '/merchant' : '/', { replace: true });
+      }
+    } catch (err) {
+      setAuthError(err instanceof Error ? err.message : 'Error al procesar la solicitud.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSubmit = (event: { preventDefault: () => void }) => {
+    event.preventDefault();
+    void processSubmit();
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-surface font-body-md text-on-surface lg:flex-row">
@@ -148,20 +411,7 @@ export function LoginPage() {
         </p>
 
         {tab === 'register' && (
-          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {registerProfiles.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => setSelectedProfile(p.id)}
-                className={`flex flex-col items-center rounded-xl border-2 p-4 text-center transition ${selectedProfile === p.id ? 'border-primary bg-surface-container-low' : 'border-outline-variant bg-white hover:border-primary'}`}
-              >
-                <Icon name={p.icon} className="mb-2 text-3xl text-secondary" />
-                <h3 className="text-label-md font-medium text-primary mb-1">{p.title}</h3>
-                <p className="text-sm text-on-surface-variant">{p.desc}</p>
-              </button>
-            ))}
-          </div>
+          <RegisterProfileChooser selectedProfile={selectedProfile} setSelectedProfile={setSelectedProfile} />
         )}
 
         {resetSent && (
@@ -182,76 +432,7 @@ export function LoginPage() {
           </p>
         )}
 
-        <form className="space-y-4" noValidate onSubmit={async (e) => {
-          e.preventDefault();
-          setAuthError(null);
-          setFieldErrors({});
-
-          // --- Validation ---------------------------------------------------
-          if (tab === 'login') {
-            const errors: { email?: string; password?: string } = {};
-            if (!email.trim()) errors.email = 'El correo electrónico es obligatorio.';
-            else if (!EMAIL_RE.test(email)) errors.email = 'Formato de email inválido.';
-            if (!password) errors.password = 'La contraseña es obligatoria.';
-            if (Object.keys(errors).length) {
-              setFieldErrors(errors);
-              emailRef.current?.focus();
-              return;
-            }
-          } else {
-            const errors: {
-              email?: string;
-              registerPassword?: string;
-              confirmPassword?: string;
-              firstName?: string;
-              lastName?: string;
-            } = {};
-            if (!email.trim()) errors.email = 'El correo electrónico es obligatorio.';
-            else if (!EMAIL_RE.test(email)) errors.email = 'Formato de email inválido.';
-            if (!registerPassword) errors.registerPassword = 'La contraseña es obligatoria.';
-            else if (registerPassword.length < 6) errors.registerPassword = 'La contraseña debe tener al menos 6 caracteres.';
-            if (!confirmPassword) errors.confirmPassword = 'Confirma la contraseña.';
-            else if (registerPassword !== confirmPassword) errors.confirmPassword = 'Las contraseñas no coinciden.';
-            if (!firstName.trim()) errors.firstName = 'El nombre es obligatorio.';
-            if (!lastName.trim()) errors.lastName = 'Los apellidos son obligatorios.';
-            if (Object.keys(errors).length) {
-              setFieldErrors(errors);
-              emailRef.current?.focus();
-              return;
-            }
-          }
-
-          // --- Submit ------------------------------------------------------
-          setSubmitting(true);
-          try {
-            if (tab === 'login') {
-              await signIn(email, password);
-              navigate(redirectTo, { replace: true });
-            } else {
-              const result = await signUp(email, registerPassword, {
-                role: selectedProfile === 'merchant' ? 'comerciante' : 'cliente',
-                firstName,
-                lastName,
-                demoRecords: [
-                  { title: 'Registro 1', description: 'Demo record 1' },
-                  { title: 'Registro 2', description: 'Demo record 2' },
-                  { title: 'Registro 3', description: 'Demo record 3' },
-                ],
-              });
-
-              if (result.requiresEmailConfirmation) {
-                setRegistrationSent(true);
-                return;
-              }
-
-              navigate(selectedProfile === 'merchant' ? '/merchant' : '/', { replace: true });
-            }
-          } catch (err) {
-            setAuthError(err instanceof Error ? err.message : 'Error al procesar la solicitud.');
-          } finally {
-            setSubmitting(false);
-          }
-        }}>
+        <form className="space-y-4" noValidate onSubmit={handleSubmit}>
 
           {/* Nombre y apellidos – solo registro */}
           {tab === 'register' && (
@@ -325,94 +506,23 @@ export function LoginPage() {
 
           {/* Password fields */}
           {tab === 'register' ? (
-            <>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <label htmlFor="registerPassword" className="block text-label-md text-on-surface-variant">Contraseña</label>
-                  <div className="relative">
-                    <input
-                    id="registerPassword"
-                    name="registerPassword"
-                    type={showRegisterPassword ? 'text' : 'password'}
-                    required
-                    placeholder="••••••••"
-                    autoComplete="new-password"
-                    value={registerPassword}
-                    onChange={(e) => setRegisterPassword(e.target.value)}
-                    className={INPUT_CLASS}
-                    aria-invalid={!!fieldErrors.registerPassword}
-                    aria-describedby={fieldErrors.registerPassword ? 'registerPassword-error' : undefined}
-                  />
-                    <button type="button" onClick={() => setShowRegisterPassword(!showRegisterPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant min-h-11 min-w-11 inline-flex items-center justify-center" aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
-                      <Icon name={showRegisterPassword ? 'visibility_off' : 'visibility'} />
-                    </button>
-                  </div>
-                  {fieldErrors.registerPassword && (
-                    <p id="registerPassword-error" className="text-sm text-error" role="alert">
-                      {fieldErrors.registerPassword}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-1">
-                  <label htmlFor="confirmPassword" className="block text-label-md text-on-surface-variant">Confirmar contraseña</label>
-                  <div className="relative">
-                    <input
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      type={showRegisterPassword ? 'text' : 'password'}
-                      required
-                      placeholder="••••••••"
-                      autoComplete="new-password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className={INPUT_CLASS}
-                      aria-invalid={!!fieldErrors.confirmPassword}
-                      aria-describedby={fieldErrors.confirmPassword ? 'confirmPassword-error' : undefined}
-                    />
-                    <button type="button" onClick={() => setShowRegisterPassword(!showRegisterPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant min-h-11 min-w-11 inline-flex items-center justify-center" aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
-                      <Icon name={showRegisterPassword ? 'visibility_off' : 'visibility'} />
-                    </button>
-                  </div>
-                  {fieldErrors.confirmPassword && (
-                    <p id="confirmPassword-error" className="text-sm text-error" role="alert">
-                      {fieldErrors.confirmPassword}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </>
+            <RegisterPasswordFields
+              showRegisterPassword={showRegisterPassword}
+              setShowRegisterPassword={setShowRegisterPassword}
+              registerPassword={registerPassword}
+              setRegisterPassword={setRegisterPassword}
+              confirmPassword={confirmPassword}
+              setConfirmPassword={setConfirmPassword}
+              fieldErrors={fieldErrors}
+            />
           ) : (
-            <>
-              <div className="space-y-1">
-                <label htmlFor="password" className="block text-label-md text-on-surface-variant">Contraseña</label>
-                <div className="relative">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    placeholder="••••••••"
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className={`${INPUT_CLASS} pr-12`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant"
-                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                  >
-                    <Icon name={showPassword ? 'visibility_off' : 'visibility'} />
-                  </button>
-                </div>
-              </div>
-              {fieldErrors.password && (
-                <p id="password-error" className="text-sm text-error" role="alert">
-                  {fieldErrors.password}
-                </p>
-              )}
-            </>
+            <LoginPasswordField
+              showPassword={showPassword}
+              setShowPassword={setShowPassword}
+              password={password}
+              setPassword={setPassword}
+              fieldErrors={fieldErrors}
+            />
           )}
 
           {/* Submit button */}
@@ -421,25 +531,14 @@ export function LoginPage() {
             disabled={submitting}
             className="w-full py-3 bg-primary text-white rounded-xl font-medium hover:bg-primary/90 transition disabled:opacity-60"
           >
-            {submitting ? (tab === 'login' ? 'Iniciando sesión...' : 'Creando cuenta...') : (tab === 'login' ? 'Iniciar sesión' : 'Crear cuenta')}
+            {getSubmitLabel(tab, submitting)}
           </button>
         </form>
 
         {/* Footer links */}
         <div className="mt-6 flex flex-col items-center space-y-2 text-sm text-on-surface-variant">
           {tab === 'login' && (
-            <button type="button" className="hover:underline" onClick={async () => {
-              if (!email.trim()) {
-                setFieldErrors({ email: 'Ingresa tu correo para recuperar la contraseña.' });
-                return;
-              }
-              try {
-                await resetPassword(email);
-                setResetSent(true);
-              } catch (err) {
-                setAuthError(err instanceof Error ? err.message : 'Error al enviar el correo de recuperación.');
-              }
-            }}>
+            <button type="button" className="hover:underline" onClick={handleResetPassword}>
               ¿Recuperar contraseña?
             </button>
           )}

@@ -40,31 +40,26 @@ export function CheckoutPage() {
     <div className="max-w-container-max mx-auto px-lg py-xl">
       <nav aria-label="Progreso del checkout" className="mb-xl max-w-3xl mx-auto">
         <ol className="flex items-center w-full">
-          {steps.map((label, index) => (
-            <li
-              key={label}
-              className={`flex w-full items-center ${index < steps.length - 1 ? "after:content-[''] after:w-full after:h-1 after:border-b after:inline-block" : ''} ${
-                index <= step ? 'after:border-primary text-primary font-bold' : 'after:border-outline-variant text-on-surface-variant'
-              }`}
-            >
-              <span
-                className={`flex items-center justify-center w-10 h-10 rounded-full lg:h-12 lg:w-12 shrink-0 ${
-                  index < step
-                    ? 'bg-primary text-white'
-                    : index === step
-                      ? 'bg-primary text-white'
-                      : 'bg-surface-container-high'
+          {steps.map((label, index) => {
+            const badgeState = index <= step ? 'bg-primary text-white' : 'bg-surface-container-high';
+            return (
+              <li
+                key={label}
+                className={`flex w-full items-center ${index < steps.length - 1 ? "after:content-[''] after:w-full after:h-1 after:border-b after:inline-block" : ''} ${
+                  index <= step ? 'after:border-primary text-primary font-bold' : 'after:border-outline-variant text-on-surface-variant'
                 }`}
               >
-                {index < step ? (
-                  <Icon name="check" />
-                ) : (
-                  <span>{index + 1}</span>
-                )}
-              </span>
-              <span className="ml-sm font-label-md text-label-md hidden sm:inline">{label}</span>
-            </li>
-          ))}
+                <span className={`flex items-center justify-center w-10 h-10 rounded-full lg:h-12 lg:w-12 shrink-0 ${badgeState}`}>
+                  {index < step ? (
+                    <Icon name="check" />
+                  ) : (
+                    <span>{index + 1}</span>
+                  )}
+                </span>
+                <span className="ml-sm font-label-md text-label-md hidden sm:inline">{label}</span>
+              </li>
+            );
+          })}
         </ol>
       </nav>
 
@@ -72,7 +67,7 @@ export function CheckoutPage() {
         <div className="lg:col-span-8 space-y-xl">
           <section className="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-outline-variant/30">
             <div className="flex items-center justify-between mb-lg">
-              <h2 className="font-headline-md text-headline-md text-primary">Información de Envío</h2>
+              <h2 id="shipping-info-heading" className="font-headline-md text-headline-md text-primary">Información de Envío</h2>
               {addressValidated && (
                 <span className="text-on-surface-variant font-label-md text-label-md flex items-center gap-xs">
                   <Icon name="verified_user" className="text-green-600" />
@@ -162,7 +157,8 @@ export function CheckoutPage() {
                 </span>
               </label>
               <label className="relative flex p-md border border-outline-variant rounded-xl cursor-pointer hover:border-primary/50">
-                <input type="radio" name="delivery" className="sr-only" />
+                <input type="radio" name="delivery" className="sr-only" aria-label="Envío Estándar" />
+                <span className="sr-only">Envío Estándar</span>
                 <div className="flex justify-between w-full">
                   <div>
                     <span className="font-bold text-on-surface">Envío Estándar</span>
@@ -227,9 +223,9 @@ export function CheckoutPage() {
               <Icon name="arrow_forward" />
             </button>
             {orderComplete && (
-              <p role="status" className="text-green-700 font-label-md text-center">
+              <output aria-live="polite" className="text-green-700 font-label-md text-center">
                 Pedido confirmado correctamente.
-              </p>
+              </output>
             )}
             {step > 0 && (
               <button
@@ -263,11 +259,10 @@ export function CheckoutPage() {
       </section>
 
       {showConfirm && (
-        <div
-          role="dialog"
-          aria-modal="true"
+        <dialog
+          open
           aria-labelledby="confirm-purchase-title"
-          className="fixed inset-0 z-50 flex items-center justify-center p-lg bg-primary/30"
+          className="fixed inset-0 z-50 flex items-center justify-center p-lg bg-primary/30 min-w-full min-h-full border-none bg-transparent shadow-none"
         >
           <div className="bg-surface-container-lowest rounded-xl p-xl max-w-md w-full shadow-2xl border border-outline-variant">
             <h2 id="confirm-purchase-title" className="font-headline-md text-headline-md text-primary mb-md">
@@ -297,7 +292,7 @@ export function CheckoutPage() {
               </button>
             </div>
           </div>
-        </div>
+        </dialog>
       )}
     </div>
   );
