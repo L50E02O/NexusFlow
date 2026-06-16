@@ -20,6 +20,15 @@
     />
   </head>
   <body class="bg-background text-on-background font-sans antialiased">
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+    <svg aria-hidden="true" focusable="false" width="0" height="0" style="position:absolute;visibility:hidden;">
+      <filter id="color-blind-filter-protanopia" colorInterpolationFilters="sRGB">
+        <feColorMatrix type="matrix" values="0.567,0.433,0,0,0 0.558,0.442,0,0,0 0,0.242,0.758,0,0 0,0,0,1,0" />
+      </filter>
+      <filter id="color-blind-filter-deuteranopia" colorInterpolationFilters="sRGB">
+        <feColorMatrix type="matrix" values="0.625,0.375,0,0,0 0.7,0.3,0,0,0 0,0.3,0.7,0,0 0,0,0,1,0" />
+      </filter>
+    </svg>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

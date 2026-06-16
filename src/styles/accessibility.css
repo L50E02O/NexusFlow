@@ -1,0 +1,332 @@
+/* Accessibility CSS para AccessShop - WCAG 2.2 */
+
+:root {
+  --font-scale: 1;
+  --line-height-scale: 1.5;
+  --paragraph-spacing: 1.5;
+  --letter-spacing: 0;
+  --word-spacing: 0;
+  --accessibility-dialog-width: min(100%, 30rem);
+  --accessibility-dialog-max-height: min(100vh - 2rem, 90vh);
+  --accessibility-bg: #ffffff;
+  --accessibility-text: #111827;
+  --accessibility-border: #3f5d9b;
+  --accessibility-surface: #f3f4f6;
+  --accessibility-surface-strong: #e5e7eb;
+  --accessibility-focus: #1d4ed8;
+}
+
+html {
+  font-size: calc(100% * var(--font-scale));
+}
+
+body {
+  line-height: calc(1.5 * var(--line-height-scale));
+  letter-spacing: var(--letter-spacing);
+  word-spacing: var(--word-spacing);
+}
+
+body.wcag-spacing p,
+body.wcag-spacing li,
+body.wcag-spacing dd {
+  margin-bottom: calc(1rem * var(--paragraph-spacing));
+}
+
+body.wcag-spacing {
+  line-height: calc(1.5 * var(--line-height-scale));
+  letter-spacing: var(--letter-spacing);
+  word-spacing: var(--word-spacing);
+}
+
+html.high-contrast {
+  background: #000000;
+  color: #ffffff;
+}
+
+html.high-contrast a,
+html.high-contrast button,
+html.high-contrast input,
+html.high-contrast select,
+html.high-contrast textarea {
+  color: #ffffff;
+  border-color: #ffff00;
+}
+
+html.inverted body {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+html.protanopia body,
+html.deuteranopia body {
+  filter: url('#color-blind-filter');
+}
+
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+
+body.show-transcripts .transcript {
+  display: block !important;
+}
+
+.transcript {
+  display: none;
+  background: #fff9c4;
+  color: #111827;
+  padding: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
+  margin-top: 1rem;
+}
+
+html.max-zoom body {
+  min-width: auto;
+}
+
+@media (max-width: 20rem) {
+  html.max-zoom body {
+    font-size: 1rem;
+  }
+  .accessibility-menu-panel {
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+  }
+}
+
+.accessibility-menu-button {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 9999;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 2px solid var(--accessibility-border);
+  background: var(--accessibility-surface);
+  color: var(--accessibility-text);
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  box-shadow: 0 10px 28px rgba(17, 24, 39, 0.2);
+}
+
+.accessibility-menu-button:focus-visible {
+  outline: 2px solid var(--accessibility-focus);
+  outline-offset: 4px;
+}
+
+.accessibility-menu-panel {
+  position: fixed;
+  right: 1rem;
+  bottom: 5rem;
+  width: var(--accessibility-dialog-width);
+  max-height: var(--accessibility-dialog-max-height);
+  z-index: 9998;
+  background: var(--accessibility-bg);
+  color: var(--accessibility-text);
+  border: 2px solid var(--accessibility-border);
+  border-radius: 1rem;
+  box-shadow: 0 20px 60px rgba(17, 24, 39, 0.25);
+  padding: 1rem;
+  overflow: auto;
+}
+
+.accessibility-menu-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.accessibility-menu-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+.accessibility-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: #e6fffa;
+  color: #065f46;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.accessibility-description {
+  margin: 0.5rem 0 0;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.accessibility-close-button {
+  background: transparent;
+  border: 1px solid var(--accessibility-border);
+  color: var(--accessibility-text);
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  font-size: 1.2rem;
+}
+
+.accessibility-close-button:focus-visible,
+.accessibility-value-button:focus-visible,
+.accessibility-toggle-button:focus-visible,
+.accessibility-link:focus-visible {
+  outline: 2px solid var(--accessibility-focus);
+  outline-offset: 3px;
+}
+
+.accessibility-menu-body {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.accessibility-section {
+  border: 1px solid var(--accessibility-surface-strong);
+  background: #ffffff;
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.accessibility-section h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.accessibility-control-group {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.accessibility-control-label {
+  font-weight: 700;
+  color: #111827;
+}
+
+.accessibility-slider-row {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+}
+
+.accessibility-slider-row input[type='range'] {
+  width: 100%;
+}
+
+.accessibility-value-button {
+  background: var(--accessibility-surface);
+  border: 1px solid var(--accessibility-border);
+  border-radius: 0.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.25rem;
+}
+
+.accessibility-value-label {
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.accessibility-toggle-group {
+  margin-top: 0.5rem;
+}
+
+.accessibility-toggle-button {
+  width: 100%;
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--accessibility-border);
+  border-radius: 0.9rem;
+  background: var(--accessibility-surface);
+  color: var(--accessibility-text);
+  font-weight: 700;
+}
+
+.accessibility-toggle-button.active {
+  background: #1f2937;
+  color: #ffffff;
+  border-color: #facc15;
+}
+
+.accessibility-quick-links {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.accessibility-link {
+  display: block;
+  color: #0f172a;
+  text-decoration: none;
+  padding: 0.9rem 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+}
+
+.accessibility-link:hover,
+.accessibility-link:focus-visible {
+  background: #eff6ff;
+}
+
+.accessibility-note {
+  color: #475569;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.accessibility-status {
+  margin: 0.75rem 0 0;
+  font-size: 0.95rem;
+  color: #b45309;
+}
+
+.accessibility-menu-footer {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.accessibility-reset-button {
+  width: 100%;
+  padding: 0.95rem 1rem;
+  border-radius: 0.95rem;
+  border: 1px solid #d1d5db;
+  background: #e5e7eb;
+  font-weight: 700;
+}
+
+.accessibility-footer-note {
+  color: #475569;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+@media (orientation: landscape) {
+  .accessibility-menu-panel {
+    max-height: min(80vh, 90vh);
+  }
+}
+
+@media (max-width: 37.5rem) {
+  .accessibility-menu-panel {
+    right: 0.75rem;
+    left: 0.75rem;
+    width: auto;
+  }
+}

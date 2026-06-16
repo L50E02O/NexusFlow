@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { supabase } from '@/shared/lib/supabase';
-import { AccessibilityPanel } from '@/components/accessibility/AccessibilityPanel';
+import { AccessibilityMenu } from '@/components/accessibility/AccessibilityMenu';
 import { useAccessibility } from '@/shared/context/AccessibilityContext';
 import { useAuth } from '@/shared/context/AuthContext';
 import { SkipLink } from '@/shared/ui/SkipLink';
@@ -84,7 +84,7 @@ export function LoginPage() {
       </section>
 
       {/* Right form panel */}
-      <section className="flex flex-1 flex-col justify-center px-4 py-8 sm:px-6 lg:px-12">
+      <section id="main-content" className="flex flex-1 flex-col justify-center px-4 py-8 sm:px-6 lg:px-12">
         <SkipLink />
         {/* Mobile header – only on small screens */}
         <header className="flex items-center justify-between border-b pb-4 lg:hidden">
@@ -358,7 +358,7 @@ export function LoginPage() {
           <Link to="/terminos" className="hover:underline">Términos y condiciones</Link>
         </div>
 
-        <AccessibilityPanel />
+        <AccessibilityMenu />
       </section>
     </div>
   );

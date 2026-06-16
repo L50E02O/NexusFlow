@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import { MerchantSidebar } from './MerchantSidebar';
-import { AccessibilityPanel } from '@/components/accessibility/AccessibilityPanel';
+import { AccessibilityMenu } from '@/components/accessibility/AccessibilityMenu';
 import { useAccessibility } from '@/shared/context/AccessibilityContext';
 import { SkipLink } from '@/shared/ui/SkipLink';
 
@@ -80,7 +80,7 @@ export function MerchantLayout() {
         <Outlet />
       </main>
 
-      <AccessibilityPanel />
+      <AccessibilityMenu />
     </div>
   );
 }

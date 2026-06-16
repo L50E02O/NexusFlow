@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { TopNav } from './TopNav';
 import { Footer } from './Footer';
 import { AiChatWidget } from '@/components/chat/AiChatWidget';
-import { AccessibilityPanel } from '@/components/accessibility/AccessibilityPanel';
+import { AccessibilityMenu } from '@/components/accessibility/AccessibilityMenu';
 import { SkipLink } from '@/shared/ui/SkipLink';
 import { Breadcrumbs } from '@/shared/ui/Breadcrumbs';
 type AppLayoutProps = {
@@ -21,7 +21,7 @@ export function AppLayout({ showFooter = true, showFab = true }: AppLayoutProps)
         <Outlet />
       </main>
       {showFooter && <Footer />}
-      <AccessibilityPanel />
+      <AccessibilityMenu />
       {showFab && <AiChatWidget />}
     </div>
   );
