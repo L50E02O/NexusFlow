@@ -3,12 +3,14 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import { useCart } from '@/shared/context/CartContext';
-import { catalogProducts, formatPrice } from '@/shared/data/mock';
+import { useProductos } from '@/shared/hooks/useProductos';
+import { formatPrice } from '@/shared/data/mock';
 
 const steps = ['Envío', 'Entrega', 'Pago'] as const;
 
 export function CheckoutPage() {
   const { items, clearCart } = useCart();
+  const { products } = useProductos();
   const [step, setStep] = useState(0);
   const [addressValidated] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -22,7 +24,7 @@ export function CheckoutPage() {
   const tax = subtotal * 0.08;
   const total = subtotal + shipping + tax;
 
-  const recommendations = catalogProducts.slice(0, 4);
+  const recommendations = products.slice(0, 4);
 
   if (items.length === 0) {
     return (
@@ -243,7 +245,7 @@ export function CheckoutPage() {
       <section className="mt-xxl">
         <h2 className="font-headline-lg text-headline-lg text-primary mb-xl">También te podría gustar</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-lg">
-          {recommendations.map((p) => (
+          {recommendations.slice(0, 4).map((p) => (
             <div
               key={p.id}
               className="bg-surface-container-lowest p-md rounded-xl border border-outline-variant/30 hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer group"

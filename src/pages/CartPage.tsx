@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import { ProductCard } from '@/components/product/ProductCard';
 import { useCart } from '@/shared/context/CartContext';
-import { catalogProducts, formatPrice } from '@/shared/data/mock';
+import { useProductos } from '@/shared/hooks/useProductos';
+import { formatPrice } from '@/shared/data/mock';
 
 export function CartPage() {
   const { items, updateQuantity, removeItem, addToCart } = useCart();
+  const { products } = useProductos();
 
   const subtotal = useMemo(
     () => items.reduce((sum, line) => sum + line.product.price * line.quantity, 0),
@@ -16,7 +18,7 @@ export function CartPage() {
   const tax = subtotal * 0.08;
   const total = subtotal + shipping + tax;
 
-  const recommendations = catalogProducts.slice(0, 4);
+  const recommendations = products.slice(0, 4);
 
   return (
     <div className="max-w-container-max mx-auto px-lg py-xxl">
@@ -148,7 +150,7 @@ export function CartPage() {
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-lg">
-          {recommendations.map((p) => (
+          {recommendations.slice(0, 4).map((p) => (
             <ProductCard key={p.id} product={p} onAddToCart={() => addToCart(p)} />
           ))}
         </div>

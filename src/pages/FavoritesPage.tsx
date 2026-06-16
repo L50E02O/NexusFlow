@@ -4,7 +4,7 @@ import { Icon } from '@/shared/ui/Icon';
 import { useCart } from '@/shared/context/CartContext';
 import { useFavorites } from '@/shared/context/FavoritesContext';
 import { useProductos } from '@/shared/hooks/useProductos';
-import { favoriteRecommendations, formatPrice } from '@/shared/data/mock';
+import { formatPrice } from '@/shared/data/mock';
 
 export function FavoritesPage() {
   const { addToCart } = useCart();
@@ -177,25 +177,28 @@ export function FavoritesPage() {
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
-          {favoriteRecommendations.map((item) => (
-            <div key={item.id} className="bg-white rounded-xl p-md flex flex-col group">
-              <div className="relative aspect-[4/3] mb-md overflow-hidden rounded-lg">
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                />
+          {products
+            .filter((item) => !favoriteIds.includes(item.id))
+            .slice(0, 4)
+            .map((item) => (
+              <div key={item.id} className="bg-white rounded-xl p-md flex flex-col group">
+                <div className="relative aspect-[4/3] mb-md overflow-hidden rounded-lg">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                  />
+                </div>
+                <h4 className="font-label-md text-body-md text-primary truncate mb-xs">{item.name}</h4>
+                <span className="text-label-md text-on-surface font-bold mb-md">{formatPrice(item.price)}</span>
+                <Link
+                  to={`/tienda?q=${encodeURIComponent(item.name)}`}
+                  className="w-full py-sm border-2 border-primary text-primary rounded-lg font-button text-label-md hover:bg-primary hover:text-white transition-all text-center min-h-11 flex items-center justify-center"
+                >
+                  Ver detalle
+                </Link>
               </div>
-              <h4 className="font-label-md text-body-md text-primary truncate mb-xs">{item.name}</h4>
-              <span className="text-label-md text-on-surface font-bold mb-md">{formatPrice(item.price)}</span>
-              <Link
-                to={`/tienda?q=${encodeURIComponent(item.name)}`}
-                className="w-full py-sm border-2 border-primary text-primary rounded-lg font-button text-label-md hover:bg-primary hover:text-white transition-all text-center min-h-11 flex items-center justify-center"
-              >
-                Ver detalle
-              </Link>
-            </div>
-          ))}
+            ))}
         </div>
       </section>
     </div>
