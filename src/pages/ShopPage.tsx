@@ -2,12 +2,9 @@ import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ProductCard } from '@/components/product/ProductCard';
 import { useCart } from '@/shared/context/CartContext';
-import { categories } from '@/shared/data/mock';
-import {
-  filterProducts,
-  getFullProductCatalog,
-  searchCategories,
-} from '@/shared/lib/searchCatalog';
+import { useCategorias } from '@/shared/hooks/useCategorias';
+import { useProductos } from '@/shared/hooks/useProductos';
+import { filterProducts, searchCategories } from '@/shared/lib/product-utils';
 
 type SortOption = 'relevance' | 'price-asc' | 'price-desc';
 
@@ -21,15 +18,31 @@ export function ShopPage() {
   const [maxPrice, setMaxPrice] = useState(5000);
   const [sort, setSort] = useState<SortOption>('relevance');
 
-  const fullCatalog = useMemo(() => getFullProductCatalog(), []);
+  const { products: fullCatalog, loading: productsLoading, error: productsError } = useProductos();
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategorias();
+
   const matchedCategories = useMemo(
-    () => (qParam.trim() ? searchCategories(qParam) : []),
-    [qParam],
+    () => (qParam.trim() ? searchCategories(qParam, categories) : []),
+    [qParam, categories],
   );
   const activeCategory = categories.find((c) => c.id === catParam);
+  let querySuffix = '';
+  if (qParam) {
+    querySuffix = `&q=${encodeURIComponent(qParam)}`;
+  }
+
+  let pageTitle = 'Accesorios de lujo';
+  if (activeCategory) {
+    pageTitle = activeCategory.label;
+  } else if (qParam) {
+    pageTitle = `Resultados para "${qParam}"`;
+  }
 
   const filtered = useMemo(() => {
-    let list = filterProducts(fullCatalog, { query: qParam, categoryId: catParam });
+    let list = filterProducts(fullCatalog, categories, {
+      query: qParam,
+      categoryId: catParam,
+    });
 
     if (onlyStock) {
       list = list.filter((p) => p.stock !== 'out');
@@ -41,7 +54,23 @@ export function ShopPage() {
     if (sort === 'price-desc') list.sort((a, b) => b.price - a.price);
 
     return list;
-  }, [fullCatalog, catParam, qParam, onlyStock, maxPrice, sort]);
+  }, [fullCatalog, categories, catParam, qParam, onlyStock, maxPrice, sort]);
+
+  if (productsLoading || categoriesLoading) {
+    return (
+      <div className="mx-auto max-w-container-max px-lg py-xl text-center text-on-surface-variant">
+        Cargando catálogo y categorías...
+      </div>
+    );
+  }
+
+  if (productsError || categoriesError) {
+    return (
+      <div className="mx-auto max-w-container-max px-lg py-xl text-center text-error">
+        No se pudo cargar la tienda. Intenta recargar la página.
+      </div>
+    );
+  }
 
   const clearFilters = () => {
     setOnlyStock(true);
@@ -82,7 +111,7 @@ export function ShopPage() {
                   {matchedCategories.map((cat) => (
                     <li key={cat.id}>
                       <Link
-                        to={`/tienda?cat=${cat.id}${qParam ? `&q=${encodeURIComponent(qParam)}` : ''}`}
+                        to={`/tienda?cat=${cat.id}${querySuffix}`}
                         className="inline-flex min-h-9 items-center rounded-full bg-surface-container-high px-md py-xs text-label-md text-primary hover:bg-primary hover:text-on-primary"
                       >
                         {cat.label}
@@ -154,13 +183,7 @@ export function ShopPage() {
         <div className="min-w-0 space-y-lg lg:col-span-9">
           <div className="flex flex-col justify-between gap-md md:flex-row md:items-center">
             <div className="min-w-0">
-              <h1 className="break-words font-headline-lg text-primary">
-                {activeCategory
-                  ? activeCategory.label
-                  : qParam
-                    ? `Resultados para "${qParam}"`
-                    : 'Accesorios de lujo'}
-              </h1>
+              <h1 className="break-words font-headline-lg text-primary">{pageTitle}</h1>
               <p className="text-body-md text-on-surface-variant">
                 Mostrando {filtered.length} de {fullCatalog.length} artículos
               </p>

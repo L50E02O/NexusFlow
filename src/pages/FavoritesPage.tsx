@@ -3,48 +3,42 @@ import { Link } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import { useCart } from '@/shared/context/CartContext';
 import { useFavorites } from '@/shared/context/FavoritesContext';
-import {
-  favoriteRecommendations,
-  catalogProducts,
-  trendingProducts,
-  aiPicks,
-  favoriteProducts,
-  formatPrice,
-  type Product,
-} from '@/shared/data/mock';
-
-function buildProductCatalog(): Map<string, Product> {
-  const map = new Map<string, Product>();
-  for (const p of [
-    ...catalogProducts,
-    ...trendingProducts,
-    ...aiPicks,
-    ...favoriteProducts,
-    ...favoriteRecommendations,
-  ]) {
-    map.set(p.id, p);
-  }
-  return map;
-}
-
-const productCatalog = buildProductCatalog();
+import { useProductos } from '@/shared/hooks/useProductos';
+import { favoriteRecommendations, formatPrice } from '@/shared/data/mock';
 
 export function FavoritesPage() {
   const { addToCart } = useCart();
   const { favoriteIds, removeFavorite } = useFavorites();
+  const { products, loading, error } = useProductos();
 
   const favorites = useMemo(
     () =>
       favoriteIds
-        .map((id) => productCatalog.get(id))
-        .filter((p): p is Product => p !== undefined),
-    [favoriteIds],
+        .map((id) => products.find((product) => product.id === id))
+        .filter((product): product is typeof products[number] => Boolean(product)),
+    [favoriteIds, products],
   );
 
   const handleAdd = (id: string) => {
-    const product = productCatalog.get(id);
+    const product = products.find((item) => item.id === id);
     if (product && product.stock !== 'out') addToCart(product);
   };
+
+  if (loading) {
+    return (
+      <div className="max-w-container-max mx-auto px-lg py-xl text-center text-on-surface-variant">
+        Cargando favoritos...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-container-max mx-auto px-lg py-xl text-center text-error">
+        No se pudieron cargar tus favoritos.
+      </div>
+    );
+  }
 
   if (favorites.length === 0) {
     return (
@@ -139,15 +133,15 @@ export function FavoritesPage() {
                       </span>
                     )}
                   </div>
-                  {!outOfStock ? (
-                    <div className="flex items-center gap-xs text-green-600 mb-lg">
-                      <Icon name="check_circle" className="text-base" />
-                      <span className="text-label-md">En stock</span>
-                    </div>
-                  ) : (
+                  {outOfStock ? (
                     <div className="flex items-center gap-xs text-error mb-lg">
                       <Icon name="info" className="text-base" />
                       <span className="text-label-md">Sin stock</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-xs text-green-600 mb-lg">
+                      <Icon name="check_circle" className="text-base" />
+                      <span className="text-label-md">En stock</span>
                     </div>
                   )}
                   <button

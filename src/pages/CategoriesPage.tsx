@@ -1,8 +1,26 @@
 import { Link } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
-import { categories } from '@/shared/data/mock';
+import { useCategorias } from '@/shared/hooks/useCategorias';
 
 export function CategoriesPage() {
+  const { categories, loading, error } = useCategorias();
+
+  if (loading) {
+    return (
+      <div className="max-w-container-max mx-auto px-lg py-xl text-center text-on-surface-variant">
+        Cargando categorías...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-container-max mx-auto px-lg py-xl text-center text-error">
+        No se pudieron cargar las categorías.
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-container-max mx-auto px-lg py-xl">
       <header className="mb-xl">

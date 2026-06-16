@@ -11,24 +11,31 @@ type ProductCardProps = {
   onAddToCart?: (id: string) => void;
 };
 
-export function ProductCard({ product, variant = 'grid', onAddToCart }: ProductCardProps) {
+export function ProductCard({ product, variant = 'grid', onAddToCart }: Readonly<ProductCardProps>) {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { session } = useAuth();
   const favorited = isFavorite(product.id);
 
-  const stockLabel =
-    product.stock === 'low'
-      ? 'Poco stock'
-      : product.stock === 'out'
-        ? 'Agotado'
-        : 'En stock';
+  let stockLabel = 'En stock';
+  if (product.stock === 'low') {
+    stockLabel = 'Poco stock';
+  } else if (product.stock === 'out') {
+    stockLabel = 'Agotado';
+  }
+
+  let stockBadgeClass = 'bg-secondary';
+  if (product.stock === 'low') {
+    stockBadgeClass = 'bg-error';
+  } else if (product.stock === 'out') {
+    stockBadgeClass = 'bg-outline';
+  }
 
   const handleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (!session) {
-      navigate('/login', { state: { from: { pathname: window.location.pathname } } });
+      navigate('/login', { state: { from: { pathname: globalThis.location.pathname } } });
       return;
     }
     toggleFavorite(product.id);
@@ -64,9 +71,7 @@ export function ProductCard({ product, variant = 'grid', onAddToCart }: ProductC
         </Link>
         {product.stock && (
           <span
-            className={`absolute top-md left-md px-md py-xs rounded-full text-label-md shadow-sm text-white ${
-              product.stock === 'low' ? 'bg-error' : product.stock === 'out' ? 'bg-outline' : 'bg-secondary'
-            }`}
+            className={`absolute top-md left-md px-md py-xs rounded-full text-label-md shadow-sm text-white ${stockBadgeClass}`}
           >
             {stockLabel}
           </span>

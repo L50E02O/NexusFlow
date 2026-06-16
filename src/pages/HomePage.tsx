@@ -3,8 +3,8 @@ import { Icon } from '@/shared/ui/Icon';
 import { ProductCard } from '@/components/product/ProductCard';
 import { useCart } from '@/shared/context/CartContext';
 import { useCountdown } from '@/shared/hooks/useCountdown';
+import { useCategorias } from '@/shared/hooks/useCategorias';
 import {
-  categories,
   featuredProduct,
   aiPicks,
   trendingProducts,
@@ -17,6 +17,23 @@ import {
 export function HomePage() {
   const { addToCart } = useCart();
   const countdown = useCountdown(4 * 3600 + 12 * 60 + 45);
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategorias();
+
+  if (categoriesLoading) {
+    return (
+      <div className="max-w-container-max mx-auto px-lg py-xl text-center text-on-surface-variant">
+        Cargando página principal...
+      </div>
+    );
+  }
+
+  if (categoriesError) {
+    return (
+      <div className="max-w-container-max mx-auto px-lg py-xl text-center text-error">
+        No se pudieron cargar las categorías.
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-container-max mx-auto px-lg space-y-xxl pb-xxl">
@@ -66,7 +83,7 @@ export function HomePage() {
           {categories.map((cat) => (
             <Link
               key={cat.id}
-              to={`/tienda?cat=${cat.id}`}
+              to={cat.id === 'mas' ? '/tienda' : `/tienda?cat=${cat.id}`}
               className="group text-center space-y-md"
             >
               <div className="aspect-square bg-surface-container flex items-center justify-center rounded-xl transition-all group-hover:bg-primary-container group-hover:text-on-primary-fixed shadow-sm">
