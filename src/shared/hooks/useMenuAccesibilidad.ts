@@ -36,7 +36,17 @@ export function useMenuAccesibilidad() {
 		};
 	}, []);
 
-	const groupedByCategoria = groupBy(items, 'nombre_categoria');
+	const filteredItems = items.filter((item) => {
+		const title = item.elemento_criterio?.trim();
+		const description = item.descripcion_criterio?.trim();
+
+		if (!title || !description) return false;
+		if (title === description) return false;
+		if (title.toLowerCase() === item.nombre_categoria.toLowerCase()) return false;
+		return true;
+	});
+
+	const groupedByCategoria = groupBy(filteredItems, 'nombre_categoria');
 
 	return { items, groupedByCategoria, loading, error };
 }

@@ -1,8 +1,8 @@
 // LoginPage.tsx – Updated design matching mockup
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { supabase } from '@/shared/lib/supabase';
 
+import { supabase } from '@/shared/lib/supabase';
 import { AccessibilityPanel } from '@/components/accessibility/AccessibilityPanel';
 import { useAccessibility } from '@/shared/context/AccessibilityContext';
 import { useAuth } from '@/shared/context/AuthContext';
@@ -37,8 +37,9 @@ export function LoginPage() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [resetSent, setResetSent] = useState(false);
+  const [registrationSent, setRegistrationSent] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string; firstName?: string; lastName?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   const emailRef = useRef<HTMLInputElement>(null);
   const redirectTo = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/';
@@ -101,6 +102,17 @@ export function LoginPage() {
           </button>
         </header>
 
+        <div className="mb-6 hidden items-center justify-end lg:flex">
+          <button
+            type="button"
+            onClick={openPanel}
+            aria-label="Abrir menú de accesibilidad"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-outline-variant bg-surface text-on-surface transition hover:border-primary hover:text-primary focus-ring"
+          >
+            <Icon name="accessibility_new" />
+          </button>
+        </div>
+
         {/* Tabs */}
         <div className="my-8 flex w-full max-w-md gap-4 rounded-xl bg-surface-container-high p-1">
           <button
@@ -151,6 +163,12 @@ export function LoginPage() {
           </p>
         )}
 
+        {registrationSent && (
+          <p className="rounded-xl bg-primary-container/20 border border-primary/20 p-3 mb-4 text-on-surface">
+            Revisa tu correo y confirma tu cuenta para continuar. La creación del perfil se completará después de iniciar sesión.
+          </p>
+        )}
+
         {authError && (
           <p className="rounded-xl bg-error-container/20 border border-error/20 p-3 mb-4" role="alert">
             {authError}
@@ -174,12 +192,14 @@ export function LoginPage() {
               return;
             }
           } else {
-            const errors: { email?: string; password?: string } = {};
+            const errors: { email?: string; password?: string; firstName?: string; lastName?: string } = {};
             if (!email.trim()) errors.email = 'El correo electrónico es obligatorio.';
             else if (!EMAIL_RE.test(email)) errors.email = 'Formato de email inválido.';
             if (!registerPassword) errors.password = 'La contraseña es obligatoria.';
             else if (registerPassword.length < 6) errors.password = 'Mínimo 6 caracteres.';
             else if (registerPassword !== confirmPassword) errors.password = 'Las contraseñas no coinciden.';
+            if (!firstName.trim()) errors.firstName = 'El nombre es obligatorio.';
+            if (!lastName.trim()) errors.lastName = 'Los apellidos son obligatorios.';
             if (Object.keys(errors).length) {
               setFieldErrors(errors);
               emailRef.current?.focus();
@@ -194,26 +214,22 @@ export function LoginPage() {
               await signIn(email, password);
               navigate(redirectTo, { replace: true });
             } else {
-              await signUp(email, registerPassword, {
-                role: selectedProfile === 'merchant' ? 'merchant' : 'consumer',
+              const result = await signUp(email, registerPassword, {
+                role: selectedProfile === 'merchant' ? 'comerciante' : 'cliente',
                 firstName,
                 lastName,
+                demoRecords: [
+                  { title: 'Registro 1', description: 'Demo record 1' },
+                  { title: 'Registro 2', description: 'Demo record 2' },
+                  { title: 'Registro 3', description: 'Demo record 3' },
+                ],
               });
-                // Insert demo records into the user's profile (stored as JSON)
-                const { data: userData } = await supabase.auth.getUser();
-                if (userData?.user?.id) {
-                  const demoRecords = [
-                    { title: 'Registro 1', description: 'Demo record 1' },
-                    { title: 'Registro 2', description: 'Demo record 2' },
-                    { title: 'Registro 3', description: 'Demo record 3' },
-                  ];
-                  await supabase
-                    .from('profiles')
-                    .upsert({
-                      id: userData.user.id,
-                      demo_records: demoRecords,
-                    } as any);
-                }
+
+              if (result.requiresEmailConfirmation) {
+                setRegistrationSent(true);
+                return;
+              }
+
               navigate(selectedProfile === 'merchant' ? '/merchant' : '/', { replace: true });
             }
           } catch (err) {
