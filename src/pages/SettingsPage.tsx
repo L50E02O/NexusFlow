@@ -247,13 +247,8 @@ export function SettingsPage() {
               </label>
 
               <div className="space-y-lg pt-md border-t border-outline-variant/20">
-                <h3 className="font-headline-md text-headline-md text-primary">Checklist WCAG 2.2 (A + AA)</h3>
-                <DataStatus
-                  loading={wcagLoading}
-                  error={wcagError}
-                  isEmpty={Object.keys(groupedByPrincipio).length === 0}
-                  emptyMessage="No hay criterios WCAG disponibles."
-                >
+
+              
                   <div className="space-y-xl">
                     {Object.entries(groupedByPrincipio).map(([principio, criterios]) => (
                       <div key={principio} className="space-y-md">
@@ -293,7 +288,6 @@ export function SettingsPage() {
                       </div>
                     ))}
                   </div>
-                </DataStatus>
               </div>
             </div>
           </section>
