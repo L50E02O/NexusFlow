@@ -199,17 +199,21 @@ export function LoginPage() {
                 firstName,
                 lastName,
               });
-              // Create three demo records for the new user
-              const { data: userData } = await supabase.auth.getUser();
-              if (userData?.user?.id) {
-                const demoRecords: { user_id: string; title: string; description: string }[] = [
-                  { user_id: userData.user.id, title: 'Registro 1', description: 'Demo record 1' },
-                  { user_id: userData.user.id, title: 'Registro 2', description: 'Demo record 2' },
-                  { user_id: userData.user.id, title: 'Registro 3', description: 'Demo record 3' },
-                ];
-                // Cast to any to satisfy Supabase type inference
-                await supabase.from('demo_records').insert(demoRecords as any);
-              }
+                // Insert demo records into the user's profile (stored as JSON)
+                const { data: userData } = await supabase.auth.getUser();
+                if (userData?.user?.id) {
+                  const demoRecords = [
+                    { title: 'Registro 1', description: 'Demo record 1' },
+                    { title: 'Registro 2', description: 'Demo record 2' },
+                    { title: 'Registro 3', description: 'Demo record 3' },
+                  ];
+                  await supabase
+                    .from('profiles')
+                    .upsert({
+                      id: userData.user.id,
+                      demo_records: demoRecords,
+                    } as any);
+                }
               navigate(selectedProfile === 'merchant' ? '/merchant' : '/', { replace: true });
             }
           } catch (err) {
@@ -224,11 +228,11 @@ export function LoginPage() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1">
                 <label htmlFor="firstName" className="block text-label-md text-on-surface-variant">Nombres</label>
-                <input id="firstName" name="firstName" type="text" required placeholder="Ej. Juan" value={firstName} onChange={(e) => setFirstName(e.target.value)} className={INPUT_CLASS} />
+                <input id="firstName" name="firstName" type="text" required placeholder="Ej. Juan" autoComplete="given-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} className={INPUT_CLASS} />
               </div>
               <div className="space-y-1">
                 <label htmlFor="lastName" className="block text-label-md text-on-surface-variant">Apellidos</label>
-                <input id="lastName" name="lastName" type="text" required placeholder="Ej. Pérez" value={lastName} onChange={(e) => setLastName(e.target.value)} className={INPUT_CLASS} />
+                <input id="lastName" name="lastName" type="text" required placeholder="Ej. Pérez" autoComplete="family-name" value={lastName} onChange={(e) => setLastName(e.target.value)} className={INPUT_CLASS} />
               </div>
             </div>
           )}
@@ -243,6 +247,7 @@ export function LoginPage() {
               type="email"
               required
               placeholder="ejemplo@nexusflow.com"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className={INPUT_CLASS}
@@ -261,7 +266,7 @@ export function LoginPage() {
                 <div className="space-y-1">
                   <label htmlFor="registerPassword" className="block text-label-md text-on-surface-variant">Contraseña</label>
                   <div className="relative">
-                    <input id="registerPassword" name="registerPassword" type={showRegisterPassword ? 'text' : 'password'} required placeholder="••••••••" value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} className={INPUT_CLASS} />
+                    <input id="registerPassword" name="registerPassword" type={showRegisterPassword ? 'text' : 'password'} required placeholder="••••••••" autoComplete="new-password" value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} className={INPUT_CLASS} />
                     <button type="button" onClick={() => setShowRegisterPassword(!showRegisterPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant" aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
                       <Icon name={showRegisterPassword ? 'visibility_off' : 'visibility'} />
                     </button>
@@ -270,7 +275,7 @@ export function LoginPage() {
                 <div className="space-y-1">
                   <label htmlFor="confirmPassword" className="block text-label-md text-on-surface-variant">Confirmar contraseña</label>
                   <div className="relative">
-                    <input id="confirmPassword" name="confirmPassword" type={showRegisterPassword ? 'text' : 'password'} required placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={INPUT_CLASS} />
+                    <input id="confirmPassword" name="confirmPassword" type={showRegisterPassword ? 'text' : 'password'} required placeholder="••••••••" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={INPUT_CLASS} />
                     <button type="button" onClick={() => setShowRegisterPassword(!showRegisterPassword)} className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant" aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
                       <Icon name={showRegisterPassword ? 'visibility_off' : 'visibility'} />
                     </button>
@@ -288,6 +293,7 @@ export function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   required
                   placeholder="••••••••"
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className={`${INPUT_CLASS} pr-12`}

@@ -1,3 +1,4 @@
+/* @refresh reset */
 import {
 	createContext,
 	useCallback,
@@ -70,19 +71,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	}, []);
 
 	const signUp = useCallback(async (email: string, password: string, metadata?: SignUpMetadata) => {
-		const { error } = await supabase.auth.signUp({
+		const { data, error } = await supabase.auth.signUp({
 			email,
 			password,
 			options: {
-				data: {
-					role: metadata?.role ?? 'consumer',
-					first_name: metadata?.firstName,
-					last_name: metadata?.lastName,
-				},
+				emailRedirectTo: `${window.location.origin}/login`,
 			},
 		});
+
+		// If Supabase returns an error, log the full object (includes details) and re‑throw.
 		if (error) {
+			console.error('SignUp error (full response):', error);
 			throw error;
+		}
+
+		// After the user is created we also create a corresponding profile row (empty demo_records for now).
+		if (data?.user?.id) {
+			try {
+				await supabase.from('profiles').upsert({
+					id: data.user.id,
+					demo_records: [],
+				} as any);
+			} catch (profileErr) {
+				console.error('Error creating profile after sign‑up:', profileErr);
+				// We do not re‑throw because the auth succeeded; the UI can handle the missing profile later.
+			}
 		}
 	}, []);
 
