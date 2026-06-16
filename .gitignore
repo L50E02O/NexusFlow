@@ -18,3 +18,6 @@ vite.svg
 # Antigravity
 .cursor/
 .gemini/
+
+# Playwright
+.playwright-mcp/
