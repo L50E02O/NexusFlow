@@ -367,8 +367,6 @@ export function LoginPage() {
               <Icon name="hub" className="shrink-0 text-[40px] text-primary-fixed" filled />
               <span className="font-headline-lg text-headline-lg tracking-tight">NexusFlow</span>
             </div>
-            <div className="max-w-lg space-y-lg">
-              <h1 className="text-balance font-display-lg text-[clamp(2rem,4vw,3rem)] leading-tight">
             <div className="max-w-xl space-y-md">
               <h1 className="text-balance font-display-lg text-[clamp(2.25rem,4vw,3.25rem)] leading-tight tracking-tight">
                 Bienvenido a NexusFlow
@@ -393,394 +391,323 @@ export function LoginPage() {
           <p className="relative z-10 text-sm opacity-70">© 2026 NexusFlow Cloud Solutions.</p>
         </section>
 
-        <section className="flex min-h-0 flex-1 flex-col bg-surface lg:min-h-full lg:overflow-y-auto">
-          <div className="flex flex-col items-center justify-start px-gutter py-xl sm:px-lg sm:py-lg lg:px-xl lg:py-lg lg:justify-center">
-          <div className="w-full max-w-2xl space-y-lg lg:space-y-lg">
         <section className="flex min-h-0 flex-1 flex-col bg-surface lg:max-h-screen lg:overflow-y-auto">
           <div className="flex flex-1 items-center justify-center px-gutter py-xl sm:items-center sm:px-lg sm:py-xxl lg:px-xl">
-          <div className="w-full max-w-[720px] space-y-[3rem] sm:max-w-[760px] lg:space-y-[3.5rem]">
-            <div className="hidden justify-end lg:flex">
-              <button
-                type="button"
-                onClick={openPanel}
-                aria-label="Abrir menú de accesibilidad"
-                className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container hover:text-primary focus-ring"
-              >
-                <Icon name="accessibility_new" />
-              </button>
-            </div>
-            <div className="mb-md flex items-center gap-xs font-label-md uppercase tracking-wide text-secondary">
-              <Icon name="lock" className="text-lg" />
-              <span>Inicio de Sesión Seguro</span>
-            </div>
-
-            <div className="mb-xl flex items-center rounded-2xl border border-outline-variant bg-surface-container p-1 shadow-sm">
-              <button
-                type="button"
-                onClick={() => setTab('login')}
-                className={`h-11 min-h-11 flex-1 rounded-xl font-button transition-all ${
-                  tab === 'login' ? 'bg-white text-primary shadow' : 'text-on-surface-variant hover:bg-surface-container-high'
-                }`}
-              >
-                Iniciar sesión
-              </button>
-              <button
-                type="button"
-                onClick={() => setTab('register')}
-                className={`h-11 min-h-11 flex-1 rounded-xl font-button transition-all ${
-                  tab === 'register' ? 'bg-white text-primary shadow' : 'text-on-surface-variant hover:bg-surface-container-high'
-                }`}
-              >
-                Registrarse
-              </button>
-            </div>
-
-            <header className="space-y-lg">
-              <h2 className="font-headline-lg text-[clamp(2.25rem,3vw,2.9rem)] text-primary font-bold tracking-tight">
-                {tab === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'}
-              </h2>
-              <p className="text-on-surface-variant font-body-md">
-                {tab === 'login'
-                  ? 'Ingresa tus credenciales para acceder a tu panel.'
-                  : 'Selecciona tu perfil y comienza hoy mismo.'}
-              </p>
-            </header>
-
-            {resetSent && (
-              <p className="p-md bg-secondary-container/30 rounded-xl border border-secondary/20 text-on-surface text-sm" role="status">
-                Te enviamos un correo con instrucciones para restablecer tu contraseña.
-              </p>
-            )}
-            {authError && (
-              <p className="form-error p-md bg-error-container/20 rounded-xl border border-error/20 text-sm" role="alert" id="form-error-summary">
-                {authError}
-              </p>
-            )}
-
-            <form
-              className="space-y-lg"
-              className="space-y-[2.25rem] sm:space-y-[2.75rem]"
-              noValidate
-              onSubmit={async (e) => {
-                e.preventDefault();
-                setAuthError(null);
-                setFieldErrors({});
-
-                if (tab === 'login') {
-                  const errors: { email?: string; password?: string } = {};
-                  if (!email.trim()) {
-                    errors.email = 'El correo electrónico es obligatorio.';
-                  } else if (!EMAIL_RE.test(email)) {
-                    errors.email = 'El email debe tener el formato usuario@dominio.com';
-                  }
-                  if (!password) {
-                    errors.password = 'La contraseña es obligatoria.';
-                  }
-                  if (Object.keys(errors).length > 0) {
-                    setFieldErrors(errors);
-                    emailRef.current?.focus();
-                    return;
-                  }
-                }
-
-                if (tab === 'register') {
-                  const errors: { email?: string; password?: string } = {};
-                  if (!email.trim()) {
-                    errors.email = 'El correo electrónico es obligatorio.';
-                  } else if (!EMAIL_RE.test(email)) {
-                    errors.email = 'El email debe tener el formato usuario@dominio.com';
-                  }
-                  if (!registerPassword) {
-                    errors.password = 'La contraseña es obligatoria.';
-                  } else if (registerPassword.length < 6) {
-                    errors.password = 'La contraseña debe tener al menos 6 caracteres.';
-                  } else if (registerPassword !== confirmPassword) {
-                    errors.password = 'Las contraseñas no coinciden.';
-                  }
-                  if (Object.keys(errors).length > 0) {
-                    setFieldErrors(errors);
-                    emailRef.current?.focus();
-                    return;
-                  }
-
-                  setSubmitting(true);
-                  try {
-                    await signUp(email, registerPassword, {
-                      role: selectedProfile === 'merchant' ? 'comerciante' : 'cliente',
-                      firstName,
-                      lastName,
-                    });
-                    navigate(selectedProfile === 'merchant' ? '/merchant' : '/', { replace: true });
-                  } catch (err) {
-                    setAuthError(err instanceof Error ? err.message : 'No se pudo crear la cuenta.');
-                  } finally {
-                    setSubmitting(false);
-                  }
-                  return;
-                }
-
-                setSubmitting(true);
-                try {
-                  await signIn(email, password);
-                  navigate(redirectTo, { replace: true });
-                } catch (err) {
-                  setAuthError(err instanceof Error ? err.message : 'No se pudo iniciar sesión.');
-                } finally {
-                  setSubmitting(false);
-                }
-              }}
-            >
-              {tab === 'register' && (
-                <div className="grid grid-cols-1 gap-md sm:grid-cols-2 sm:gap-lg">
-                  <div className="space-y-md">
-                    <label className="block font-label-md text-on-surface-variant" htmlFor="firstName">
-                      Nombres (requerido)
-                    </label>
-                    <input
-                      id="firstName"
-                      name="firstName"
-                      type="text"
-                      required
-                      autoComplete="given-name"
-                      aria-required="true"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="Ej. Juan"
-                      className={INPUT_CLASS}
-                    />
-                  </div>
-                  <div className="space-y-md">
-                    <label className="block font-label-md text-on-surface-variant" htmlFor="lastName">
-                      Apellidos (requerido)
-                    </label>
-                    <input
-                      id="lastName"
-                      name="lastName"
-                      type="text"
-                      required
-                      autoComplete="family-name"
-                      aria-required="true"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Ej. Pérez"
-                      className={INPUT_CLASS}
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-md">
-                <label className="block font-label-md text-on-surface-variant" htmlFor="email">
-                  Correo electrónico (requerido)
-                </label>
-                <p className="text-label-md text-on-surface-variant" id="email-format-hint">
-                  Formato: usuario@dominio.com
-                </p>
-                <input
-                  ref={emailRef}
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  aria-required="true"
-                  aria-invalid={fieldErrors.email ? true : undefined}
-                  aria-describedby={fieldErrors.email ? 'email-error email-format-hint' : 'email-format-hint'}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ejemplo@nexusflow.com"
-                  className={INPUT_CLASS}
-                />
-                {fieldErrors.email && (
-                  <p id="email-error" className="form-error" role="alert">
-                    {fieldErrors.email}
-                  </p>
-                )}
+            <div className="w-full max-w-[720px] space-y-[3rem] sm:max-w-[760px] lg:space-y-[3.5rem]">
+              <div className="hidden justify-end lg:flex">
+                <button
+                  type="button"
+                  onClick={openPanel}
+                  aria-label="Abrir menú de accesibilidad"
+                  className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container hover:text-primary focus-ring"
+                >
+                  <Icon name="accessibility_new" />
+                </button>
+              </div>
+              <div className="mb-md flex items-center gap-xs font-label-md uppercase tracking-wide text-secondary">
+                <Icon name="lock" className="text-lg" />
+                <span>Inicio de Sesión Seguro</span>
               </div>
 
-              {tab === 'register' ? (
-                <>
+              <div className="mb-xl flex items-center rounded-2xl border border-outline-variant bg-surface-container p-1 shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setTab('login')}
+                  className={`h-11 min-h-11 flex-1 rounded-xl font-button transition-all ${
+                    tab === 'login' ? 'bg-white text-primary shadow' : 'text-on-surface-variant hover:bg-surface-container-high'
+                  }`}
+                >
+                  Iniciar sesión
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTab('register')}
+                  className={`h-11 min-h-11 flex-1 rounded-xl font-button transition-all ${
+                    tab === 'register' ? 'bg-white text-primary shadow' : 'text-on-surface-variant hover:bg-surface-container-high'
+                  }`}
+                >
+                  Registrarse
+                </button>
+              </div>
+
+              <header className="space-y-lg">
+                <h2 className="font-headline-lg text-[clamp(2.25rem,3vw,2.9rem)] text-primary font-bold tracking-tight">
+                  {tab === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'}
+                </h2>
+                <p className="text-on-surface-variant font-body-md">
+                  {tab === 'login'
+                    ? 'Ingresa tus credenciales para acceder a tu panel.'
+                    : 'Selecciona tu perfil y comienza hoy mismo.'}
+                </p>
+              </header>
+
+              {resetSent && (
+                <p className="p-md bg-secondary-container/30 rounded-xl border border-secondary/20 text-on-surface text-sm" role="status">
+                  Te enviamos un correo con instrucciones para restablecer tu contraseña.
+                </p>
+              )}
+              {authError && (
+                <p className="form-error p-md bg-error-container/20 rounded-xl border border-error/20 text-sm" role="alert" id="form-error-summary">
+                  {authError}
+                </p>
+              )}
+
+              <form
+                className="space-y-[2.25rem] sm:space-y-[2.75rem]"
+                noValidate
+                onSubmit={handleSubmit}
+              >
+                {tab === 'register' && (
                   <div className="grid grid-cols-1 gap-md sm:grid-cols-2 sm:gap-lg">
                     <div className="space-y-md">
-                      <label className="block font-label-md text-on-surface-variant" htmlFor="password">
-                        Contraseña (requerido)
+                      <label className="block font-label-md text-on-surface-variant" htmlFor="firstName">
+                        Nombres (requerido)
                       </label>
+                      <input
+                        id="firstName"
+                        name="firstName"
+                        type="text"
+                        required
+                        autoComplete="given-name"
+                        aria-required="true"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="Ej. Juan"
+                        className={INPUT_CLASS}
+                      />
+                    </div>
+                    <div className="space-y-md">
+                      <label className="block font-label-md text-on-surface-variant" htmlFor="lastName">
+                        Apellidos (requerido)
+                      </label>
+                      <input
+                        id="lastName"
+                        name="lastName"
+                        type="text"
+                        required
+                        autoComplete="family-name"
+                        aria-required="true"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Ej. Pérez"
+                        className={INPUT_CLASS}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-md">
+                  <label className="block font-label-md text-on-surface-variant" htmlFor="email">
+                    Correo electrónico (requerido)
+                  </label>
+                  <p className="text-label-md text-on-surface-variant" id="email-format-hint">
+                    Formato: usuario@dominio.com
+                  </p>
+                  <input
+                    ref={emailRef}
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    aria-required="true"
+                    aria-invalid={fieldErrors.email ? true : undefined}
+                    aria-describedby={fieldErrors.email ? 'email-error email-format-hint' : 'email-format-hint'}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="ejemplo@nexusflow.com"
+                    className={INPUT_CLASS}
+                  />
+                  {fieldErrors.email && (
+                    <p id="email-error" className="form-error" role="alert">
+                      {fieldErrors.email}
+                    </p>
+                  )}
+                </div>
+
+                {tab === 'register' ? (
+                  <>
+                    <div className="grid grid-cols-1 gap-md sm:grid-cols-2 sm:gap-lg">
+                      <div className="space-y-md">
+                        <label className="block font-label-md text-on-surface-variant" htmlFor="password">
+                          Contraseña (requerido)
+                        </label>
+                        <div className="relative">
+                          <input
+                            id="password"
+                            name="password"
+                            type={showRegisterPassword ? 'text' : 'password'}
+                            required
+                            autoComplete="new-password"
+                            aria-required="true"
+                            value={registerPassword}
+                            onChange={(e) => setRegisterPassword(e.target.value)}
+                            placeholder="••••••••"
+                            className={`${INPUT_CLASS} pr-12`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                            className="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant min-h-11 min-w-11 inline-flex items-center justify-center"
+                            aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                          >
+                            <Icon name={showRegisterPassword ? 'visibility_off' : 'visibility'} />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="space-y-md">
+                        <label className="block font-label-md text-on-surface-variant" htmlFor="confirmPassword">
+                          Confirmar contraseña (requerido)
+                        </label>
+                        <div className="relative">
+                          <input
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            type={showRegisterPassword ? 'text' : 'password'}
+                            required
+                            autoComplete="new-password"
+                            aria-required="true"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="••••••••"
+                            className={`${INPUT_CLASS} pr-12`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                            className="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant min-h-11 min-w-11 inline-flex items-center justify-center"
+                            aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                          >
+                            <Icon name={showRegisterPassword ? 'visibility_off' : 'visibility'} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-md">
+                      <label className="block font-label-md text-on-surface-variant" htmlFor="phone">
+                        Teléfono (opcional)
+                      </label>
+                      <input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        autoComplete="tel"
+                        placeholder="+52 000 000 0000"
+                        className={INPUT_CLASS}
+                      />
+                    </div>
+                    <div className="space-y-md">
+                      <label className="flex items-start gap-md cursor-pointer">
+                        <input
+                          type="checkbox"
+                          required
+                          className="w-6 h-6 mt-0.5 rounded border-outline-variant text-primary focus:ring-primary"
+                        />
+                        <span className="text-label-md text-on-surface-variant font-normal">
+                          Acepto los{' '}
+                          <Link to="/terminos" className="text-primary font-bold hover:underline">
+                            términos y condiciones
+                          </Link>{' '}
+                          y la política de privacidad.
+                        </span>
+                      </label>
+                      <label className="flex items-start gap-md cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="w-6 h-6 mt-0.5 rounded border-outline-variant text-primary focus:ring-primary"
+                        />
+                        <span className="text-label-md text-on-surface-variant font-normal">
+                          Deseo recibir correos promocionales y actualizaciones de NexusFlow.
+                        </span>
+                      </label>
+                    </div>
+                    <button
+                      type="submit"
+                      className="w-full h-14 bg-primary text-white font-button rounded-xl shadow hover:bg-primary/90 transition-all"
+                    >
+                      Crear cuenta
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="space-y-md">
+                      <div className="flex flex-col gap-xs sm:flex-row sm:items-center sm:justify-between">
+                        <label className="block font-label-md text-on-surface-variant" htmlFor="password">
+                          Contraseña
+                        </label>
+                        <button
+                          type="button"
+                          className="self-start text-left font-label-md text-secondary hover:underline sm:self-auto"
+                          onClick={async () => {
+                            if (!email.trim()) {
+                              setFieldErrors({ email: 'Ingresa tu correo para recuperar la contraseña.' });
+                              return;
+                            }
+                            try {
+                              await resetPassword(email);
+                              setResetSent(true);
+                            } catch (err) {
+                              setAuthError(err instanceof Error ? err.message : 'No se pudo enviar el correo de recuperación.');
+                            }
+                          }}
+                        >
+                          ¿Recuperar contraseña?
+                        </button>
+                      </div>
                       <div className="relative">
                         <input
                           id="password"
                           name="password"
-                          type={showRegisterPassword ? 'text' : 'password'}
+                          type={showPassword ? 'text' : 'password'}
                           required
-                          autoComplete="new-password"
+                          autoComplete="current-password"
                           aria-required="true"
-                          value={registerPassword}
-                          onChange={(e) => setRegisterPassword(e.target.value)}
+                          aria-invalid={fieldErrors.password ? true : undefined}
+                          aria-describedby={fieldErrors.password ? 'password-error' : undefined}
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
                           placeholder="••••••••"
                           className={`${INPUT_CLASS} pr-12`}
                         />
                         <button
                           type="button"
-                          onClick={() => setShowRegisterPassword(!showRegisterPassword)}
-                          className="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant min-h-11 min-w-11 inline-flex items-center justify-center"
-                          aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant"
+                          aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                         >
-                          <Icon name={showRegisterPassword ? 'visibility_off' : 'visibility'} />
+                          <Icon name={showPassword ? 'visibility_off' : 'visibility'} />
                         </button>
                       </div>
+                      {fieldErrors.password && (
+                        <p id="password-error" className="form-error" role="alert">
+                          {fieldErrors.password}
+                        </p>
+                      )}
                     </div>
-                    <div className="space-y-md">
-                      <label className="block font-label-md text-on-surface-variant" htmlFor="confirmPassword">
-                        Confirmar contraseña (requerido)
-                      </label>
-                      <div className="relative">
-                        <input
-                          id="confirmPassword"
-                          name="confirmPassword"
-                          type={showRegisterPassword ? 'text' : 'password'}
-                          required
-                          autoComplete="new-password"
-                          aria-required="true"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          placeholder="••••••••"
-                          className={`${INPUT_CLASS} pr-12`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowRegisterPassword(!showRegisterPassword)}
-                          className="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant min-h-11 min-w-11 inline-flex items-center justify-center"
-                          aria-label={showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                        >
-                          <Icon name={showRegisterPassword ? 'visibility_off' : 'visibility'} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-md">
-                    <label className="block font-label-md text-on-surface-variant" htmlFor="phone">
-                      Teléfono (opcional)
-                    </label>
-                    <input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      autoComplete="tel"
-                      placeholder="+52 000 000 0000"
-                      className={INPUT_CLASS}
-                    />
-                  </div>
-                  <div className="space-y-md">
-                    <label className="flex items-start gap-md cursor-pointer">
+                    <label className="flex items-center gap-sm cursor-pointer">
                       <input
                         type="checkbox"
-                        required
-                        className="w-6 h-6 mt-0.5 rounded border-outline-variant text-primary focus:ring-primary"
+                        className="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary"
                       />
-                      <span className="text-label-md text-on-surface-variant font-normal">
-                        Acepto los{' '}
-                        <Link to="/terminos" className="text-primary font-bold hover:underline">
-                          términos y condiciones
-                        </Link>{' '}
-                        y la política de privacidad.
-                      </span>
+                      <span className="font-label-md text-on-surface-variant">Recordar sesión</span>
                     </label>
-                    <label className="flex items-start gap-md cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="w-6 h-6 mt-0.5 rounded border-outline-variant text-primary focus:ring-primary"
-                      />
-                      <span className="text-label-md text-on-surface-variant font-normal">
-                        Deseo recibir correos promocionales y actualizaciones de NexusFlow.
-                      </span>
-                    </label>
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full h-14 bg-primary text-white font-button rounded-xl shadow hover:bg-primary/90 transition-all"
-                  >
-                    Crear cuenta
-                  </button>
-                </>
-              ) : (
-                <>
-                  <div className="space-y-md">
-                    <div className="flex flex-col gap-xs sm:flex-row sm:items-center sm:justify-between">
-                      <label className="block font-label-md text-on-surface-variant" htmlFor="password">
-                        Contraseña
-                      </label>
-                      <button
-                        type="button"
-                        className="self-start text-left font-label-md text-secondary hover:underline sm:self-auto"
-                        onClick={async () => {
-                          if (!email.trim()) {
-                            setFieldErrors({ email: 'Ingresa tu correo para recuperar la contraseña.' });
-                            return;
-                          }
-                          try {
-                            await resetPassword(email);
-                            setResetSent(true);
-                          } catch (err) {
-                            setAuthError(err instanceof Error ? err.message : 'No se pudo enviar el correo de recuperación.');
-                          }
-                        }}
-                      >
-                        ¿Recuperar contraseña?
-                      </button>
-                    </div>
-                    <div className="relative">
-                      <input
-                        id="password"
-                        name="password"
-                        type={showPassword ? 'text' : 'password'}
-                        required
-                        autoComplete="current-password"
-                        aria-required="true"
-                        aria-invalid={fieldErrors.password ? true : undefined}
-                        aria-describedby={fieldErrors.password ? 'password-error' : undefined}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className={`${INPUT_CLASS} pr-12`}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant"
-                        aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                      >
-                        <Icon name={showPassword ? 'visibility_off' : 'visibility'} />
-                      </button>
-                    </div>
-                    {fieldErrors.password && (
-                      <p id="password-error" className="form-error" role="alert">
-                        {fieldErrors.password}
-                      </p>
-                    )}
-                  </div>
-                  <label className="flex items-center gap-sm cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary"
-                    />
-                    <span className="font-label-md text-on-surface-variant">Recordar sesión</span>
-                  </label>
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="w-full h-14 bg-primary text-white font-button rounded-xl shadow hover:bg-primary/90 transition-all disabled:opacity-60"
-                  >
-                    {submitting ? 'Iniciando sesión...' : 'Iniciar sesión'}
-                  </button>
-                  <Link
-                    to="/"
-                    className="w-full h-14 border border-outline-variant text-on-surface-variant font-button rounded-xl hover:bg-surface-container-low transition-all flex items-center justify-center"
-                  >
-                    Continuar como invitado
-                  </Link>
-                </>
-              )}
-            </form>
-          </div>
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="w-full h-14 bg-primary text-white font-button rounded-xl shadow hover:bg-primary/90 transition-all disabled:opacity-60"
+                    >
+                      {submitting ? 'Iniciando sesión...' : 'Iniciar sesión'}
+                    </button>
+                    <Link
+                      to="/"
+                      className="w-full h-14 border border-outline-variant text-on-surface-variant font-button rounded-xl hover:bg-surface-container-low transition-all flex items-center justify-center"
+                    >
+                      Continuar como invitado
+                    </Link>
+                  </>
+                )}
+              </form>
+            </div>
           </div>
         </section>
       </main>
@@ -807,7 +734,7 @@ export function LoginPage() {
               </button>
             ))}
           </div>
-      </div>
+        </div>
       </section>
 
       <AccessibilityMenu />
