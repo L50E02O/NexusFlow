@@ -354,27 +354,29 @@ export function LoginPage() {
         className="flex min-h-0 flex-1 flex-col lg:flex-row lg:h-screen"
         tabIndex={-1}
       >
-        <section className="relative hidden min-h-[320px] flex-col justify-between overflow-hidden bg-primary-container p-xl text-white lg:flex lg:h-full lg:w-[48%] lg:p-xxl xl:w-[48%]">
+        <section className="relative hidden min-h-[520px] flex-col justify-center overflow-hidden bg-primary-container p-xl text-white lg:flex lg:min-h-0 lg:w-[54%] lg:p-xxl xl:w-[56%]">
           <img
             alt=""
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-40"
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover object-left-top opacity-50"
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuB85QyyEpojHDVjr0kGWAWmK-fkJsBL4JVj_GuasQas4o09vOkIPV7GBo_LyZOI5wXZq4Hojsb6K8eGbZtB1eqajezxPWy15irE46UmRUIDixolZIjVYHpQKU1MJpQftYpsWpTuDwC1w126Q2xh4c0DailZCzkqxzW9l7zlTi3y-o6hXQWVUROTkS-ZJF8y5aKIw2a1GGkp34lEw25UI8j8j8cSr4ccpY7iIh9n6css6gixuwqUtspYDSBMPtg_aUpbzzlnrM7sg48"
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-container/40 via-primary-container/50 to-primary-container/45" aria-hidden="true" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-container/95 via-primary-container/85 to-primary-container/75" aria-hidden="true" />
 
-          <div className="relative z-10 flex flex-col gap-xl justify-center py-0">
+          <div className="relative z-10 flex flex-col gap-xxl py-lg pl-lg">
             <div className="flex items-center gap-sm">
               <Icon name="hub" className="shrink-0 text-[40px] text-primary-fixed" filled />
               <span className="font-headline-lg text-headline-lg tracking-tight">NexusFlow</span>
             </div>
             <div className="max-w-lg space-y-lg">
               <h1 className="text-balance font-display-lg text-[clamp(2rem,4vw,3rem)] leading-tight">
+            <div className="max-w-xl space-y-md">
+              <h1 className="text-balance font-display-lg text-[clamp(2.25rem,4vw,3.25rem)] leading-tight tracking-tight">
                 Bienvenido a NexusFlow
               </h1>
               <p className="max-w-md font-body-lg text-body-lg leading-relaxed text-on-primary-container">
                 Comercio electrónico adaptativo impulsado por IA que evoluciona contigo.
               </p>
-              <ul className="space-y-md pt-sm">
+              <ul className="space-y-md pt-md">
                 {[
                   { icon: 'verified_user', text: 'Experiencia personalizada' },
                   { icon: 'lock_open', text: 'Seguridad inteligente' },
@@ -394,6 +396,9 @@ export function LoginPage() {
         <section className="flex min-h-0 flex-1 flex-col bg-surface lg:min-h-full lg:overflow-y-auto">
           <div className="flex flex-col items-center justify-start px-gutter py-xl sm:px-lg sm:py-lg lg:px-xl lg:py-lg lg:justify-center">
           <div className="w-full max-w-2xl space-y-lg lg:space-y-lg">
+        <section className="flex min-h-0 flex-1 flex-col bg-surface lg:max-h-screen lg:overflow-y-auto">
+          <div className="flex flex-1 items-center justify-center px-gutter py-xl sm:items-center sm:px-lg sm:py-xxl lg:px-xl">
+          <div className="w-full max-w-[720px] space-y-[3rem] sm:max-w-[760px] lg:space-y-[3.5rem]">
             <div className="hidden justify-end lg:flex">
               <button
                 type="button"
@@ -404,12 +409,12 @@ export function LoginPage() {
                 <Icon name="accessibility_new" />
               </button>
             </div>
-            <div className="mb-sm flex items-center gap-xs font-label-md uppercase tracking-wide text-secondary">
+            <div className="mb-md flex items-center gap-xs font-label-md uppercase tracking-wide text-secondary">
               <Icon name="lock" className="text-lg" />
               <span>Inicio de Sesión Seguro</span>
             </div>
 
-            <div className="mb-lg flex items-center rounded-2xl border border-outline-variant bg-surface-container p-1 shadow-sm">
+            <div className="mb-xl flex items-center rounded-2xl border border-outline-variant bg-surface-container p-1 shadow-sm">
               <button
                 type="button"
                 onClick={() => setTab('login')}
@@ -430,8 +435,8 @@ export function LoginPage() {
               </button>
             </div>
 
-            <header className="space-y-sm">
-              <h2 className="font-headline-lg text-headline-lg text-primary">
+            <header className="space-y-lg">
+              <h2 className="font-headline-lg text-[clamp(2.25rem,3vw,2.9rem)] text-primary font-bold tracking-tight">
                 {tab === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'}
               </h2>
               <p className="text-on-surface-variant font-body-md">
@@ -454,6 +459,7 @@ export function LoginPage() {
 
             <form
               className="space-y-lg"
+              className="space-y-[2.25rem] sm:space-y-[2.75rem]"
               noValidate
               onSubmit={async (e) => {
                 e.preventDefault();
@@ -525,7 +531,7 @@ export function LoginPage() {
               }}
             >
               {tab === 'register' && (
-                <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 sm:gap-xl">
+                <div className="grid grid-cols-1 gap-md sm:grid-cols-2 sm:gap-lg">
                   <div className="space-y-md">
                     <label className="block font-label-md text-on-surface-variant" htmlFor="firstName">
                       Nombres (requerido)
@@ -594,7 +600,7 @@ export function LoginPage() {
 
               {tab === 'register' ? (
                 <>
-                    <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 sm:gap-xl">
+                  <div className="grid grid-cols-1 gap-md sm:grid-cols-2 sm:gap-lg">
                     <div className="space-y-md">
                       <label className="block font-label-md text-on-surface-variant" htmlFor="password">
                         Contraseña (requerido)
@@ -761,13 +767,13 @@ export function LoginPage() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full h-12 bg-primary text-white font-button rounded-xl shadow hover:bg-primary/90 transition-all disabled:opacity-60"
+                    className="w-full h-14 bg-primary text-white font-button rounded-xl shadow hover:bg-primary/90 transition-all disabled:opacity-60"
                   >
                     {submitting ? 'Iniciando sesión...' : 'Iniciar sesión'}
                   </button>
                   <Link
                     to="/"
-                    className="w-full h-12 border border-outline-variant text-on-surface-variant font-button rounded-xl hover:bg-surface-container-low transition-all flex items-center justify-center"
+                    className="w-full h-14 border border-outline-variant text-on-surface-variant font-button rounded-xl hover:bg-surface-container-low transition-all flex items-center justify-center"
                   >
                     Continuar como invitado
                   </Link>
