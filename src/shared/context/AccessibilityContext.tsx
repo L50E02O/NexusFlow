@@ -1,4 +1,3 @@
-// AccessibilityContext.tsx
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 
 const STORAGE_KEY = 'nexusflow-a11y';
@@ -9,17 +8,11 @@ type AccessibilitySettings = {
   grayscale: boolean;
   underlineLinks: boolean;
   reduceMotion: boolean;
-  textScale: 'sm' | 'md' | 'lg';
+  textScale: number;
   lineHeight: number;
   paragraphSpacing: number;
   letterSpacing: number;
   wordSpacing: number;
-  audioMuted: boolean;
-  subtitlesEnabled: boolean;
-  transcriptsEnabled: boolean;
-  quickSearch: boolean;
-  quickSitemap: boolean;
-  quickIndex: boolean;
 };
 
 type AccessibilityContextValue = AccessibilitySettings & {
@@ -32,17 +25,11 @@ type AccessibilityContextValue = AccessibilitySettings & {
   setGrayscale: (v: boolean) => void;
   setUnderlineLinks: (v: boolean) => void;
   setReduceMotion: (v: boolean) => void;
-  setTextScale: (s: 'sm' | 'md' | 'lg') => void;
+  setTextScale: (s: number) => void;
   setLineHeight: (v: number) => void;
   setParagraphSpacing: (v: number) => void;
   setLetterSpacing: (v: number) => void;
   setWordSpacing: (v: number) => void;
-  setAudioMuted: (v: boolean) => void;
-  setSubtitlesEnabled: (v: boolean) => void;
-  setTranscriptsEnabled: (v: boolean) => void;
-  setQuickSearch: (v: boolean) => void;
-  setQuickSitemap: (v: boolean) => void;
-  setQuickIndex: (v: boolean) => void;
   resetAll: () => void;
 };
 
@@ -52,24 +39,19 @@ const defaults: AccessibilitySettings = {
   grayscale: false,
   underlineLinks: false,
   reduceMotion: false,
-  textScale: 'md',
-  lineHeight: 1,
-  paragraphSpacing: 1,
-  letterSpacing: 1,
-  wordSpacing: 1,
-  audioMuted: false,
-  subtitlesEnabled: false,
-  transcriptsEnabled: false,
-  quickSearch: false,
-  quickSitemap: false,
-  quickIndex: false,
+  textScale: 1,
+  lineHeight: 1.5,
+  paragraphSpacing: 1.5,
+  letterSpacing: 0,
+  wordSpacing: 0,
 };
 
 function loadSettings(): AccessibilitySettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaults;
-    return { ...defaults, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    return { ...defaults, ...parsed };
   } catch {
     return defaults;
   }
@@ -90,17 +72,11 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
   const [grayscale, setGrayscaleState] = useState(initial.grayscale);
   const [underlineLinks, setUnderlineLinksState] = useState(initial.underlineLinks);
   const [reduceMotion, setReduceMotionState] = useState(initial.reduceMotion);
-  const [textScale, setTextScaleState] = useState<'sm' | 'md' | 'lg'>(initial.textScale);
+  const [textScale, setTextScaleState] = useState(initial.textScale);
   const [lineHeight, setLineHeightState] = useState(initial.lineHeight);
   const [paragraphSpacing, setParagraphSpacingState] = useState(initial.paragraphSpacing);
   const [letterSpacing, setLetterSpacingState] = useState(initial.letterSpacing);
   const [wordSpacing, setWordSpacingState] = useState(initial.wordSpacing);
-  const [audioMuted, setAudioMutedState] = useState(initial.audioMuted);
-  const [subtitlesEnabled, setSubtitlesEnabledState] = useState(initial.subtitlesEnabled);
-  const [transcriptsEnabled, setTranscriptsEnabledState] = useState(initial.transcriptsEnabled);
-  const [quickSearch, setQuickSearchState] = useState(initial.quickSearch);
-  const [quickSitemap, setQuickSitemapState] = useState(initial.quickSitemap);
-  const [quickIndex, setQuickIndexState] = useState(initial.quickIndex);
 
   const snapshot = useCallback((): AccessibilitySettings => ({
     darkMode,
@@ -113,29 +89,9 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     paragraphSpacing,
     letterSpacing,
     wordSpacing,
-    audioMuted,
-    subtitlesEnabled,
-    transcriptsEnabled,
-    quickSearch,
-    quickSitemap,
-    quickIndex,
   }), [
-    darkMode,
-    highContrast,
-    grayscale,
-    underlineLinks,
-    reduceMotion,
-    textScale,
-    lineHeight,
-    paragraphSpacing,
-    letterSpacing,
-    wordSpacing,
-    audioMuted,
-    subtitlesEnabled,
-    transcriptsEnabled,
-    quickSearch,
-    quickSitemap,
-    quickIndex,
+    darkMode, highContrast, grayscale, underlineLinks, reduceMotion,
+    textScale, lineHeight, paragraphSpacing, letterSpacing, wordSpacing,
   ]);
 
   useEffect(() => {
@@ -143,52 +99,29 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
   }, [snapshot]);
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', darkMode);
-  }, [darkMode]);
+    const root = document.documentElement;
+    const main = document.querySelector<HTMLElement>('main#main-content');
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('high-contrast', highContrast);
-  }, [highContrast]);
+    root.style.fontSize = `${100 * textScale}%`;
+    root.style.setProperty('--line-height-scale', String(lineHeight));
+    root.style.setProperty('--paragraph-spacing', String(paragraphSpacing));
+    root.style.setProperty('--letter-spacing', `${letterSpacing}em`);
+    root.style.setProperty('--word-spacing', `${wordSpacing}em`);
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('grayscale-mode', grayscale);
-  }, [grayscale]);
+    root.classList.toggle('dark', darkMode);
+    root.classList.toggle('high-contrast', highContrast);
+    root.classList.toggle('grayscale-mode', grayscale);
+    root.classList.toggle('underline-links', underlineLinks);
+    root.classList.toggle('reduce-motion', reduceMotion);
+    root.classList.toggle('max-zoom', textScale >= 2);
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('underline-links', underlineLinks);
-  }, [underlineLinks]);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('reduce-motion', reduceMotion);
-  }, [reduceMotion]);
-
-  useEffect(() => {
-    document.documentElement.style.setProperty('--line-height-mult', lineHeight.toString());
-    document.documentElement.style.setProperty('--paragraph-spacing-mult', paragraphSpacing.toString());
-    document.documentElement.style.setProperty('--letter-spacing-mult', letterSpacing.toString());
-    document.documentElement.style.setProperty('--word-spacing-mult', wordSpacing.toString());
-  }, [lineHeight, paragraphSpacing, letterSpacing, wordSpacing]);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('audio-muted', audioMuted);
-    document.documentElement.classList.toggle('subtitles-enabled', subtitlesEnabled);
-    document.documentElement.classList.toggle('transcripts-enabled', transcriptsEnabled);
-  }, [audioMuted, subtitlesEnabled, transcriptsEnabled]);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('quick-search', quickSearch);
-    document.documentElement.classList.toggle('quick-sitemap', quickSitemap);
-    document.documentElement.classList.toggle('quick-index', quickIndex);
-  }, [quickSearch, quickSitemap, quickIndex]);
-
-  useEffect(() => {
-    const sizes: Record<'sm' | 'md' | 'lg', string> = {
-      sm: '0.875rem',
-      md: '1rem',
-      lg: '1.125rem',
-    };
-    document.documentElement.style.fontSize = sizes[textScale];
-  }, [textScale]);
+    const spacingActive =
+      lineHeight !== defaults.lineHeight ||
+      paragraphSpacing !== defaults.paragraphSpacing ||
+      letterSpacing !== defaults.letterSpacing ||
+      wordSpacing !== defaults.wordSpacing;
+    main?.classList.toggle('wcag-spacing', spacingActive);
+  }, [textScale, lineHeight, paragraphSpacing, letterSpacing, wordSpacing, darkMode, highContrast, grayscale, underlineLinks, reduceMotion]);
 
   const openPanel = () => setPanelOpen(true);
   const closePanel = () => setPanelOpen(false);
@@ -199,17 +132,11 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
   const setGrayscale = (v: boolean) => setGrayscaleState(v);
   const setUnderlineLinks = (v: boolean) => setUnderlineLinksState(v);
   const setReduceMotion = (v: boolean) => setReduceMotionState(v);
-  const setTextScale = (s: 'sm' | 'md' | 'lg') => setTextScaleState(s);
+  const setTextScale = (s: number) => setTextScaleState(s);
   const setLineHeight = (v: number) => setLineHeightState(v);
   const setParagraphSpacing = (v: number) => setParagraphSpacingState(v);
   const setLetterSpacing = (v: number) => setLetterSpacingState(v);
   const setWordSpacing = (v: number) => setWordSpacingState(v);
-  const setAudioMuted = (v: boolean) => setAudioMutedState(v);
-  const setSubtitlesEnabled = (v: boolean) => setSubtitlesEnabledState(v);
-  const setTranscriptsEnabled = (v: boolean) => setTranscriptsEnabledState(v);
-  const setQuickSearch = (v: boolean) => setQuickSearchState(v);
-  const setQuickSitemap = (v: boolean) => setQuickSitemapState(v);
-  const setQuickIndex = (v: boolean) => setQuickIndexState(v);
 
   const resetAll = () => {
     setDarkModeState(defaults.darkMode);
@@ -222,12 +149,6 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     setParagraphSpacingState(defaults.paragraphSpacing);
     setLetterSpacingState(defaults.letterSpacing);
     setWordSpacingState(defaults.wordSpacing);
-    setAudioMutedState(defaults.audioMuted);
-    setSubtitlesEnabledState(defaults.subtitlesEnabled);
-    setTranscriptsEnabledState(defaults.transcriptsEnabled);
-    setQuickSearchState(defaults.quickSearch);
-    setQuickSitemapState(defaults.quickSitemap);
-    setQuickIndexState(defaults.quickIndex);
     localStorage.removeItem(STORAGE_KEY);
   };
 
@@ -258,18 +179,6 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         setLetterSpacing,
         wordSpacing,
         setWordSpacing,
-        audioMuted,
-        setAudioMuted,
-        subtitlesEnabled,
-        setSubtitlesEnabled,
-        transcriptsEnabled,
-        setTranscriptsEnabled,
-        quickSearch,
-        setQuickSearch,
-        quickSitemap,
-        setQuickSitemap,
-        quickIndex,
-        setQuickIndex,
         resetAll,
       }}
     >

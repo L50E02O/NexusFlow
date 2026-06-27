@@ -1,91 +1,103 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { MouseEvent as ReactMouseEvent } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAccessibility } from '@/shared/context/AccessibilityContext';
 import { useFocusTrap } from '@/shared/hooks/useFocusTrap';
 
-interface AccessibilitySettings {
-  textScale: number;
-  lineHeight: number;
-  paragraphSpacing: number;
-  letterSpacing: number;
-  wordSpacing: number;
-  highContrast: boolean;
-  inverted: boolean;
-  protanopia: boolean;
-  deuteranopia: boolean;
-  reduceMotion: boolean;
-  showTranscripts: boolean;
-  showSubtitles: boolean;
-  audioMuted: boolean;
-}
+const TEXT_SCALE_MIN = 1;
+const TEXT_SCALE_MAX = 2;
+const TEXT_SCALE_STEP = 0.05;
+const LINE_HEIGHT_MIN = 1.5;
+const LINE_HEIGHT_MAX = 2.5;
+const LINE_HEIGHT_STEP = 0.1;
+const SPACING_MIN = 1.5;
+const SPACING_MAX = 2.5;
+const SPACING_STEP = 0.1;
+const LETTER_SPACING_MIN = 0;
+const LETTER_SPACING_MAX = 0.18;
+const LETTER_SPACING_STEP = 0.01;
+const WORD_SPACING_MIN = 0;
+const WORD_SPACING_MAX = 0.24;
+const WORD_SPACING_STEP = 0.02;
 
-const STORAGE_KEY = 'accessibility-menu-settings';
-const SESSION_AUDIO_KEY = 'accessibility-menu-audio-muted';
-
-const DEFAULT_SETTINGS: AccessibilitySettings = {
-  textScale: 1,
-  lineHeight: 1.5,
-  paragraphSpacing: 1.5,
-  letterSpacing: 0,
-  wordSpacing: 0,
-  highContrast: false,
-  inverted: false,
-  protanopia: false,
-  deuteranopia: false,
-  reduceMotion: false,
-  showTranscripts: false,
-  showSubtitles: false,
-  audioMuted: false,
-};
-
-const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
-
-function getStoredSettings(): AccessibilitySettings {
-  if (typeof window === 'undefined') return DEFAULT_SETTINGS;
-
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    const audioMuted = sessionStorage.getItem(SESSION_AUDIO_KEY);
-    const parsed = stored ? (JSON.parse(stored) as Partial<AccessibilitySettings>) : {};
-    return {
-      ...DEFAULT_SETTINGS,
-      ...parsed,
-      audioMuted: audioMuted === 'true' || parsed.audioMuted || DEFAULT_SETTINGS.audioMuted,
-    };
-  } catch {
-    return DEFAULT_SETTINGS;
-  }
+function SliderRow({
+  label,
+  value,
+  min,
+  max,
+  step,
+  format,
+  onChange,
+  decLabel,
+  incLabel,
+  slideLabel,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  format?: (v: number) => string;
+  onChange: (v: number) => void;
+  decLabel: string;
+  incLabel: string;
+  slideLabel: string;
+}) {
+  return (
+    <div className="accessibility-control-group">
+      <label className="accessibility-control-label">{label}</label>
+      <div className="accessibility-slider-row">
+        <button
+          type="button"
+          onClick={() => onChange(Math.max(min, +(value - step).toFixed(2)))}
+          aria-label={decLabel}
+          className="accessibility-value-button"
+        >
+          −
+        </button>
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          aria-label={slideLabel}
+          onChange={(e) => onChange(Number(e.target.value))}
+        />
+        <button
+          type="button"
+          onClick={() => onChange(Math.min(max, +(value + step).toFixed(2)))}
+          aria-label={incLabel}
+          className="accessibility-value-button"
+        >
+          +
+        </button>
+        <span className="accessibility-value-label">{format ? format(value) : value}</span>
+      </div>
+    </div>
+  );
 }
 
 export function AccessibilityMenu() {
-  const { panelOpen, openPanel, closePanel } = useAccessibility();
-  const [settings, setSettings] = useState<AccessibilitySettings>(DEFAULT_SETTINGS);
-  const [subtitleNotice, setSubtitleNotice] = useState<string | null>(null);
-  const [transcriptNotice, setTranscriptNotice] = useState<string | null>(null);
+  const {
+    panelOpen, openPanel, closePanel,
+    textScale, setTextScale,
+    lineHeight, setLineHeight,
+    paragraphSpacing, setParagraphSpacing,
+    letterSpacing, setLetterSpacing,
+    wordSpacing, setWordSpacing,
+    highContrast, setHighContrast,
+    darkMode, setDarkMode,
+    grayscale, setGrayscale,
+    reduceMotion, setReduceMotion,
+    resetAll,
+  } = useAccessibility();
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const open = panelOpen;
 
-  const spacingEnabled = useMemo(
-    () =>
-      settings.lineHeight !== DEFAULT_SETTINGS.lineHeight ||
-      settings.paragraphSpacing !== DEFAULT_SETTINGS.paragraphSpacing ||
-      settings.letterSpacing !== DEFAULT_SETTINGS.letterSpacing ||
-      settings.wordSpacing !== DEFAULT_SETTINGS.wordSpacing,
-    [settings],
-  );
-
-  useFocusTrap(menuRef, open, closePanel);
+  useFocusTrap(menuRef, panelOpen, closePanel);
 
   useEffect(() => {
-    setSettings(getStoredSettings());
-  }, []);
-
-  // Cerrar el menú solo cuando se hace clic fuera de él
-  useEffect(() => {
-    if (!open) return;
-
+    if (!panelOpen) return;
     const handleClickOutside = (event: Event) => {
       const target = event.target as Node;
       if (menuRef.current && !menuRef.current.contains(target)) {
@@ -95,126 +107,29 @@ export function AccessibilityMenu() {
         }
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [open, closePanel]);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [panelOpen, closePanel]);
 
   useEffect(() => {
-    const root = document.documentElement;
-    const body = document.body;
-
-    root.style.setProperty('--font-scale', String(settings.textScale));
-    root.style.setProperty('--line-height-scale', String(settings.lineHeight));
-    root.style.setProperty('--paragraph-spacing', String(settings.paragraphSpacing));
-    root.style.setProperty('--letter-spacing', `${settings.letterSpacing}em`);
-    root.style.setProperty('--word-spacing', `${settings.wordSpacing}em`);
-
-    root.classList.toggle('high-contrast', settings.highContrast);
-    root.classList.toggle('inverted', settings.inverted);
-    root.classList.toggle('protanopia', settings.protanopia);
-    root.classList.toggle('deuteranopia', settings.deuteranopia);
-    root.classList.toggle('reduce-motion', settings.reduceMotion);
-    root.classList.toggle('max-zoom', settings.textScale >= 2);
-
-    body.classList.toggle('wcag-spacing', spacingEnabled);
-    body.classList.toggle('show-transcripts', settings.showTranscripts);
-
-    body.style.overflow = open ? 'hidden' : '';
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    sessionStorage.setItem(SESSION_AUDIO_KEY, String(settings.audioMuted));
-  }, [settings, open, spacingEnabled]);
-
-  useEffect(() => {
-    const mediaElements = Array.from(document.querySelectorAll<HTMLMediaElement>('audio, video'));
-    mediaElements.forEach((media) => {
-      media.muted = settings.audioMuted;
-      if (settings.audioMuted) {
-        media.pause();
-      }
-    });
-  }, [settings.audioMuted]);
-
-  useEffect(() => {
-    const videos = Array.from(document.querySelectorAll<HTMLVideoElement>('video'));
-    let tracksAvailable = false;
-
-    videos.forEach((video) => {
-      Array.from(video.textTracks).forEach((track) => {
-        if (track.kind === 'subtitles' || track.kind === 'captions') {
-          tracksAvailable = true;
-          track.mode = settings.showSubtitles ? 'showing' : 'disabled';
-        } else {
-          track.mode = 'disabled';
-        }
-      });
-    });
-
-    setSubtitleNotice(settings.showSubtitles && !tracksAvailable ? 'No hay subtítulos disponibles en esta página.' : null);
-  }, [settings.showSubtitles]);
-
-  useEffect(() => {
-    const hasTranscript = Boolean(document.querySelector('.transcript'));
-    setTranscriptNotice(settings.showTranscripts && !hasTranscript ? 'No hay transcripciones disponibles en esta página.' : null);
-  }, [settings.showTranscripts]);
-
-  const updateSetting = <K extends keyof AccessibilitySettings>(key: K, value: AccessibilitySettings[K]) => {
-    setSettings((current) => ({ ...current, [key]: value }));
-  };
-
-  const adjustSetting = (
-    key: keyof Pick<AccessibilitySettings, 'textScale' | 'lineHeight' | 'paragraphSpacing' | 'letterSpacing' | 'wordSpacing'>,
-    delta: number,
-    min: number,
-    max: number,
-  ) => {
-    setSettings((current) => ({
-      ...current,
-      [key]: clamp((current[key] as number) + delta, min, max),
-    }));
-  };
-
-  const resetAll = () => {
-    setSettings(DEFAULT_SETTINGS);
-    localStorage.removeItem(STORAGE_KEY);
-    sessionStorage.removeItem(SESSION_AUDIO_KEY);
-  };
-
-  const handleQuickLink = (event: ReactMouseEvent<HTMLAnchorElement>, href: string) => {
-    event.preventDefault();
-    closePanel();
-
-    if (href === '#search') {
-      const target = document.querySelector('#search');
-      if (target instanceof HTMLElement) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        target.focus({ preventScroll: true });
-        return;
-      }
-      navigate('/');
-      return;
-    }
-
-    navigate(href);
-  };
+    document.body.style.overflow = panelOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [panelOpen]);
 
   return (
     <>
       <button
         type="button"
-        aria-expanded={open}
+        aria-expanded={panelOpen}
         aria-controls="accessibility-menu"
         aria-label="Abrir menú de accesibilidad"
-        className={`accessibility-menu-button ${open ? 'open' : ''}`}
-        onClick={() => (open ? closePanel() : openPanel())}
+        className={`accessibility-menu-button ${panelOpen ? 'open' : ''}`}
+        onClick={() => (panelOpen ? closePanel() : openPanel())}
       >
         <span aria-hidden="true">♿</span>
       </button>
 
-      {open && (
+      {panelOpen && (
         <div
           id="accessibility-menu"
           ref={menuRef}
@@ -226,9 +141,9 @@ export function AccessibilityMenu() {
         >
           <div className="accessibility-menu-header">
             <div>
-              <p className="accessibility-badge">✓ Texto real</p>
+              <p className="accessibility-badge">✓ WCAG 2.2</p>
               <h2 id="accessibility-menu-title">Menú de accesibilidad</h2>
-              <p className="accessibility-description">Controles globales WCAG 2.2 aplicados al DOM.</p>
+              <p className="accessibility-description">Controles globales aplicados al DOM.</p>
             </div>
             <button type="button" onClick={closePanel} className="accessibility-close-button" aria-label="Cerrar menú de accesibilidad">
               ✕
@@ -239,140 +154,70 @@ export function AccessibilityMenu() {
             <section className="accessibility-section" aria-labelledby="texto-heading">
               <h3 id="texto-heading">Texto</h3>
 
-              <div className="accessibility-control-group">
-                <label className="accessibility-control-label">Tamaño de texto (1.0× a 2.0×)</label>
-                <div className="accessibility-slider-row">
-                  <button type="button" onClick={() => adjustSetting('textScale', -0.05, 1, 2)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Reducir tamaño de texto" className="accessibility-value-button">
-                    −
-                  </button>
-                  <input
-                    type="range"
-                    min="1"
-                    max="2"
-                    step="0.05"
-                    value={settings.textScale}
-                    aria-label="Ajustar tamaño del texto"
-                    onChange={(event) => {
-                      event.stopPropagation();
-                      updateSetting('textScale', Number(event.target.value));
-                    }}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onTouchStart={(e) => e.stopPropagation()}
-                  />
-                  <button type="button" onClick={() => adjustSetting('textScale', 0.05, 1, 2)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Aumentar tamaño de texto" className="accessibility-value-button">
-                    +
-                  </button>
-                  <span className="accessibility-value-label">{Math.round(settings.textScale * 100)}%</span>
-                </div>
-              </div>
+              <SliderRow
+                label="Tamaño de texto"
+                value={textScale}
+                min={TEXT_SCALE_MIN}
+                max={TEXT_SCALE_MAX}
+                step={TEXT_SCALE_STEP}
+                format={(v) => `${Math.round(v * 100)}%`}
+                onChange={setTextScale}
+                decLabel="Reducir tamaño de texto"
+                incLabel="Aumentar tamaño de texto"
+                slideLabel="Ajustar tamaño del texto"
+              />
 
-              <div className="accessibility-control-group">
-                <label className="accessibility-control-label">Interlineado</label>
-                <div className="accessibility-slider-row">
-                  <button type="button" onClick={() => adjustSetting('lineHeight', -0.1, 1.5, 2.5)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Disminuir interlineado" className="accessibility-value-button">
-                    −
-                  </button>
-                  <input
-                    type="range"
-                    min="1.5"
-                    max="2.5"
-                    step="0.1"
-                    value={settings.lineHeight}
-                    aria-label="Ajustar interlineado"
-                    onChange={(event) => {
-                      event.stopPropagation();
-                      updateSetting('lineHeight', Number(event.target.value));
-                    }}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onTouchStart={(e) => e.stopPropagation()}
-                  />
-                  <button type="button" onClick={() => adjustSetting('lineHeight', 0.1, 1.5, 2.5)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Aumentar interlineado" className="accessibility-value-button">
-                    +
-                  </button>
-                  <span className="accessibility-value-label">{settings.lineHeight.toFixed(1)}×</span>
-                </div>
-              </div>
+              <SliderRow
+                label="Interlineado"
+                value={lineHeight}
+                min={LINE_HEIGHT_MIN}
+                max={LINE_HEIGHT_MAX}
+                step={LINE_HEIGHT_STEP}
+                format={(v) => `${v.toFixed(1)}×`}
+                onChange={setLineHeight}
+                decLabel="Disminuir interlineado"
+                incLabel="Aumentar interlineado"
+                slideLabel="Ajustar interlineado"
+              />
 
-              <div className="accessibility-control-group">
-                <label className="accessibility-control-label">Espaciado entre párrafos</label>
-                <div className="accessibility-slider-row">
-                  <button type="button" onClick={() => adjustSetting('paragraphSpacing', -0.1, 1.5, 2.5)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Disminuir espaciado entre párrafos" className="accessibility-value-button">
-                    −
-                  </button>
-                  <input
-                    type="range"
-                    min="1.5"
-                    max="2.5"
-                    step="0.1"
-                    value={settings.paragraphSpacing}
-                    aria-label="Ajustar espaciado entre párrafos"
-                    onChange={(event) => {
-                      event.stopPropagation();
-                      updateSetting('paragraphSpacing', Number(event.target.value));
-                    }}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onTouchStart={(e) => e.stopPropagation()}
-                  />
-                  <button type="button" onClick={() => adjustSetting('paragraphSpacing', 0.1, 1.5, 2.5)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Aumentar espaciado entre párrafos" className="accessibility-value-button">
-                    +
-                  </button>
-                  <span className="accessibility-value-label">{settings.paragraphSpacing.toFixed(1)}×</span>
-                </div>
-              </div>
+              <SliderRow
+                label="Espaciado entre párrafos"
+                value={paragraphSpacing}
+                min={SPACING_MIN}
+                max={SPACING_MAX}
+                step={SPACING_STEP}
+                format={(v) => `${v.toFixed(1)}×`}
+                onChange={setParagraphSpacing}
+                decLabel="Disminuir espaciado entre párrafos"
+                incLabel="Aumentar espaciado entre párrafos"
+                slideLabel="Ajustar espaciado entre párrafos"
+              />
 
-              <div className="accessibility-control-group">
-                <label className="accessibility-control-label">Espaciado entre letras</label>
-                <div className="accessibility-slider-row">
-                  <button type="button" onClick={() => adjustSetting('letterSpacing', -0.01, 0, 0.18)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Disminuir espaciado entre letras" className="accessibility-value-button">
-                    −
-                  </button>
-                  <input
-                    type="range"
-                    min="0"
-                    max="0.18"
-                    step="0.01"
-                    value={settings.letterSpacing}
-                    aria-label="Ajustar espaciado entre letras"
-                    onChange={(event) => {
-                      event.stopPropagation();
-                      updateSetting('letterSpacing', Number(event.target.value));
-                    }}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onTouchStart={(e) => e.stopPropagation()}
-                  />
-                  <button type="button" onClick={() => adjustSetting('letterSpacing', 0.01, 0, 0.18)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Aumentar espaciado entre letras" className="accessibility-value-button">
-                    +
-                  </button>
-                  <span className="accessibility-value-label">{settings.letterSpacing.toFixed(2)}em</span>
-                </div>
-              </div>
+              <SliderRow
+                label="Espaciado entre letras"
+                value={letterSpacing}
+                min={LETTER_SPACING_MIN}
+                max={LETTER_SPACING_MAX}
+                step={LETTER_SPACING_STEP}
+                format={(v) => `${v.toFixed(2)}em`}
+                onChange={setLetterSpacing}
+                decLabel="Disminuir espaciado entre letras"
+                incLabel="Aumentar espaciado entre letras"
+                slideLabel="Ajustar espaciado entre letras"
+              />
 
-              <div className="accessibility-control-group">
-                <label className="accessibility-control-label">Espaciado entre palabras</label>
-                <div className="accessibility-slider-row">
-                  <button type="button" onClick={() => adjustSetting('wordSpacing', -0.02, 0, 0.24)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Disminuir espaciado entre palabras" className="accessibility-value-button">
-                    −
-                  </button>
-                  <input
-                    type="range"
-                    min="0"
-                    max="0.24"
-                    step="0.02"
-                    value={settings.wordSpacing}
-                    aria-label="Ajustar espaciado entre palabras"
-                    onChange={(event) => {
-                      event.stopPropagation();
-                      updateSetting('wordSpacing', Number(event.target.value));
-                    }}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onTouchStart={(e) => e.stopPropagation()}
-                  />
-                  <button type="button" onClick={() => adjustSetting('wordSpacing', 0.02, 0, 0.24)} onMouseDown={(e) => e.stopPropagation()} onTouchStart={(e) => e.stopPropagation()} aria-label="Aumentar espaciado entre palabras" className="accessibility-value-button">
-                    +
-                  </button>
-                  <span className="accessibility-value-label">{settings.wordSpacing.toFixed(2)}em</span>
-                </div>
-              </div>
+              <SliderRow
+                label="Espaciado entre palabras"
+                value={wordSpacing}
+                min={WORD_SPACING_MIN}
+                max={WORD_SPACING_MAX}
+                step={WORD_SPACING_STEP}
+                format={(v) => `${v.toFixed(2)}em`}
+                onChange={setWordSpacing}
+                decLabel="Disminuir espaciado entre palabras"
+                incLabel="Aumentar espaciado entre palabras"
+                slideLabel="Ajustar espaciado entre palabras"
+              />
             </section>
 
             <section className="accessibility-section" aria-labelledby="color-heading">
@@ -381,56 +226,33 @@ export function AccessibilityMenu() {
               <div className="accessibility-toggle-group">
                 <button
                   type="button"
-                  onClick={() => updateSetting('highContrast', !settings.highContrast)}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onTouchStart={(e) => e.stopPropagation()}
-                  className={`accessibility-toggle-button ${settings.highContrast ? 'active' : ''}`}
-                  aria-pressed={settings.highContrast}
-                  aria-label="Activar alto contraste"
+                  onClick={() => setHighContrast(!highContrast)}
+                  className={`accessibility-toggle-button ${highContrast ? 'active' : ''}`}
+                  aria-pressed={highContrast}
                 >
-                  Alto contraste {settings.highContrast ? '✓' : ''}
+                  Alto contraste {highContrast ? '✓' : ''}
                 </button>
               </div>
 
               <div className="accessibility-toggle-group">
                 <button
                   type="button"
-                  onClick={() => updateSetting('inverted', !settings.inverted)}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onTouchStart={(e) => e.stopPropagation()}
-                  className={`accessibility-toggle-button ${settings.inverted ? 'active' : ''}`}
-                  aria-pressed={settings.inverted}
-                  aria-label="Activar contraste invertido"
+                  onClick={() => setDarkMode(!darkMode)}
+                  className={`accessibility-toggle-button ${darkMode ? 'active' : ''}`}
+                  aria-pressed={darkMode}
                 >
-                  Contraste invertido {settings.inverted ? '✓' : ''}
+                  Modo oscuro {darkMode ? '✓' : ''}
                 </button>
               </div>
 
               <div className="accessibility-toggle-group">
                 <button
                   type="button"
-                  onClick={() => updateSetting('protanopia', !settings.protanopia)}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onTouchStart={(e) => e.stopPropagation()}
-                  className={`accessibility-toggle-button ${settings.protanopia ? 'active' : ''}`}
-                  aria-pressed={settings.protanopia}
-                  aria-label="Activar daltonismo protanopia"
+                  onClick={() => setGrayscale(!grayscale)}
+                  className={`accessibility-toggle-button ${grayscale ? 'active' : ''}`}
+                  aria-pressed={grayscale}
                 >
-                  Daltonismo protanopia {settings.protanopia ? '✓' : ''}
-                </button>
-              </div>
-
-              <div className="accessibility-toggle-group">
-                <button
-                  type="button"
-                  onClick={() => updateSetting('deuteranopia', !settings.deuteranopia)}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onTouchStart={(e) => e.stopPropagation()}
-                  className={`accessibility-toggle-button ${settings.deuteranopia ? 'active' : ''}`}
-                  aria-pressed={settings.deuteranopia}
-                  aria-label="Activar daltonismo deuteranopia"
-                >
-                  Daltonismo deuteranopia {settings.deuteranopia ? '✓' : ''}
+                  Escala de grises {grayscale ? '✓' : ''}
                 </button>
               </div>
             </section>
@@ -444,104 +266,40 @@ export function AccessibilityMenu() {
             <section className="accessibility-section" aria-labelledby="navegacion-heading">
               <h3 id="navegacion-heading">Navegación y Foco</h3>
 
+              <div className="accessibility-toggle-group">
+                <button
+                  type="button"
+                  onClick={() => setReduceMotion(!reduceMotion)}
+                  className={`accessibility-toggle-button ${reduceMotion ? 'active' : ''}`}
+                  aria-pressed={reduceMotion}
+                >
+                  Pausar animaciones {reduceMotion ? '✓' : ''}
+                </button>
+              </div>
+
               <div className="accessibility-quick-links" aria-label="Accesos rápidos">
-                    <a href="#main-content" onClick={closePanel} className="accessibility-link">
+                <a href="#main-content" onClick={closePanel} className="accessibility-link">
                   Saltar al contenido
                 </a>
-                <a href="#search" onClick={(event) => handleQuickLink(event, '#search')} className="accessibility-link">
+                <a href="#search" onClick={(e) => { e.preventDefault(); closePanel(); navigate('/'); }} className="accessibility-link">
                   Ir al buscador
                 </a>
-                <Link to="/sitemap" className="accessibility-link" onClick={closePanel}>
-                  Mapa del sitio
-                </Link>
                 <Link to="/" className="accessibility-link" onClick={closePanel}>
                   Inicio
                 </Link>
               </div>
             </section>
-
-            <section className="accessibility-section" aria-labelledby="multimedia-heading">
-              <h3 id="multimedia-heading">Multimedia y Audio</h3>
-
-              <div className="accessibility-toggle-group">
-                <button
-                  type="button"
-                  onClick={() => updateSetting('showTranscripts', !settings.showTranscripts)}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onTouchStart={(e) => e.stopPropagation()}
-                  className={`accessibility-toggle-button ${settings.showTranscripts ? 'active' : ''}`}
-                  aria-pressed={settings.showTranscripts}
-                  aria-label="Mostrar transcripciones"
-                >
-                  Mostrar transcripciones {settings.showTranscripts ? '✓' : ''}
-                </button>
-              </div>
-
-              <div className="accessibility-toggle-group">
-                <button
-                  type="button"
-                  onClick={() => updateSetting('showSubtitles', !settings.showSubtitles)}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onTouchStart={(e) => e.stopPropagation()}
-                  className={`accessibility-toggle-button ${settings.showSubtitles ? 'active' : ''}`}
-                  aria-pressed={settings.showSubtitles}
-                  aria-label="Activar subtítulos"
-                >
-                  Activar subtítulos {settings.showSubtitles ? '✓' : ''}
-                </button>
-                {subtitleNotice && (
-                  <p className="accessibility-status" role="status">
-                    {subtitleNotice}
-                  </p>
-                )}
-              </div>
-
-              <div className="accessibility-toggle-group">
-                <button
-                  type="button"
-                  onClick={() => updateSetting('audioMuted', !settings.audioMuted)}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onTouchStart={(e) => e.stopPropagation()}
-                  className={`accessibility-toggle-button ${settings.audioMuted ? 'active' : ''}`}
-                  aria-pressed={settings.audioMuted}
-                  aria-label={settings.audioMuted ? 'Activar audio' : 'Silenciar todo el audio'}
-                >
-                  {settings.audioMuted ? '🔇 Silenciar audio' : '🔊 Silenciar audio'} {settings.audioMuted ? '(activo)' : ''}
-                </button>
-              </div>
-
-              <div className="accessibility-toggle-group">
-                <button
-                  type="button"
-                  onClick={() => updateSetting('reduceMotion', !settings.reduceMotion)}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onTouchStart={(e) => e.stopPropagation()}
-                  className={`accessibility-toggle-button ${settings.reduceMotion ? 'active' : ''}`}
-                  aria-pressed={settings.reduceMotion}
-                  aria-label="Pausar animaciones"
-                >
-                  Pausar animaciones {settings.reduceMotion ? '✓' : ''}
-                </button>
-              </div>
-              {transcriptNotice && (
-                <p className="accessibility-status" role="status">
-                  {transcriptNotice}
-                </p>
-              )}
-            </section>
           </div>
 
           <div className="accessibility-menu-footer">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={resetAll}
-              onMouseDown={(e) => e.stopPropagation()}
-              onTouchStart={(e) => e.stopPropagation()}
               className="accessibility-reset-button"
             >
               Restablecer todo
             </button>
-            <p className="accessibility-footer-note">Las opciones se guardan en localStorage y audio en sessionStorage.</p>
+            <p className="accessibility-footer-note">Las opciones se guardan en localStorage.</p>
           </div>
         </div>
       )}

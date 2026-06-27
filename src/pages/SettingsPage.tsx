@@ -23,8 +23,6 @@ const settingsNav = [
 
 type SettingsSection = (typeof settingsNav)[number]['id'];
 
-const textScaleLabels = { sm: '14px (Pequeño)', md: '16px (Normal)', lg: '18px (Grande)' };
-
 export function SettingsPage() {
   const [active, setActive] = useState<SettingsSection>('cuenta');
   const { darkMode, setDarkMode, textScale, setTextScale } = useAccessibility();
@@ -219,23 +217,20 @@ export function SettingsPage() {
                   <label htmlFor="text-scale" className="font-bold">
                     Tamaño de texto
                   </label>
-                  <span className="text-primary font-bold">{textScaleLabels[textScale]}</span>
+                  <span className="text-primary font-bold">{Math.round(textScale * 100)}%</span>
                 </div>
                 <input
                   id="text-scale"
                   type="range"
-                  min={0}
+                  min={1}
                   max={2}
-                  step={1}
-                  value={textScale === 'sm' ? 0 : textScale === 'md' ? 1 : 2}
-                  onChange={(e) => {
-                    const scales = ['sm', 'md', 'lg'] as const;
-                    setTextScale(scales[Number(e.target.value)]);
-                  }}
+                  step={0.05}
+                  value={textScale}
+                  onChange={(e) => setTextScale(Number(e.target.value))}
                   className="w-full accent-primary"
-                  aria-valuemin={0}
+                  aria-valuemin={1}
                   aria-valuemax={2}
-                  aria-valuenow={textScale === 'sm' ? 0 : textScale === 'md' ? 1 : 2}
+                  aria-valuenow={textScale}
                 />
               </div>
               <label className="flex items-center justify-between p-md border border-outline-variant/20 rounded-xl cursor-pointer">

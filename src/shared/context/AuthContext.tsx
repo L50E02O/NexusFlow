@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -17,7 +18,6 @@ type SignUpMetadata = {
   role?: ProfileRole;
   firstName?: string;
   lastName?: string;
-  demoRecords?: Array<{ title: string; description: string }>;
 };
 
 type SignUpResult = {
@@ -26,13 +26,18 @@ type SignUpResult = {
   requiresEmailConfirmation: boolean;
 };
 
+type SignInResult = {
+  session: Session | null;
+  user: User | null;
+};
+
 type AuthContextValue = {
   session: Session | null;
   user: User | null;
   profile: ProfileRow | null;
   loading: boolean;
   isMerchant: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<SignInResult>;
   signUp: (
     email: string,
     password: string,
@@ -49,60 +54,79 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<ProfileRow | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const loadingRef = useRef(false);
+
   const loadProfile = useCallback(async (userId: string) => {
-    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
-    
-    if (!error && data) {
-      setProfile(data as ProfileRow);
-    } else if (error?.code === 'PGRST116') {
-      // Perfil no existe, intentar crearlo con rol por defecto 'cliente'
-      const { data: authData } = await supabase.auth.getUser();
-      const userMetadata = authData.user?.user_metadata ?? {};
-      
-      const { error: createError } = await supabase.from('profiles').insert({
-        id: userId,
-        nombres: userMetadata.nombres ?? null,
-        apellidos: userMetadata.apellidos ?? null,
-        rol: userMetadata.rol ?? 'cliente',
-        demo_records: userMetadata.demo_records ?? null,
-      } as any);
-      
-      if (!createError) {
-        const { data: newProfile } = await supabase.from('profiles').select('*').eq('id', userId).single();
-        if (newProfile) {
-          setProfile(newProfile as ProfileRow);
+    if (loadingRef.current) return;
+    loadingRef.current = true;
+    try {
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+
+      if (!error && data) {
+        const profile = data as ProfileRow;
+        const { data: { session } } = await supabase.auth.getSession();
+        const metadataRol = session?.user?.user_metadata?.rol as string | undefined;
+
+        if (metadataRol && metadataRol !== profile.rol) {
+          await (supabase.from('profiles') as any).update({ rol: metadataRol }).eq('id', userId);
+          const { data: updated } = await supabase.from('profiles').select('*').eq('id', userId).single();
+          if (updated) {
+            setProfile(updated as ProfileRow);
+            return;
+          }
+        }
+
+        setProfile(profile);
+      } else if (error?.code === 'PGRST116') {
+        const { data: { session } } = await supabase.auth.getSession();
+        const userMetadata = session?.user?.user_metadata ?? {};
+
+        const { error: createError } = await (supabase.from('profiles') as any).insert({
+          id: userId,
+          nombres: userMetadata.nombres ?? null,
+          apellidos: userMetadata.apellidos ?? null,
+          rol: userMetadata.rol ?? 'cliente',
+        });
+
+        if (!createError) {
+          const { data: newProfile } = await supabase.from('profiles').select('*').eq('id', userId).single();
+          if (newProfile) {
+            setProfile(newProfile as ProfileRow);
+          }
+        } else {
+          console.error('Profile creation failed:', createError);
+          setProfile(null);
         }
       } else {
-        console.error('Profile creation failed:', createError);
         setProfile(null);
       }
-    } else {
-      setProfile(null);
+    } finally {
+      loadingRef.current = false;
     }
   }, []);
 
   useEffect(() => {
     let mounted = true;
-    // Initial session load
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      if (mounted) {
-        setSession(currentSession);
-        if (currentSession?.user?.id) {
-          loadProfile(currentSession.user.id);
-        }
-        setLoading(false);
+    supabase.auth.getSession().then(async ({ data: { session: currentSession } }) => {
+      if (!mounted) return;
+      setSession(currentSession);
+      if (currentSession?.user?.id) {
+        await loadProfile(currentSession.user.id);
       }
+      if (mounted) setLoading(false);
     });
-    // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       if (!mounted) return;
       setSession(nextSession);
       if (nextSession?.user?.id) {
-        loadProfile(nextSession.user.id);
+        setLoading(true);
+        loadProfile(nextSession.user.id).finally(() => {
+          if (mounted) setLoading(false);
+        });
       } else {
         setProfile(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
     return () => {
       mounted = false;
@@ -111,8 +135,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [loadProfile]);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+    return { session: data.session, user: data.user };
   }, []);
 
   const signUp = useCallback(
@@ -126,7 +151,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             nombres: metadata?.firstName ?? null,
             apellidos: metadata?.lastName ?? null,
             rol: metadata?.role ?? 'cliente',
-            demo_records: metadata?.demoRecords ?? null,
           },
         },
       });
@@ -141,20 +165,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const userId = data.user.id;
       const requiresEmailConfirmation = !data.session;
 
-      // Crear el perfil directamente (sin requerir sesión)
-      const { error: profileError } = await supabase.from('profiles').upsert({
-        id: userId,
-        nombres: metadata?.firstName ?? null,
-        apellidos: metadata?.lastName ?? null,
-        rol: metadata?.role ?? 'cliente',
-        demo_records: metadata?.demoRecords ?? null,
-      } as any);
-      if (profileError) {
-        console.error('Profile creation failed after sign-up:', profileError);
-        throw profileError;
-      }
-
       if (data.session) {
+        const { error: updateError } = await (supabase.from('profiles') as any).update({
+          nombres: metadata?.firstName ?? null,
+          apellidos: metadata?.lastName ?? null,
+          rol: metadata?.role ?? 'cliente',
+        }).eq('id', userId);
+
+        if (updateError) {
+          console.error('Profile update after sign-up failed:', updateError);
+        }
+
         await loadProfile(userId);
         return { userId, profileCreated: true, requiresEmailConfirmation };
       }

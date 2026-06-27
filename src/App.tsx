@@ -36,6 +36,7 @@ import { MerchantSecurityPage } from '@/pages/merchant/MerchantSecurityPage';
 import { MerchantAssistantPage } from '@/pages/merchant/MerchantAssistantPage';
 import { MessagingPage } from '@/pages/MessagingPage';
 import { PageTitleManager } from '@/shared/ui/PageTitleManager';
+import { MerchantHomeRedirect } from '@/shared/ui/MerchantHomeRedirect';
 
 function App() {
   return (
@@ -66,7 +67,7 @@ function App() {
                       <Route path="asistente" element={<MerchantAssistantPage />} />
                     </Route>
                     <Route element={<AppLayout />}>
-                      <Route index element={<HomePage />} />
+                      <Route index element={<MerchantHomeRedirect />} />
                       <Route path="tienda" element={<ShopPage />} />
                       <Route path="categorias" element={<CategoriesPage />} />
                       <Route path="sostenibilidad" element={<SustainabilityPage />} />

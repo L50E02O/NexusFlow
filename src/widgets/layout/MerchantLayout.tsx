@@ -1,14 +1,25 @@
-import { useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { useRef, useState } from 'react';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import { MerchantSidebar } from './MerchantSidebar';
 import { AccessibilityMenu } from '@/components/accessibility/AccessibilityMenu';
 import { useAccessibility } from '@/shared/context/AccessibilityContext';
+import { useAuth } from '@/shared/context/AuthContext';
 import { SkipLink } from '@/shared/ui/SkipLink';
 
 export function MerchantLayout() {
   const { openPanel } = useAccessibility();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  const handleLogout = async () => {
+    setProfileOpen(false);
+    await signOut();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <div className="min-h-screen bg-background font-body-md text-on-surface">
@@ -62,11 +73,57 @@ export function MerchantLayout() {
               aria-hidden="true"
             />
           </button>
-          <img
-            alt="Foto de perfil del comerciante"
-            className="h-8 w-8 shrink-0 rounded-full border-2 border-surface-container-high"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6sgxKPrHA3TDu3E35iN48U1t-h91lOMm68ojtkZK41ZUS_Rv_bWZE_cfcGssXzL1tBykUOO6yVFmGht6Yt9yF8H6DEFuCkl_oOQs_SuJstfju1QAks7SkS4P7yXd2EDAE6FY_WX-vq3jzEB8PwTGT4nuJFq20XRMmNmhciy81UTUcI4nuSoLhdz908xXuT9v0l2DZ8itmeAWgqvjUtW8CqRqvnX13jxN6sjdVx2dUoBuvVXwGwNpVcZk99Zjp_it6MASSEKWBw7c"
-          />
+          <div className="relative" ref={profileRef}>
+            <button
+              type="button"
+              onClick={() => setProfileOpen((o) => !o)}
+              aria-label="Menú de perfil"
+              aria-expanded={profileOpen}
+              className="flex items-center gap-2 rounded-full p-1 transition-colors hover:bg-surface-container-highest focus-ring"
+            >
+              <img
+                alt="Foto de perfil del comerciante"
+                className="h-8 w-8 shrink-0 rounded-full border-2 border-surface-container-high"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6sgxKPrHA3TDu3E35iN48U1t-h91lOMm68ojtkZK41ZUS_Rv_bWZE_cfcGssXzL1tBykUOO6yVFmGht6Yt9yF8H6DEFuCkl_oOQs_SuJstfju1QAks7SkS4P7yXd2EDAE6FY_WX-vq3jzEB8PwTGT4nuJFq20XRMmNmhciy81UTUcI4nuSoLhdz908xXuT9v0l2DZ8itmeAWgqvjUtW8CqRqvnX13jxN6sjdVx2dUoBuvVXwGwNpVcZk99Zjp_it6MASSEKWBw7c"
+              />
+              <Icon name="arrow_drop_down" className="text-on-surface-variant hidden sm:block" />
+            </button>
+
+            {profileOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setProfileOpen(false)}
+                  aria-hidden="true"
+                />
+                <div className="absolute right-0 top-full z-50 mt-2 w-56 origin-top-right rounded-xl border border-outline-variant bg-surface p-2 shadow-xl">
+                  <div className="mb-2 border-b border-outline-variant px-3 pb-2 pt-1">
+                    <p className="text-label-md font-medium text-primary truncate">Mi cuenta</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfileOpen(false);
+                      navigate('/merchant/seguridad');
+                    }}
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-on-surface transition-colors hover:bg-surface-container-higher"
+                  >
+                    <Icon name="settings" className="text-lg text-on-surface-variant" />
+                    Configuración
+                  </button>
+                  <hr className="my-1 border-outline-variant" />
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm text-error transition-colors hover:bg-error-container/30"
+                  >
+                    <Icon name="logout" className="text-lg" />
+                    Cerrar sesión
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </header>
 

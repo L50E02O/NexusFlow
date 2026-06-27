@@ -1,7 +1,6 @@
 /* Accessibility CSS para AccessShop - WCAG 2.2 */
 
 :root {
-  --font-scale: 1;
   --line-height-scale: 1.5;
   --paragraph-spacing: 1.5;
   --letter-spacing: 0;
@@ -16,26 +15,16 @@
   --accessibility-focus: #1d4ed8;
 }
 
-html {
-  font-size: calc(100% * var(--font-scale));
-}
-
 body {
   line-height: calc(1.5 * var(--line-height-scale));
   letter-spacing: var(--letter-spacing);
   word-spacing: var(--word-spacing);
 }
 
-body.wcag-spacing p,
-body.wcag-spacing li,
-body.wcag-spacing dd {
+main#main-content.wcag-spacing p,
+main#main-content.wcag-spacing li,
+main#main-content.wcag-spacing dd {
   margin-bottom: calc(1rem * var(--paragraph-spacing));
-}
-
-body.wcag-spacing {
-  line-height: calc(1.5 * var(--line-height-scale));
-  letter-spacing: var(--letter-spacing);
-  word-spacing: var(--word-spacing);
 }
 
 html.high-contrast {
@@ -43,8 +32,8 @@ html.high-contrast {
   color: #ffffff;
 }
 
-html.high-contrast a,
-html.high-contrast button,
+html.high-contrast a:not(.accessibility-link),
+html.high-contrast button:not(.accessibility-toggle-button):not(.accessibility-close-button):not(.accessibility-value-button):not(.accessibility-reset-button):not(.accessibility-menu-button),
 html.high-contrast input,
 html.high-contrast select,
 html.high-contrast textarea {
@@ -52,13 +41,157 @@ html.high-contrast textarea {
   border-color: #ffff00;
 }
 
-html.inverted body {
-  filter: invert(1) hue-rotate(180deg);
+html.high-contrast .accessibility-menu-panel {
+  background: #1a1a2e;
+  color: #e0e0e0;
+  border-color: #ffff00;
 }
 
-html.protanopia body,
-html.deuteranopia body {
-  filter: url('#color-blind-filter');
+html.high-contrast .accessibility-toggle-button,
+html.high-contrast .accessibility-close-button,
+html.high-contrast .accessibility-value-button,
+html.high-contrast .accessibility-menu-button,
+html.high-contrast .accessibility-reset-button {
+  background: #2d2d44;
+  color: #e0e0e0;
+  border-color: #ffff00;
+}
+
+html.high-contrast .accessibility-toggle-button.active {
+  background: #ffff00;
+  color: #000000;
+  border-color: #ffff00;
+}
+
+html.high-contrast .accessibility-link {
+  background: #2d2d44;
+  color: #ffff00;
+  border-color: #ffff00;
+}
+
+html.high-contrast .accessibility-link:hover {
+  background: #3d3d54;
+}
+
+html.high-contrast .accessibility-section {
+  background: #1a1a2e;
+  border-color: #ffff00;
+}
+
+html.high-contrast .accessibility-control-label,
+html.high-contrast .accessibility-value-label,
+html.high-contrast .accessibility-note,
+html.high-contrast .accessibility-description,
+html.high-contrast .accessibility-footer-note,
+html.high-contrast .accessibility-section h3 {
+  color: #e0e0e0;
+}
+
+html.high-contrast .accessibility-close-button {
+  color: #e0e0e0;
+}
+
+html.high-contrast .accessibility-badge {
+  background: #ffff00;
+  color: #000000;
+}
+
+html.dark .accessibility-menu-panel {
+  background: #1f2937;
+  color: #e5e7eb;
+  border-color: #4b5563;
+}
+
+html.dark .accessibility-toggle-button,
+html.dark .accessibility-close-button,
+html.dark .accessibility-value-button,
+html.dark .accessibility-menu-button,
+html.dark .accessibility-reset-button {
+  background: #374151;
+  color: #e5e7eb;
+  border-color: #4b5563;
+}
+
+html.dark .accessibility-toggle-button.active {
+  background: #facc15;
+  color: #000000;
+  border-color: #facc15;
+}
+
+html.dark .accessibility-section {
+  background: #374151;
+  border-color: #4b5563;
+}
+
+html.dark .accessibility-link {
+  background: #374151;
+  color: #e5e7eb;
+  border-color: #4b5563;
+}
+
+html.dark .accessibility-link:hover {
+  background: #4b5563;
+}
+
+html.dark .accessibility-control-label,
+html.dark .accessibility-value-label,
+html.dark .accessibility-note,
+html.dark .accessibility-description,
+html.dark .accessibility-footer-note,
+html.dark .accessibility-section h3 {
+  color: #d1d5db;
+}
+
+html.dark .accessibility-close-button {
+  color: #e5e7eb;
+}
+
+html.dark .accessibility-badge {
+  background: #065f46;
+  color: #e6fffa;
+}
+
+html.grayscale-mode {
+  --color-primary: #333333;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #2a2a2a;
+  --color-on-primary-container: #cccccc;
+  --color-primary-fixed: #d4d4d4;
+  --color-on-primary-fixed: #1a1a1a;
+  --color-primary-fixed-dim: #b3b3b3;
+  --color-secondary: #666666;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #b3b3b3;
+  --color-on-secondary-container: #4d4d4d;
+  --color-secondary-fixed: #d9d9d9;
+  --color-on-secondary-fixed: #1a1a1a;
+  --color-tertiary: #333333;
+  --color-tertiary-container: #4d4d4d;
+  --color-tertiary-fixed: #d9d9d9;
+  --color-on-tertiary-fixed: #333333;
+  --color-error: #666666;
+  --color-error-container: #e0e0e0;
+  --color-on-error-container: #444444;
+  --color-background: #f0f0f0;
+  --color-on-background: #1a1a1a;
+  --color-surface: #f0f0f0;
+  --color-on-surface: #1a1a1a;
+  --color-on-surface-variant: #4a4a4a;
+  --color-surface-container: #e8e8e8;
+  --color-surface-container-low: #eeeeee;
+  --color-surface-container-high: #e0e0e0;
+  --color-surface-container-highest: #d9d9d9;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-variant: #d9d9d9;
+  --color-outline: #808080;
+  --color-outline-variant: #c0c0c0;
+  --color-inverse-surface: #333333;
+  --color-inverse-on-surface: #f0f0f0;
+}
+
+html.grayscale-mode img,
+html.grayscale-mode video {
+  filter: grayscale(100%);
 }
 
 html.reduce-motion *,
@@ -67,20 +200,6 @@ html.reduce-motion *::after {
   animation: none !important;
   transition: none !important;
   scroll-behavior: auto !important;
-}
-
-body.show-transcripts .transcript {
-  display: block !important;
-}
-
-.transcript {
-  display: none;
-  background: #fff9c4;
-  color: #111827;
-  padding: 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.75rem;
-  margin-top: 1rem;
 }
 
 html.max-zoom body {

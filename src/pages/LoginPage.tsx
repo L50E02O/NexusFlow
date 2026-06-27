@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import { AccessibilityMenu } from '@/components/accessibility/AccessibilityMenu';
@@ -69,17 +69,17 @@ const getSubmitLabel = (tab: 'login' | 'register', submitting: boolean) => {
 
 type RegisterProfileChooserProps = Readonly<{
   selectedProfile: ProfileOption;
-  setSelectedProfile: Dispatch<SetStateAction<ProfileOption>>;
+  onProfileChange: (profile: ProfileOption) => void;
 }>;
 
-function RegisterProfileChooser({ selectedProfile, setSelectedProfile }: RegisterProfileChooserProps) {
+function RegisterProfileChooser({ selectedProfile, onProfileChange }: RegisterProfileChooserProps) {
   return (
     <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
       {registerProfiles.map((p) => (
         <button
           key={p.id}
           type="button"
-          onClick={() => setSelectedProfile(p.id)}
+          onClick={() => onProfileChange(p.id)}
           className={`flex flex-col items-center rounded-xl border-2 p-4 text-center transition ${selectedProfile === p.id ? 'border-primary bg-surface-container-low' : 'border-outline-variant bg-white hover:border-primary'}`}
         >
           <Icon name={p.icon} className="mb-2 text-3xl text-secondary" />
@@ -245,14 +245,33 @@ export function LoginPage() {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const emailRef = useRef<HTMLInputElement>(null);
+  const firstNameRef = useRef<HTMLInputElement>(null);
 
   const redirectTo = (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? '/';
 
   useEffect(() => {
     if (session) {
-      navigate(redirectTo, { replace: true });
+      const role = session.user?.user_metadata?.rol as string | undefined;
+      if (role === 'comerciante' && redirectTo === '/') {
+        navigate('/merchant', { replace: true });
+      } else {
+        navigate(redirectTo, { replace: true });
+      }
     }
   }, [session, navigate, redirectTo]);
+
+  useEffect(() => {
+    if (tab === 'login') {
+      emailRef.current?.focus();
+    } else {
+      firstNameRef.current?.focus();
+    }
+  }, [tab]);
+
+  const handleProfileChange = useCallback((profile: ProfileOption) => {
+    setSelectedProfile(profile);
+    firstNameRef.current?.focus();
+  }, []);
 
   const handleResetPassword = async () => {
     setAuthError(null);
@@ -289,18 +308,18 @@ export function LoginPage() {
     setSubmitting(true);
     try {
       if (tab === 'login') {
-        await signIn(email, password);
-        navigate(redirectTo, { replace: true });
+        const result = await signIn(email, password);
+        const role = result.user?.user_metadata?.rol as string | undefined;
+        if (role === 'comerciante' && redirectTo === '/') {
+          navigate('/merchant', { replace: true });
+        } else {
+          navigate(redirectTo, { replace: true });
+        }
       } else {
         const result = await signUp(email, registerPassword, {
           role: selectedProfile === 'merchant' ? 'comerciante' : 'cliente',
           firstName,
           lastName,
-          demoRecords: [
-            { title: 'Registro 1', description: 'Demo record 1' },
-            { title: 'Registro 2', description: 'Demo record 2' },
-            { title: 'Registro 3', description: 'Demo record 3' },
-          ],
         });
 
         if (result.requiresEmailConfirmation) {
@@ -452,6 +471,13 @@ export function LoginPage() {
                 </p>
               )}
 
+              {tab === 'register' && (
+                <RegisterProfileChooser
+                  selectedProfile={selectedProfile}
+                  onProfileChange={handleProfileChange}
+                />
+              )}
+
               <form
                 className="space-y-[2.25rem] sm:space-y-[2.75rem]"
                 noValidate
@@ -464,6 +490,7 @@ export function LoginPage() {
                         Nombres (requerido)
                       </label>
                       <input
+                        ref={firstNameRef}
                         id="firstName"
                         name="firstName"
                         type="text"
