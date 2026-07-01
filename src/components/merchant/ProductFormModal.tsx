@@ -2,36 +2,64 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { useI18n } from '@/shared/i18n/I18nContext';
 import { useFocusTrap } from '@/shared/hooks/useFocusTrap';
 import { Icon } from '@/shared/ui/Icon';
+import { productosRepository } from '@/entities/productos/api/productos.repository';
+import type { ProductoRow } from '@/shared/types/database/productos';
 import { DragDropUpload } from './DragDropUpload';
 
 type ProductFormData = {
-  name: string;
+  nombre: string;
   sku: string;
-  category: string;
-  price: string;
+  id_categoria: string;
+  precio: string;
   stock: string;
-  description: string;
+  descripcion: string;
+  url: string;
 };
 
 type ProductFormModalProps = {
   open: boolean;
   onClose: () => void;
+  onSaved: () => void;
+  product?: ProductoRow | null;
 };
 
-const categories = ['Electrónica', 'Calzado', 'Accesorios', 'Moda', 'Hogar', 'Tecnología'];
+const categories = [
+  { value: '11111111-1111-4111-8111-111111111111', label: 'Accesorios' },
+  { value: '22222222-2222-4222-8222-222222222222', label: 'Bebidas' },
+  { value: '33333333-3333-4333-8333-333333333333', label: 'Camisas' },
+  { value: '44444444-4444-4444-8444-444444444444', label: 'Consolas' },
+  { value: '55555555-5555-4555-8555-555555555555', label: 'Deportes' },
+  { value: '66666666-6666-4666-8666-666666666662', label: 'Hogar' },
+  { value: '77777777-7777-4777-8777-777777777777', label: 'Laptops' },
+  { value: '88888888-8888-4888-8888-888888888888', label: 'Teléfonos' },
+];
 
-export function ProductFormModal({ open, onClose }: ProductFormModalProps) {
+function toFormData(product: ProductoRow | null): ProductFormData {
+  return {
+    nombre: product?.nombre ?? '',
+    sku: product?.id_producto ?? '',
+    id_categoria: product?.id_categoria ?? '',
+    precio: product?.precio ?? '',
+    stock: product?.stock?.toString() ?? '0',
+    descripcion: product?.descripcion ?? '',
+    url: product?.url ?? '',
+  };
+}
+
+export function ProductFormModal({ open, onClose, onSaved, product }: ProductFormModalProps) {
   const { t } = useI18n();
   const modalRef = useRef<HTMLDivElement>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [form, setForm] = useState<ProductFormData>({
-    name: '',
-    sku: '',
-    category: '',
-    price: '',
-    stock: '',
-    description: '',
-  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [form, setForm] = useState<ProductFormData>(toFormData(product));
+  const isEditing = !!product;
+
+  useEffect(() => {
+    setForm(toFormData(product));
+    setImageFile(null);
+    setError(null);
+  }, [product, open]);
 
   useFocusTrap(modalRef, open, onClose);
 
@@ -49,13 +77,38 @@ export function ProductFormModal({ open, onClose }: ProductFormModalProps) {
   );
 
   const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
+    async (e: React.FormEvent) => {
       e.preventDefault();
-      // TODO: submit to Supabase or API
-      console.log('Product created:', { ...form, image: imageFile });
-      onClose();
+      setSaving(true);
+      setError(null);
+
+      try {
+        const payload = {
+          nombre: form.nombre,
+          descripcion: form.descripcion,
+          precio: form.precio,
+          stock: Number(form.stock) || 0,
+          id_categoria: form.id_categoria || null,
+          url: imageFile ? URL.createObjectURL(imageFile) : form.url || null,
+        };
+
+        if (isEditing && product) {
+          const { error: updateError } = await productosRepository.update(product.id_producto, payload);
+          if (updateError) throw updateError;
+        } else {
+          const { error: createError } = await productosRepository.create(payload);
+          if (createError) throw createError;
+        }
+
+        onSaved();
+        onClose();
+      } catch (err: any) {
+        setError(err?.message || t('errors.server'));
+      } finally {
+        setSaving(false);
+      }
     },
-    [form, imageFile, onClose],
+    [form, imageFile, isEditing, product, onSaved, onClose, t],
   );
 
   if (!open) return null;
@@ -66,14 +119,14 @@ export function ProductFormModal({ open, onClose }: ProductFormModalProps) {
         ref={modalRef}
         role="dialog"
         aria-modal="true"
-        aria-label={t('merchant.newProduct')}
+        aria-label={isEditing ? t('merchant.editProduct') : t('merchant.newProduct')}
         className="w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl border border-outline-variant bg-surface shadow-2xl"
       >
         <div className="flex items-center justify-between border-b border-outline-variant px-lg py-md bg-surface-container-low rounded-t-2xl">
           <div className="flex items-center gap-sm">
-            <Icon name="add_circle" className="text-primary" />
+            <Icon name={isEditing ? 'edit' : 'add_circle'} className="text-primary" />
             <h2 className="font-headline-md text-headline-md text-primary">
-              {t('merchant.newProduct')}
+              {isEditing ? t('merchant.editProduct') : t('merchant.newProduct')}
             </h2>
           </div>
           <button
@@ -87,6 +140,12 @@ export function ProductFormModal({ open, onClose }: ProductFormModalProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="p-lg space-y-lg">
+          {error && (
+            <div className="rounded-xl bg-error-container p-md text-error text-body-md">
+              {error}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
             <div className="space-y-xs">
               <label htmlFor="product-name" className="font-label-md text-on-surface-variant">
@@ -95,21 +154,8 @@ export function ProductFormModal({ open, onClose }: ProductFormModalProps) {
               <input
                 id="product-name"
                 type="text"
-                value={form.name}
-                onChange={handleChange('name')}
-                required
-                className="w-full h-12 px-md rounded-xl border-2 border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary"
-              />
-            </div>
-            <div className="space-y-xs">
-              <label htmlFor="product-sku" className="font-label-md text-on-surface-variant">
-                {t('merchant.productSku')} <span className="text-error">*</span>
-              </label>
-              <input
-                id="product-sku"
-                type="text"
-                value={form.sku}
-                onChange={handleChange('sku')}
+                value={form.nombre}
+                onChange={handleChange('nombre')}
                 required
                 className="w-full h-12 px-md rounded-xl border-2 border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary"
               />
@@ -120,13 +166,13 @@ export function ProductFormModal({ open, onClose }: ProductFormModalProps) {
               </label>
               <select
                 id="product-category"
-                value={form.category}
-                onChange={handleChange('category')}
+                value={form.id_categoria}
+                onChange={handleChange('id_categoria')}
                 className="w-full h-12 px-md rounded-xl border-2 border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary"
               >
                 <option value="">--</option>
                 {categories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
+                  <option key={cat.value} value={cat.value}>{cat.label}</option>
                 ))}
               </select>
             </div>
@@ -139,8 +185,8 @@ export function ProductFormModal({ open, onClose }: ProductFormModalProps) {
                 type="number"
                 step="0.01"
                 min="0"
-                value={form.price}
-                onChange={handleChange('price')}
+                value={form.precio}
+                onChange={handleChange('precio')}
                 required
                 className="w-full h-12 px-md rounded-xl border-2 border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary"
               />
@@ -162,13 +208,13 @@ export function ProductFormModal({ open, onClose }: ProductFormModalProps) {
 
           <div className="space-y-xs">
             <label htmlFor="product-desc" className="font-label-md text-on-surface-variant">
-              Descripción
+              {t('common.description')}
             </label>
             <textarea
               id="product-desc"
               rows={3}
-              value={form.description}
-              onChange={handleChange('description')}
+              value={form.descripcion}
+              onChange={handleChange('descripcion')}
               className="w-full px-md py-sm rounded-xl border-2 border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary resize-none"
             />
           </div>
@@ -176,6 +222,12 @@ export function ProductFormModal({ open, onClose }: ProductFormModalProps) {
           <div className="space-y-xs">
             <p className="font-label-md text-on-surface-variant">{t('merchant.productImage')}</p>
             <DragDropUpload onFileSelect={setImageFile} value={imageFile} />
+            {!imageFile && form.url && (
+              <div className="mt-xs flex items-center gap-sm p-sm rounded-lg bg-surface-container">
+                <img src={form.url} alt="" className="w-12 h-12 rounded object-cover" />
+                <span className="text-label-md text-on-surface-variant truncate">{form.url}</span>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center justify-end gap-md border-t border-outline-variant pt-lg">
@@ -188,10 +240,11 @@ export function ProductFormModal({ open, onClose }: ProductFormModalProps) {
             </button>
             <button
               type="submit"
-              className="flex min-h-11 items-center gap-sm px-xl rounded-xl bg-primary text-on-primary font-button shadow-lg hover:opacity-90 focus-ring"
+              disabled={saving}
+              className="flex min-h-11 items-center gap-sm px-xl rounded-xl bg-primary text-on-primary font-button shadow-lg hover:opacity-90 focus-ring disabled:opacity-50"
             >
               <Icon name="save" />
-              {t('common.save')}
+              {saving ? t('common.saving') : t('common.save')}
             </button>
           </div>
         </form>
