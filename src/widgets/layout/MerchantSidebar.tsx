@@ -1,4 +1,4 @@
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import { merchantNav } from '@/shared/data/merchantMock';
 
@@ -23,7 +23,13 @@ const navLinkClass = (isActive: boolean, variant: 'desktop' | 'mobile') => {
 };
 
 export function MerchantSidebar({ variant, onNavigate }: MerchantSidebarProps) {
+  const navigate = useNavigate();
   const isDesktop = variant === 'desktop';
+
+  const goToProducts = () => {
+    navigate('/merchant/productos');
+    onNavigate?.();
+  };
 
   if (isDesktop) {
     return (
@@ -67,6 +73,7 @@ export function MerchantSidebar({ variant, onNavigate }: MerchantSidebarProps) {
           </Link>
           <button
             type="button"
+            onClick={goToProducts}
             className="mt-md flex min-h-11 w-full items-center justify-center gap-sm rounded-xl bg-on-primary py-sm font-button text-primary shadow-lg transition-colors hover:bg-surface"
           >
             <Icon name="add" />
@@ -104,6 +111,7 @@ export function MerchantSidebar({ variant, onNavigate }: MerchantSidebarProps) {
       </Link>
       <button
         type="button"
+        onClick={goToProducts}
         className="mt-sm flex min-h-11 w-full items-center justify-center gap-sm rounded-xl bg-primary py-sm font-button text-on-primary"
       >
         <Icon name="add" />

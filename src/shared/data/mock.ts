@@ -19,10 +19,10 @@ export type Category = {
 };
 
 export const navLinks = [
-  { to: '/tienda', label: 'Tienda' },
-  { to: '/categorias', label: 'Categorías' },
-  { to: '/sostenibilidad', label: 'Sostenibilidad' },
-  { to: '/soporte', label: 'Soporte' },
+  { to: '/tienda', label: 'Tienda', key: 'nav.shop' },
+  { to: '/categorias', label: 'Categorías', key: 'nav.categories' },
+  { to: '/sostenibilidad', label: 'Sostenibilidad', key: 'nav.sustainability' },
+  { to: '/soporte', label: 'Soporte', key: 'nav.support' },
 ] as const;
 
 export const categories: Category[] = [

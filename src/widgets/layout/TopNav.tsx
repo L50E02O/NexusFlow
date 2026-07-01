@@ -5,46 +5,43 @@ import { useCart } from '@/shared/context/CartContext';
 import { useAccessibility } from '@/shared/context/AccessibilityContext';
 import { useChat } from '@/shared/context/ChatContext';
 import { useAuth } from '@/shared/context/AuthContext';
-import { useI18n } from '@/shared/i18n/I18nContext';
+import { useI18n, type Locale } from '@/shared/i18n/I18nContext';
 import { navLinks } from '@/shared/data/mock';
 import { useFocusTrap } from '@/shared/hooks/useFocusTrap';
 
 type TopNavProps = {
   showSearch?: boolean;
-  searchPlaceholder?: string;
 };
 
 const accountLinks = [
-  { to: '/perfil', label: 'Mi perfil', icon: 'account_circle' },
-  { to: '/favoritos', label: 'Favoritos', icon: 'favorite' },
-  { to: '/historial', label: 'Historial', icon: 'history' },
-  { to: '/cupones', label: 'Cupones', icon: 'local_offer' },
-  { to: '/facturas', label: 'Facturas', icon: 'receipt_long' },
-  { to: '/configuracion', label: 'Configuración', icon: 'settings' },
+  { to: '/perfil', key: 'nav.profile', icon: 'account_circle' },
+  { to: '/favoritos', key: 'nav.favorites', icon: 'favorite' },
+  { to: '/historial', key: 'nav.history', icon: 'history' },
+  { to: '/cupones', key: 'nav.coupons', icon: 'local_offer' },
+  { to: '/facturas', key: 'nav.invoices', icon: 'receipt_long' },
+  { to: '/configuracion', key: 'nav.settings', icon: 'settings' },
 ] as const;
 
 const extraNavLinks = [
-  { to: '/ofertas', label: 'Ofertas' },
-  { to: '/mensajeria', label: 'Mensajería' },
+  { to: '/ofertas', key: 'nav.offers' },
+  { to: '/mensajeria', key: 'nav.messaging' },
 ] as const;
 
-// WCAG 2.2 — 3.2.3 ✓ Navegación coherente compartida en todas las páginas
-export function TopNav({
-  showSearch = true,
-  searchPlaceholder = 'Búsqueda por IA: escribe tu consulta y pulsa Enter',
-}: TopNavProps) {
+export function TopNav({ showSearch = true }: TopNavProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { itemCount: cartCount } = useCart();
   const { openPanel } = useAccessibility();
   const { open: openChat } = useChat();
   const { session, signOut } = useAuth();
-  const { locale } = useI18n();
+  const { t, locale, setLocale } = useI18n();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const accountRef = useRef<HTMLDivElement>(null);
+  const langRef = useRef<HTMLDivElement>(null);
 
   useFocusTrap(mobileNavRef, mobileNavOpen, () => setMobileNavOpen(false));
   useFocusTrap(accountRef, accountOpen, () => setAccountOpen(false));
@@ -56,6 +53,16 @@ export function TopNav({
       setSearchQuery(q);
     }
   }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
@@ -74,6 +81,11 @@ export function TopNav({
     navigate('/');
   };
 
+  const handleLocaleChange = (next: Locale) => {
+    setLocale(next);
+    setLangOpen(false);
+  };
+
   const navItemClass = (isActive: boolean) =>
     `flex min-h-11 items-center whitespace-nowrap font-body-md text-body-md transition-colors duration-200 ${
       isActive
@@ -85,14 +97,14 @@ export function TopNav({
     <header className="sticky top-0 z-50 border-b border-outline-variant/40 bg-surface shadow-sm">
       <div className="mx-auto h-16 max-w-container-max px-lg">
         <nav
-          aria-label="Navegación principal"
+          aria-label={t('nav.shop')}
           className="grid h-full grid-cols-[auto_1fr_auto] items-center gap-md lg:gap-lg"
         >
           <div className="flex min-w-0 items-center gap-sm md:gap-md">
             <button
               type="button"
               className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-on-surface-variant hover:text-primary focus-ring md:hidden"
-              aria-label={mobileNavOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
+              aria-label={mobileNavOpen ? t('menu.close') : t('menu.open')}
               aria-expanded={mobileNavOpen}
               onClick={() => setMobileNavOpen((o) => !o)}
             >
@@ -104,17 +116,17 @@ export function TopNav({
             <div className="hidden items-center gap-lg md:flex">
               {navLinks.map((link) => (
                 <NavLink key={link.to} to={link.to} className={({ isActive }) => navItemClass(isActive)}>
-                  {link.label}
+                  {t(link.key)}
                 </NavLink>
               ))}
             </div>
           </div>
 
           {showSearch ? (
-            <form onSubmit={handleSearch} className="hidden min-w-0 justify-center px-md lg:flex" aria-label="Buscar productos y categorías">
+            <form onSubmit={handleSearch} className="hidden min-w-0 justify-center px-md lg:flex" aria-label={t('search.placeholder')}>
               <div className="relative w-full max-w-md">
                 <label htmlFor="main-search" className="sr-only">
-                  Buscar productos y categorías
+                  {t('search.placeholder')}
                 </label>
                 <Icon
                   name="search"
@@ -125,14 +137,14 @@ export function TopNav({
                   type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={searchPlaceholder}
+                  placeholder={t('search.placeholder')}
                   className="h-11 w-full rounded-full border border-outline-variant bg-surface-container pl-11 pr-[3.75rem] text-body-md transition-all focus:border-transparent focus:ring-2 focus:ring-primary"
                 />
                 <div className="absolute inset-y-0 right-2 flex items-center">
                   <span className="mx-1 h-6 w-px bg-outline-variant" aria-hidden="true" />
                   <button
                     type="button"
-                    aria-label="Búsqueda por voz — abre el asistente de IA"
+                    aria-label={t('search.voice')}
                     onClick={() => openChat()}
                     className="flex min-h-9 min-w-9 items-center justify-center rounded-full text-primary hover:bg-surface-container-high focus-ring"
                   >
@@ -146,9 +158,44 @@ export function TopNav({
           )}
 
           <div className="flex shrink-0 items-center justify-end gap-xs sm:gap-sm">
+            <div className="relative" ref={langRef}>
+              <button
+                type="button"
+                aria-label={t('language.select')}
+                aria-expanded={langOpen}
+                onClick={() => setLangOpen((o) => !o)}
+                className="hidden min-h-11 min-w-11 items-center justify-center rounded-full text-on-surface-variant hover:text-primary focus-ring sm:flex"
+              >
+                <Icon name="language" />
+              </button>
+              {langOpen && (
+                <div className="absolute right-0 top-full z-50 mt-xs w-40 overflow-hidden rounded-xl border border-outline-variant bg-surface py-xs shadow-xl">
+                  <button
+                    type="button"
+                    onClick={() => handleLocaleChange('es')}
+                    className={`flex w-full min-h-11 items-center gap-sm px-md py-sm text-body-md text-left hover:bg-surface-container ${
+                      locale === 'es' ? 'font-bold text-primary' : 'text-on-surface-variant'
+                    }`}
+                  >
+                    <Icon name={locale === 'es' ? 'check' : ''} className="w-5 shrink-0" />
+                    {t('language.es')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleLocaleChange('en')}
+                    className={`flex w-full min-h-11 items-center gap-sm px-md py-sm text-body-md text-left hover:bg-surface-container ${
+                      locale === 'en' ? 'font-bold text-primary' : 'text-on-surface-variant'
+                    }`}
+                  >
+                    <Icon name={locale === 'en' ? 'check' : ''} className="w-5 shrink-0" />
+                    {t('language.en')}
+                  </button>
+                </div>
+              )}
+            </div>
             <button
               type="button"
-              aria-label="Abrir menú de accesibilidad"
+              aria-label={t('accessibility.open')}
               onClick={openPanel}
               className="hidden min-h-11 min-w-11 items-center justify-center rounded-full text-on-surface-variant hover:text-primary focus-ring sm:flex"
             >
@@ -156,7 +203,7 @@ export function TopNav({
             </button>
             <Link
               to="/notificaciones"
-              aria-label="Notificaciones"
+              aria-label={t('notifications.label')}
               className="relative flex min-h-11 min-w-11 items-center justify-center rounded-full text-on-surface-variant hover:text-primary focus-ring"
             >
               <Icon name="notifications" />
@@ -164,7 +211,7 @@ export function TopNav({
             </Link>
             <button
               type="button"
-              aria-label="Abrir asistente de IA"
+              aria-label={t('ai.assistant.open')}
               onClick={() => openChat()}
               className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-on-surface-variant hover:text-primary focus-ring"
             >
@@ -172,7 +219,7 @@ export function TopNav({
             </button>
             <Link
               to="/carrito"
-              aria-label={`Carrito de compras${cartCount > 0 ? `, ${cartCount} artículos` : ''}`}
+              aria-label={`${t('cart.label')}${cartCount > 0 ? `, ${cartCount} ${t('cart.items')}` : ''}`}
               className="relative flex min-h-11 min-w-11 items-center justify-center rounded-full text-on-surface-variant hover:text-primary focus-ring"
             >
               <Icon name="shopping_cart" />
@@ -188,7 +235,7 @@ export function TopNav({
             <div className="relative">
               <button
                 type="button"
-                aria-label="Menú de cuenta"
+                aria-label={t('account.menu')}
                 aria-expanded={accountOpen}
                 aria-haspopup="true"
                 onClick={() => setAccountOpen((o) => !o)}
@@ -200,7 +247,7 @@ export function TopNav({
                 <div
                   ref={accountRef}
                   role="menu"
-                  aria-label="Opciones de cuenta"
+                  aria-label={t('account.menu')}
                   className="absolute right-0 top-full z-50 mt-xs max-h-[min(24rem,calc(100vh-6rem))] w-56 overflow-y-auto rounded-xl border border-outline-variant bg-surface py-sm shadow-xl"
                 >
                   {session ? (
@@ -214,7 +261,7 @@ export function TopNav({
                           className="flex min-h-11 items-center gap-sm px-md py-sm text-body-md text-on-surface-variant hover:bg-surface-container hover:text-primary"
                         >
                           <Icon name={link.icon} className="shrink-0 text-lg" />
-                          {link.label}
+                          {t(link.key)}
                         </Link>
                       ))}
                       <button
@@ -224,7 +271,7 @@ export function TopNav({
                         className="flex min-h-11 w-full items-center gap-sm px-md py-sm text-left text-body-md text-error hover:bg-error-container/20"
                       >
                         <Icon name="logout" className="shrink-0 text-lg" />
-                        Cerrar sesión
+                        {t('nav.logout')}
                       </button>
                     </>
                   ) : (
@@ -235,7 +282,7 @@ export function TopNav({
                       className="flex min-h-11 items-center gap-sm px-md py-sm text-body-md text-primary hover:bg-surface-container"
                     >
                       <Icon name="login" className="shrink-0 text-lg" />
-                      Iniciar sesión
+                      {t('nav.login')}
                     </Link>
                   )}
                 </div>
@@ -250,11 +297,11 @@ export function TopNav({
           ref={mobileNavRef}
           className="border-t border-outline-variant bg-surface px-lg py-md md:hidden"
           role="dialog"
-          aria-label="Menú de navegación móvil"
+          aria-label={t('mobile.nav.label')}
         >
           <form onSubmit={handleSearch} className="mb-md">
             <label htmlFor="mobile-search" className="sr-only">
-              Buscar productos
+              {t('search.placeholder')}
             </label>
             <div className="relative">
               <Icon
@@ -266,7 +313,7 @@ export function TopNav({
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar en la tienda..."
+                placeholder={t('search.placeholder.mobile')}
                 className="h-11 w-full rounded-full border border-outline-variant bg-surface-container pl-11 pr-md text-body-md"
               />
             </div>
@@ -285,7 +332,7 @@ export function TopNav({
                     }`
                   }
                 >
-                  {link.label}
+                  {t((link as any).key || (link.to === '/ofertas' ? 'nav.offers' : 'nav.messaging'))}
                 </NavLink>
               </li>
             ))}
@@ -299,11 +346,18 @@ export function TopNav({
             className="mt-md flex min-h-11 w-full items-center gap-sm px-md py-sm text-on-surface-variant hover:text-primary"
           >
             <Icon name="accessibility_new" />
-            Accesibilidad
+            {t('mobile.accessibility')}
           </button>
-          <p className="px-md pt-sm text-label-md text-on-surface-variant" lang={locale}>
-            Idioma: {locale === 'es' ? 'Español' : 'Inglés'}
-          </p>
+          <div className="px-md pt-sm flex items-center gap-sm text-label-md text-on-surface-variant">
+            <Icon name="language" className="text-lg" />
+            <button
+              type="button"
+              onClick={() => handleLocaleChange(locale === 'es' ? 'en' : 'es')}
+              className="text-on-surface-variant hover:text-primary transition-colors"
+            >
+              {t('mobile.language', { lang: locale === 'es' ? t('language.en.name') : t('language.es.name') })}
+            </button>
+          </div>
         </div>
       )}
     </header>

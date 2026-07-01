@@ -5,11 +5,13 @@ import { MerchantSidebar } from './MerchantSidebar';
 import { AccessibilityMenu } from '@/components/accessibility/AccessibilityMenu';
 import { useAccessibility } from '@/shared/context/AccessibilityContext';
 import { useAuth } from '@/shared/context/AuthContext';
+import { useShortcuts } from '@/shared/context/ShortcutsContext';
 import { SkipLink } from '@/shared/ui/SkipLink';
 
 export function MerchantLayout() {
   const { openPanel } = useAccessibility();
   const { signOut } = useAuth();
+  const { openShortcuts } = useShortcuts();
   const navigate = useNavigate();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -54,6 +56,14 @@ export function MerchantLayout() {
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-sm sm:gap-md">
+          <button
+            type="button"
+            onClick={openShortcuts}
+            aria-label="Atajos de teclado"
+            className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest hover:text-primary focus-ring"
+          >
+            <Icon name="keyboard" />
+          </button>
           <button
             type="button"
             aria-label="Abrir menú de accesibilidad"

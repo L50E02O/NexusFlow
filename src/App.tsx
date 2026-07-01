@@ -37,18 +37,24 @@ import { MerchantAssistantPage } from '@/pages/merchant/MerchantAssistantPage';
 import { MessagingPage } from '@/pages/MessagingPage';
 import { PageTitleManager } from '@/shared/ui/PageTitleManager';
 import { MerchantHomeRedirect } from '@/shared/ui/MerchantHomeRedirect';
+import { ShortcutsProvider } from '@/shared/context/ShortcutsContext';
+import { GlobalShortcuts } from '@/components/shortcuts/GlobalShortcuts';
+import { ShortcutsModal } from '@/components/shortcuts/ShortcutsModal';
 
 function App() {
   return (
     <BrowserRouter>
       <I18nProvider>
         <PageTitleManager />
-        <AuthProvider>
-          <AccessibilityProvider>
-            <CartProvider>
-              <FavoritesProvider>
-                <ChatProvider>
-                  <Routes>
+        <ShortcutsProvider>
+          <AuthProvider>
+            <AccessibilityProvider>
+              <GlobalShortcuts />
+              <ShortcutsModal />
+              <CartProvider>
+                <FavoritesProvider>
+                  <ChatProvider>
+                    <Routes>
                     <Route path="/login" element={<LoginPage />} />
                     <Route
                       path="/merchant"
@@ -282,8 +288,9 @@ function App() {
             </CartProvider>
           </AccessibilityProvider>
         </AuthProvider>
-      </I18nProvider>
-    </BrowserRouter>
+      </ShortcutsProvider>
+    </I18nProvider>
+  </BrowserRouter>
   );
 }
 
