@@ -39,6 +39,7 @@ import { PageTitleManager } from '@/shared/ui/PageTitleManager';
 import { MerchantHomeRedirect } from '@/shared/ui/MerchantHomeRedirect';
 import { ShortcutsProvider } from '@/shared/context/ShortcutsContext';
 import { GlobalShortcuts } from '@/components/shortcuts/GlobalShortcuts';
+import { NavigationShortcuts } from '@/components/shortcuts/NavigationShortcuts';
 import { ShortcutsModal } from '@/components/shortcuts/ShortcutsModal';
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
           <AuthProvider>
             <AccessibilityProvider>
               <GlobalShortcuts />
+              <NavigationShortcuts />
               <ShortcutsModal />
               <CartProvider>
                 <FavoritesProvider>

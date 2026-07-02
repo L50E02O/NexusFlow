@@ -32,6 +32,13 @@ export function TopNav({ showSearch = true }: TopNavProps) {
   const location = useLocation();
   const { itemCount: cartCount } = useCart();
   const { openPanel } = useAccessibility();
+  const navShortcutLabels: Record<string, string> = {
+    '/tienda': 'Alt+2',
+    '/categorias': 'Alt+3',
+    '/sostenibilidad': 'Alt+4',
+    '/soporte': 'Alt+5',
+  };
+  const brandShortcut = 'Alt+1';
   const { open: openChat } = useChat();
   const { session, signOut } = useAuth();
   const { t, locale, setLocale } = useI18n();
@@ -110,15 +117,24 @@ export function TopNav({ showSearch = true }: TopNavProps) {
             >
               <Icon name={mobileNavOpen ? 'close' : 'menu'} />
             </button>
-            <Link to="/" className="truncate font-headline-md font-bold text-primary">
+            <Link to="/" className="truncate font-headline-md font-bold text-primary" aria-label={`Inicio (${brandShortcut})`} title={`Inicio (${brandShortcut})`}>
               NexusFlow
             </Link>
             <div className="hidden items-center gap-lg md:flex">
-              {navLinks.map((link) => (
-                <NavLink key={link.to} to={link.to} className={({ isActive }) => navItemClass(isActive)}>
-                  {t(link.key)}
-                </NavLink>
-              ))}
+              {navLinks.map((link) => {
+                const shortcut = navShortcutLabels[link.to] ?? '';
+                return (
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    className={({ isActive }) => navItemClass(isActive)}
+                    aria-label={`${t(link.key)}${shortcut ? ` (${shortcut})` : ''}`}
+                    title={`${t(link.key)}${shortcut ? ` (${shortcut})` : ''}`}
+                  >
+                    {t(link.key)}
+                  </NavLink>
+                );
+              })}
             </div>
           </div>
 
@@ -319,23 +335,28 @@ export function TopNav({ showSearch = true }: TopNavProps) {
             </div>
           </form>
           <ul className="flex flex-col gap-xs">
-            {[...navLinks, ...extraNavLinks].map((link) => (
-              <li key={link.to}>
-                <NavLink
-                  to={link.to}
-                  onClick={() => setMobileNavOpen(false)}
-                  className={({ isActive }) =>
-                    `flex min-h-11 items-center rounded-lg px-md py-sm font-body-md ${
-                      isActive
-                        ? 'bg-primary-container font-bold text-on-primary'
-                        : 'text-on-surface-variant hover:bg-surface-container'
-                    }`
-                  }
-                >
-                  {t((link as any).key || (link.to === '/ofertas' ? 'nav.offers' : 'nav.messaging'))}
-                </NavLink>
-              </li>
-            ))}
+            {[...navLinks, ...extraNavLinks].map((link) => {
+              const shortcut = navShortcutLabels[link.to] ?? '';
+              return (
+                <li key={link.to}>
+                  <NavLink
+                    to={link.to}
+                    onClick={() => setMobileNavOpen(false)}
+                    className={({ isActive }) =>
+                      `flex min-h-11 items-center rounded-lg px-md py-sm font-body-md ${
+                        isActive
+                          ? 'bg-primary-container font-bold text-on-primary'
+                          : 'text-on-surface-variant hover:bg-surface-container'
+                      }`
+                    }
+                    aria-label={`${t((link as any).key || (link.to === '/ofertas' ? 'nav.offers' : 'nav.messaging'))}${shortcut ? ` (${shortcut})` : ''}`}
+                    title={`${t((link as any).key || (link.to === '/ofertas' ? 'nav.offers' : 'nav.messaging'))}${shortcut ? ` (${shortcut})` : ''}`}
+                  >
+                    {t((link as any).key || (link.to === '/ofertas' ? 'nav.offers' : 'nav.messaging'))}
+                  </NavLink>
+                </li>
+              );
+            })}
           </ul>
           <button
             type="button"

@@ -28,20 +28,20 @@ export function useKeyboardShortcuts(
     let timer: ReturnType<typeof setTimeout> | null = null;
 
     const handler = (e: KeyboardEvent) => {
-      const inputTag = (e.target as HTMLElement)?.tagName;
+      const target = e.target as HTMLElement | null;
+      const inputTag = target?.tagName;
       const isInput = inputTag === 'INPUT' || inputTag === 'TEXTAREA' || inputTag === 'SELECT';
+      const isEditable = isInput || !!target?.isContentEditable;
 
       const combo = matchShortcut(e);
       if (!combo) return;
 
       if (combo === 'Esc' || combo === 'Ctrl+/') {
-        if (combo === 'Esc' || combo === 'Ctrl+/') {
-          shortcuts[combo]?.(e);
-          if (e.defaultPrevented) return;
-        }
+        shortcuts[combo]?.(e);
+        if (e.defaultPrevented) return;
       }
 
-      if (combo.startsWith('g+') && !isInput) {
+      if (combo.startsWith('g+') && !isEditable) {
         buffer += combo[2];
         if (timer) clearTimeout(timer);
         timer = setTimeout(() => { buffer = ''; }, 1000);
@@ -55,8 +55,8 @@ export function useKeyboardShortcuts(
       }
 
       const inputSafe =
-        isInput && (combo === 'Esc' || combo.startsWith('Ctrl+'));
-      if (isInput && !inputSafe) return;
+        isEditable && (combo === 'Esc' || combo.startsWith('Ctrl+'));
+      if (isEditable && !inputSafe) return;
 
       if (shortcuts[combo]) {
         shortcuts[combo](e);

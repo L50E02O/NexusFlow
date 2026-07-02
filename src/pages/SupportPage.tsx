@@ -82,6 +82,58 @@ export function SupportPage() {
         </div>
       </section>
 
+      <section className="rounded-xl border border-outline-variant bg-surface-container-lowest p-xl shadow-sm">
+        <div className="space-y-md">
+          <div className="flex flex-col gap-md lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0">
+              <p className="text-label-md uppercase tracking-[0.2em] text-secondary mb-xs">Video tutorial</p>
+              <h2 className="font-headline-md text-headline-md">Cómo usar el Centro de Soporte</h2>
+            </div>
+            <p className="max-w-2xl text-on-surface-variant">
+              Reproduce este video para activar las opciones auditivas del menú de accesibilidad: subtítulos, audio descripciones y transcripción.
+            </p>
+          </div>
+          <div className="space-y-md">
+            <video
+              controls
+              className="w-full rounded-2xl border border-outline-variant bg-black"
+              aria-label="Video tutorial de soporte de NexusFlow"
+            >
+              <source
+                src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+                type="video/mp4"
+              />
+              <track
+                kind="captions"
+                src="/support-video-subtitles-es.vtt"
+                srclang="es"
+                label="Español"
+                default
+              />
+              <track
+                kind="descriptions"
+                src="/support-video-descriptions-es.vtt"
+                srclang="es"
+                label="Audiodescripciones"
+              />
+              Tu navegador no soporta video HTML5.
+            </video>
+            <div className="transcripcion" style={{ display: 'none' }}>
+              <h3 className="sr-only">Transcripción del video</h3>
+              <p>
+                Bienvenido a NexusFlow. En este video aprenderás a usar el Centro de Soporte y las funciones de accesibilidad disponibles en la plataforma.
+              </p>
+              <p>
+                Primero, abre el menú de accesibilidad para activar subtítulos o audiodescripción. Después, usa la opción de transcripción para leer el contenido del video.
+              </p>
+              <p>
+                Si necesitas ayuda adicional, crea un ticket o abre el chat en tiempo real para contactar a nuestro equipo de soporte.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className="grid grid-cols-12 gap-gutter">
         <div className="col-span-12 lg:col-span-8 space-y-xl">
           <h2 className="font-headline-md text-headline-md text-primary">Categorías de Ayuda</h2>

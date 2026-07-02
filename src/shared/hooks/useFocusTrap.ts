@@ -20,8 +20,16 @@ export function useFocusTrap(
         (el) => !el.hasAttribute('disabled') && el.offsetParent !== null,
       );
 
-    const first = focusables()[0];
-    first?.focus();
+    const ensureFocusInside = () => {
+      const items = focusables();
+      const activeElement = document.activeElement as HTMLElement | null;
+      if (!activeElement || !container.contains(activeElement)) {
+        const first = items[0] ?? container;
+        first.focus();
+      }
+    };
+
+    ensureFocusInside();
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -31,24 +39,40 @@ export function useFocusTrap(
       if (e.key !== 'Tab') return;
 
       const items = focusables();
-      if (items.length === 0) return;
+      if (items.length === 0) {
+        e.preventDefault();
+        container.focus();
+        return;
+      }
 
       const firstEl = items[0];
       const lastEl = items[items.length - 1];
+      const activeElement = document.activeElement as HTMLElement | null;
 
-      if (e.shiftKey && document.activeElement === firstEl) {
+      if (e.shiftKey && activeElement === firstEl) {
         e.preventDefault();
         lastEl.focus();
-      } else if (!e.shiftKey && document.activeElement === lastEl) {
+      } else if (!e.shiftKey && activeElement === lastEl) {
         e.preventDefault();
         firstEl.focus();
       }
     };
 
+    const handleFocusIn = () => {
+      if (!container.contains(document.activeElement)) {
+        ensureFocusInside();
+      }
+    };
+
     document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('focusin', handleFocusIn);
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      previouslyFocused?.focus();
+      document.removeEventListener('focusin', handleFocusIn);
+      if (previouslyFocused && document.contains(previouslyFocused)) {
+        previouslyFocused.focus();
+      }
     };
   }, [active, containerRef, onEscape]);
 }

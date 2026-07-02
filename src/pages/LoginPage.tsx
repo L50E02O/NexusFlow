@@ -74,13 +74,13 @@ type RegisterProfileChooserProps = Readonly<{
 
 function RegisterProfileChooser({ selectedProfile, onProfileChange }: RegisterProfileChooserProps) {
   return (
-    <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3 lg:gap-5">
       {registerProfiles.map((p) => (
         <button
           key={p.id}
           type="button"
           onClick={() => onProfileChange(p.id)}
-          className={`flex flex-col items-center rounded-xl border-2 p-4 text-center transition ${selectedProfile === p.id ? 'border-primary bg-surface-container-low' : 'border-outline-variant bg-white hover:border-primary'}`}
+          className={`flex h-full flex-col items-center justify-between rounded-xl border-2 p-4 text-center transition ${selectedProfile === p.id ? 'border-primary bg-surface-container-low' : 'border-outline-variant bg-white hover:border-primary'}`}
         >
           <Icon name={p.icon} className="mb-2 text-3xl text-secondary" />
           <h3 className="text-label-md font-medium text-primary mb-1">{p.title}</h3>
@@ -342,7 +342,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-surface font-body-md text-on-surface">
+    <div className="flex min-h-screen flex-col bg-surface font-body-md text-on-surface overflow-x-hidden">
       <SkipLink />
       <header className="flex items-center justify-between border-b border-outline-variant px-gutter py-sm lg:hidden">
         <div className="flex items-center gap-sm">
@@ -373,13 +373,13 @@ export function LoginPage() {
         className="flex min-h-0 flex-1 flex-col lg:flex-row lg:h-screen"
         tabIndex={-1}
       >
-        <section className="relative hidden min-h-[520px] flex-col justify-center overflow-hidden bg-primary-container p-xl text-white lg:flex lg:min-h-0 lg:w-[54%] lg:p-xxl xl:w-[56%]">
+        <section className="relative hidden min-h-[520px] flex-col justify-center overflow-hidden bg-primary-container p-xl text-white lg:flex lg:min-h-screen lg:w-[54%] lg:p-xxl xl:w-[56%]">
           <img
             alt=""
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover object-left-top opacity-50"
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuB85QyyEpojHDVjr0kGWAWmK-fkJsBL4JVj_GuasQas4o09vOkIPV7GBo_LyZOI5wXZq4Hojsb6K8eGbZtB1eqajezxPWy15irE46UmRUIDixolZIjVYHpQKU1MJpQftYpsWpTuDwC1w126Q2xh4c0DailZCzkqxzW9l7zlTi3y-o6hXQWVUROTkS-ZJF8y5aKIw2a1GGkp34lEw25UI8j8j8cSr4ccpY7iIh9n6css6gixuwqUtspYDSBMPtg_aUpbzzlnrM7sg48"
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-container/95 via-primary-container/85 to-primary-container/75" aria-hidden="true" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/70 via-primary/60 to-primary/55" aria-hidden="true" />
 
           <div className="relative z-10 flex flex-col gap-xxl py-lg pl-lg">
             <div className="flex items-center gap-sm">
@@ -388,10 +388,14 @@ export function LoginPage() {
             </div>
             <div className="max-w-xl space-y-md">
               <h1 className="text-balance font-display-lg text-[clamp(2.25rem,4vw,3.25rem)] leading-tight tracking-tight">
-                Bienvenido a NexusFlow
+                <span className="block">Bienvenido</span>
+                <span className="block">a</span>
+                <span className="block">NexusFlow</span>
               </h1>
               <p className="max-w-md font-body-lg text-body-lg leading-relaxed text-on-primary-container">
-                Comercio electrónico adaptativo impulsado por IA que evoluciona contigo.
+                Comercio electrónico adaptativo impulsado por IA
+                <br className="hidden sm:block" />
+                que evoluciona contigo.
               </p>
               <ul className="space-y-md pt-md">
                 {[
@@ -410,9 +414,9 @@ export function LoginPage() {
           <p className="relative z-10 text-sm opacity-70">© 2026 NexusFlow Cloud Solutions.</p>
         </section>
 
-        <section className="flex min-h-0 flex-1 flex-col bg-surface lg:max-h-screen lg:overflow-y-auto">
+        <section className="flex min-h-0 flex-1 flex-col bg-surface lg:overflow-hidden">
           <div className="flex flex-1 items-center justify-center px-gutter py-xl sm:items-center sm:px-lg sm:py-xxl lg:px-xl">
-            <div className="w-full max-w-[720px] space-y-[3rem] sm:max-w-[760px] lg:space-y-[3.5rem]">
+            <div className="w-full max-w-[660px] space-y-[3rem] sm:max-w-[720px] lg:space-y-[3.5rem]">
               <div className="hidden justify-end lg:flex">
                 <button
                   type="button"
