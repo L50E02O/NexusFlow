@@ -38,7 +38,7 @@ export function useKeyboardShortcuts(
 
       if (combo === 'Esc' || combo === 'Ctrl+/') {
         shortcuts[combo]?.(e);
-        if (e.defaultPrevented) return;
+        return;
       }
 
       if (combo.startsWith('g+') && !isEditable) {

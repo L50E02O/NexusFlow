@@ -106,14 +106,14 @@ export function SupportPage() {
               <track
                 kind="captions"
                 src="/support-video-subtitles-es.vtt"
-                srclang="es"
+                srcLang="es"
                 label="Español"
                 default
               />
               <track
                 kind="descriptions"
                 src="/support-video-descriptions-es.vtt"
-                srclang="es"
+                srcLang="es"
                 label="Audiodescripciones"
               />
               Tu navegador no soporta video HTML5.

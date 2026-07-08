@@ -221,30 +221,38 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
       wordSpacing !== defaults.wordSpacing;
     main?.classList.toggle('wcag-spacing', spacingActive);
 
-    if (muteAll) {
-      document.querySelectorAll<HTMLVideoElement>('video').forEach((video) => {
-        video.muted = true;
-        video.pause();
-      });
-      document.querySelectorAll<HTMLAudioElement>('audio').forEach((audio) => {
-        audio.pause();
-      });
-    } else {
-      document.querySelectorAll<HTMLVideoElement>('video').forEach((video) => {
-        video.muted = false;
-      });
+    try {
+      if (muteAll) {
+        document.querySelectorAll<HTMLVideoElement>('video').forEach((video) => {
+          video.muted = true;
+          video.pause();
+        });
+        document.querySelectorAll<HTMLAudioElement>('audio').forEach((audio) => {
+          audio.pause();
+        });
+      } else {
+        document.querySelectorAll<HTMLVideoElement>('video').forEach((video) => {
+          video.muted = false;
+        });
+      }
+    } catch {
+      // Ignore cross-origin media access errors
     }
 
-    document.querySelectorAll<HTMLVideoElement>('video').forEach((video) => {
-      Array.from(video.textTracks || []).forEach((track) => {
-        if (track.kind === 'subtitles') {
-          track.mode = captions ? 'showing' : 'disabled';
-        }
-        if (track.kind === 'descriptions') {
-          track.mode = audioDescriptions ? 'showing' : 'disabled';
-        }
+    try {
+      document.querySelectorAll<HTMLVideoElement>('video').forEach((video) => {
+        Array.from(video.textTracks || []).forEach((track) => {
+          if (track.kind === 'subtitles') {
+            track.mode = captions ? 'showing' : 'disabled';
+          }
+          if (track.kind === 'descriptions') {
+            track.mode = audioDescriptions ? 'showing' : 'disabled';
+          }
+        });
       });
-    });
+    } catch {
+      // Ignore cross-origin video access errors
+    }
   }, [
     textScale,
     lineHeight,
@@ -271,17 +279,21 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const updateMedia = () => {
-      const videos = Array.from(document.querySelectorAll<HTMLVideoElement>('video'));
-      const audios = Array.from(document.querySelectorAll<HTMLAudioElement>('audio'));
-      const hasMedia = videos.length > 0 || audios.length > 0;
-      setMediaAvailable(hasMedia);
-      setCaptionsAvailable(videos.some((video) =>
-        Array.from(video.textTracks || []).some((track) => track.kind === 'subtitles'),
-      ));
-      setDescriptionsAvailable(videos.some((video) =>
-        Array.from(video.textTracks || []).some((track) => track.kind === 'descriptions'),
-      ));
-      setTranscriptAvailable(Boolean(document.querySelector('div.transcripcion')));
+      try {
+        const videos = Array.from(document.querySelectorAll<HTMLVideoElement>('video'));
+        const audios = Array.from(document.querySelectorAll<HTMLAudioElement>('audio'));
+        const hasMedia = videos.length > 0 || audios.length > 0;
+        setMediaAvailable(hasMedia);
+        setCaptionsAvailable(videos.some((video) =>
+          Array.from(video.textTracks || []).some((track) => track.kind === 'subtitles'),
+        ));
+        setDescriptionsAvailable(videos.some((video) =>
+          Array.from(video.textTracks || []).some((track) => track.kind === 'descriptions'),
+        ));
+        setTranscriptAvailable(Boolean(document.querySelector('div.transcripcion')));
+      } catch {
+        // Ignore cross-origin video access errors
+      }
     };
 
     updateMedia();
@@ -375,7 +387,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     setShowHintsState(defaults.showHints);
     setValidationVisibleState(defaults.validationVisible);
     setConfirmationRequiredState(defaults.confirmationRequired);
-    localStorage.removeItem(STORAGE_KEY);
+    try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
   };
 
   return (
