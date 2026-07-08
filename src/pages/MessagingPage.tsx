@@ -52,7 +52,7 @@ export function MessagingPage() {
         {
           id: ticketId,
           name: `Ticket ${ticketCreated.ticketId}`,
-          preview: ticketCreated.ticketTitle,
+          preview: ticketCreated.ticketTitle ?? '',
           time: 'Ahora',
           avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=120&q=80',
           online: true,

@@ -34,7 +34,7 @@ const categories = [
   { value: '88888888-8888-4888-8888-888888888888', label: 'Teléfonos' },
 ];
 
-function toFormData(product: ProductoRow | null): ProductFormData {
+function toFormData(product: ProductoRow | null | undefined): ProductFormData {
   return {
     nombre: product?.nombre ?? '',
     sku: product?.id_producto ?? '',

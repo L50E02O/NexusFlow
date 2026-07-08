@@ -251,7 +251,6 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
       wordSpacing !== defaults.wordSpacing;
     main?.classList.toggle('wcag-spacing', spacingActive);
 
-<<<<<<< HEAD
     try {
       if (muteAll) {
         document.querySelectorAll<HTMLVideoElement>('video').forEach((video) => {
@@ -273,7 +272,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     try {
       document.querySelectorAll<HTMLVideoElement>('video').forEach((video) => {
         Array.from(video.textTracks || []).forEach((track) => {
-          if (track.kind === 'subtitles') {
+          if (track.kind === 'subtitles' || track.kind === 'captions') {
             track.mode = captions ? 'showing' : 'disabled';
           }
           if (track.kind === 'descriptions') {
@@ -284,9 +283,6 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     } catch {
       // Ignore cross-origin video access errors
     }
-=======
-    applyMediaAccessibility();
->>>>>>> 8ad7bcdb1b07645d5f5764feb222d748ee64d3b7
   }, [
     textScale,
     lineHeight,
@@ -314,14 +310,13 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const updateMedia = () => {
-<<<<<<< HEAD
       try {
         const videos = Array.from(document.querySelectorAll<HTMLVideoElement>('video'));
         const audios = Array.from(document.querySelectorAll<HTMLAudioElement>('audio'));
         const hasMedia = videos.length > 0 || audios.length > 0;
         setMediaAvailable(hasMedia);
         setCaptionsAvailable(videos.some((video) =>
-          Array.from(video.textTracks || []).some((track) => track.kind === 'subtitles'),
+          Array.from(video.textTracks || []).some((track) => track.kind === 'subtitles' || track.kind === 'captions'),
         ));
         setDescriptionsAvailable(videos.some((video) =>
           Array.from(video.textTracks || []).some((track) => track.kind === 'descriptions'),
@@ -330,19 +325,6 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
       } catch {
         // Ignore cross-origin video access errors
       }
-=======
-      const videos = Array.from(document.querySelectorAll<HTMLVideoElement>('video'));
-      const audios = Array.from(document.querySelectorAll<HTMLAudioElement>('audio'));
-      const hasMedia = videos.length > 0 || audios.length > 0;
-      setMediaAvailable(hasMedia);
-      setCaptionsAvailable(videos.some((video) =>
-        Array.from(video.textTracks || []).some((track) => track.kind === 'subtitles' || track.kind === 'captions'),
-      ));
-      setDescriptionsAvailable(videos.some((video) =>
-        Array.from(video.textTracks || []).some((track) => track.kind === 'descriptions'),
-      ));
-      setTranscriptAvailable(Boolean(document.querySelector('div.transcripcion')));
->>>>>>> 8ad7bcdb1b07645d5f5764feb222d748ee64d3b7
     };
 
     const handleMediaUpdate = () => {

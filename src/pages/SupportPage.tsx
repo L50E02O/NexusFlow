@@ -277,22 +277,14 @@ export function SupportPage() {
               />
               <track
                 kind="captions"
-<<<<<<< HEAD
-                src="/support-video-subtitles-es.vtt"
-=======
                 src="/support-video-contacto-subtitles-es.vtt"
->>>>>>> 8ad7bcdb1b07645d5f5764feb222d748ee64d3b7
                 srcLang="es"
                 label="Español"
                 default
               />
               <track
                 kind="descriptions"
-<<<<<<< HEAD
-                src="/support-video-descriptions-es.vtt"
-=======
                 src="/support-video-contacto-descriptions-es.vtt"
->>>>>>> 8ad7bcdb1b07645d5f5764feb222d748ee64d3b7
                 srcLang="es"
                 label="Audiodescripciones"
               />
