@@ -44,29 +44,32 @@ export async function loadCartItems(userId: string) {
 
   if (detailsError) return { items: [] as CartLine[], error: detailsError };
 
-  const productIds = details
-    .map((detail) => detail.id_producto)
-    .filter((id): id is string => Boolean(id));
+  const productIds = (details as Array<{ id_producto?: string | null }>)
+    .map((detail: { id_producto?: string | null }) => detail.id_producto)
+    .filter((id: string | null | undefined): id is string => Boolean(id));
 
   const productsResponse = await loadProductsByIds(productIds);
   if (productsResponse.error) return { items: [] as CartLine[], error: productsResponse.error };
 
-  const productMap = productsResponse.data.reduce<Record<string, ProductoRow>>((map, item) => {
-    if (item.id_producto) map[item.id_producto] = item;
-    return map;
-  }, {});
+  const productMap = (productsResponse.data as ProductoRow[]).reduce<Record<string, ProductoRow>>(
+    (map: Record<string, ProductoRow>, item: ProductoRow) => {
+      if (item.id_producto) map[item.id_producto] = item;
+      return map;
+    },
+    {},
+  );
 
-  const items = details
-    .map((detail) => {
+  const items = (details as Array<{ id_producto?: string | null; id_detalle?: string | null; cantidad?: number }> )
+    .map((detail: { id_producto?: string | null; id_detalle?: string | null; cantidad?: number }) => {
       const productRow = detail.id_producto ? productMap[detail.id_producto] : undefined;
       if (!productRow) return null;
       return {
-        detailId: detail.id_detalle,
-        quantity: detail.cantidad,
+        detailId: detail.id_detalle ?? '',
+        quantity: detail.cantidad ?? 0,
         product: mapProductoRowToProduct(productRow, {}),
       };
     })
-    .filter((line): line is CartLine => line !== null);
+    .filter((line: CartLine | null): line is CartLine => line !== null);
 
   return { items, error: null };
 }
