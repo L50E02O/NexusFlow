@@ -186,6 +186,36 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     persistSettings(snapshot());
   }, [snapshot]);
 
+  const applyMediaAccessibility = useCallback(() => {
+    const mediaTargets = Array.from(document.querySelectorAll<HTMLVideoElement>('video[data-accessibility-active="true"]'));
+    const fallbackTargets = mediaTargets.length > 0 ? mediaTargets : Array.from(document.querySelectorAll<HTMLVideoElement>('video'));
+
+    if (muteAll) {
+      fallbackTargets.forEach((video) => {
+        video.muted = true;
+        video.pause();
+      });
+      document.querySelectorAll<HTMLAudioElement>('audio').forEach((audio) => {
+        audio.pause();
+      });
+    } else {
+      fallbackTargets.forEach((video) => {
+        video.muted = false;
+      });
+    }
+
+    fallbackTargets.forEach((video) => {
+      Array.from(video.textTracks || []).forEach((track) => {
+        if (track.kind === 'subtitles' || track.kind === 'captions') {
+          track.mode = captions ? 'showing' : 'disabled';
+        }
+        if (track.kind === 'descriptions') {
+          track.mode = audioDescriptions ? 'showing' : 'disabled';
+        }
+      });
+    });
+  }, [captions, audioDescriptions, muteAll]);
+
   useEffect(() => {
     const root = document.documentElement;
     const main = document.querySelector<HTMLElement>('main#main-content');
@@ -221,6 +251,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
       wordSpacing !== defaults.wordSpacing;
     main?.classList.toggle('wcag-spacing', spacingActive);
 
+<<<<<<< HEAD
     try {
       if (muteAll) {
         document.querySelectorAll<HTMLVideoElement>('video').forEach((video) => {
@@ -253,6 +284,9 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     } catch {
       // Ignore cross-origin video access errors
     }
+=======
+    applyMediaAccessibility();
+>>>>>>> 8ad7bcdb1b07645d5f5764feb222d748ee64d3b7
   }, [
     textScale,
     lineHeight,
@@ -275,10 +309,12 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     showHints,
     validationVisible,
     confirmationRequired,
+    applyMediaAccessibility,
   ]);
 
   useEffect(() => {
     const updateMedia = () => {
+<<<<<<< HEAD
       try {
         const videos = Array.from(document.querySelectorAll<HTMLVideoElement>('video'));
         const audios = Array.from(document.querySelectorAll<HTMLAudioElement>('audio'));
@@ -294,13 +330,41 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
       } catch {
         // Ignore cross-origin video access errors
       }
+=======
+      const videos = Array.from(document.querySelectorAll<HTMLVideoElement>('video'));
+      const audios = Array.from(document.querySelectorAll<HTMLAudioElement>('audio'));
+      const hasMedia = videos.length > 0 || audios.length > 0;
+      setMediaAvailable(hasMedia);
+      setCaptionsAvailable(videos.some((video) =>
+        Array.from(video.textTracks || []).some((track) => track.kind === 'subtitles' || track.kind === 'captions'),
+      ));
+      setDescriptionsAvailable(videos.some((video) =>
+        Array.from(video.textTracks || []).some((track) => track.kind === 'descriptions'),
+      ));
+      setTranscriptAvailable(Boolean(document.querySelector('div.transcripcion')));
+>>>>>>> 8ad7bcdb1b07645d5f5764feb222d748ee64d3b7
+    };
+
+    const handleMediaUpdate = () => {
+      window.requestAnimationFrame(() => {
+        updateMedia();
+        applyMediaAccessibility();
+      });
     };
 
     updateMedia();
-    const observer = new MutationObserver(updateMedia);
+    applyMediaAccessibility();
+    window.addEventListener('accessibility-media-updated', handleMediaUpdate);
+    const observer = new MutationObserver(() => {
+      updateMedia();
+      applyMediaAccessibility();
+    });
     observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, []);
+    return () => {
+      window.removeEventListener('accessibility-media-updated', handleMediaUpdate);
+      observer.disconnect();
+    };
+  }, [applyMediaAccessibility]);
 
   useEffect(() => {
     const cleanupValidationHints = () => {

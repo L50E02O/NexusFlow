@@ -1,0 +1,11 @@
+Bienvenido a NexusFlow. Hoy aprenderás a contactar al equipo de soporte desde mensajería.
+
+En la vista de mensajería aparece la barra de búsqueda y las pestañas de Todos, No leídos e Importantes.
+
+Abre una conversación como la de Carlos Mendoza o Soporte NexusFlow.
+
+Escribe tu pregunta en el campo Escribe un mensaje y envíala con el botón de enviar.
+
+Encima del campo, las acciones rápidas de IA Nexus ayudan a acelerar la respuesta con Adjuntar factura, Ver estado de envío y Traducir.
+
+La respuesta llega en la misma conversación con la hora de envío para que puedas seguir el hilo sin salir del flujo.

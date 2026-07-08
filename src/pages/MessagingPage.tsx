@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import {
   messageThreads,
@@ -10,14 +11,102 @@ import {
 type FilterTab = 'todos' | 'unread' | 'important';
 
 export function MessagingPage() {
+  const location = useLocation();
   const [filter, setFilter] = useState<FilterTab>('todos');
   const [search, setSearch] = useState('');
+  const [threads, setThreads] = useState<MessageThread[]>(() => {
+    if (typeof window === 'undefined') return messageThreads;
+    try {
+      const raw = window.localStorage.getItem('nexusflow_support_tickets');
+      if (!raw) return messageThreads;
+      const tickets = JSON.parse(raw) as Array<{ id: string; title: string }>;
+      return [
+        ...tickets.map((ticket) => ({
+          id: `ticket-${ticket.id}`,
+          name: `Ticket ${ticket.id}`,
+          preview: ticket.title,
+          time: 'Ahora',
+          avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=120&q=80',
+          online: true,
+          unread: 1,
+          important: true,
+        })),
+        ...messageThreads,
+      ];
+    } catch {
+      return messageThreads;
+    }
+  });
   const [activeId, setActiveId] = useState(messageThreads[0]?.id ?? '');
   const [draft, setDraft] = useState('');
   const [messages, setMessages] = useState(threadMessages);
 
-  const threads = useMemo(() => {
-    let list = messageThreads;
+  useEffect(() => {
+    const ticketCreated = location.state as { ticketCreated?: boolean; ticketTitle?: string; ticketId?: string } | null;
+    if (!ticketCreated?.ticketCreated || !ticketCreated.ticketId || !ticketCreated.ticketTitle) return;
+
+    const ticketId = `ticket-${ticketCreated.ticketId}`;
+    setThreads((prev) => {
+      if (prev.some((thread) => thread.id === ticketId)) return prev;
+      return [
+        {
+          id: ticketId,
+          name: `Ticket ${ticketCreated.ticketId}`,
+          preview: ticketCreated.ticketTitle,
+          time: 'Ahora',
+          avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=120&q=80',
+          online: true,
+          unread: 1,
+          important: true,
+        },
+        ...prev,
+      ];
+    });
+    setMessages((prev) => {
+      if (prev[ticketId]) return prev;
+      return {
+        ...prev,
+        [ticketId]: [
+          {
+            role: 'them',
+            text: `Hemos recibido tu solicitud: ${ticketCreated.ticketTitle}. Un agente revisará tu ticket ${ticketCreated.ticketId} en breve.`,
+            time: 'Ahora',
+          },
+        ],
+      };
+    });
+    setActiveId(ticketId);
+  }, [location.state]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = window.localStorage.getItem('nexusflow_support_tickets');
+      if (!raw) return;
+      const tickets = JSON.parse(raw) as Array<{ id: string; title: string }>;
+      const existingIds = new Set(threads.map((thread) => thread.id));
+      const ticketThreads = tickets
+        .filter((ticket) => !existingIds.has(`ticket-${ticket.id}`))
+        .map((ticket) => ({
+          id: `ticket-${ticket.id}`,
+          name: `Ticket ${ticket.id}`,
+          preview: ticket.title,
+          time: 'Ahora',
+          avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=120&q=80',
+          online: true,
+          unread: 1,
+          important: true,
+        }));
+      if (ticketThreads.length > 0) {
+        setThreads((prev) => [...ticketThreads, ...prev]);
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
+
+  const filteredThreads = useMemo(() => {
+    let list = threads;
     if (filter === 'unread') list = list.filter((t) => t.unread);
     if (filter === 'important') list = list.filter((t) => t.important);
     if (search.trim()) {
@@ -27,9 +116,9 @@ export function MessagingPage() {
       );
     }
     return list;
-  }, [filter, search]);
+  }, [filter, search, threads]);
 
-  const active: MessageThread | undefined = messageThreads.find((t) => t.id === activeId);
+  const active: MessageThread | undefined = threads.find((t) => t.id === activeId);
   const chat = messages[activeId] ?? [];
 
   const send = (text?: string) => {
@@ -85,7 +174,7 @@ export function MessagingPage() {
         </div>
 
         <div className="flex-grow overflow-y-auto custom-scrollbar">
-          {threads.map((thread) => (
+          {filteredThreads.map((thread) => (
             <button
               key={thread.id}
               type="button"

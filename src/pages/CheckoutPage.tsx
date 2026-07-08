@@ -1,20 +1,35 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 // WCAG 2.2 — 1.3.5 ✓ autocomplete en formulario de envío; 3.3.4 ✓ confirmación antes de compra
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
+import { useAuth } from '@/shared/context/AuthContext';
 import { useCart } from '@/shared/context/CartContext';
 import { useProductos } from '@/shared/hooks/useProductos';
 import { formatPrice } from '@/shared/data/mock';
+import { processCheckout } from '@/shared/lib/checkout-service';
 
 const steps = ['Envío', 'Entrega', 'Pago'] as const;
 
 export function CheckoutPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const { items, clearCart } = useCart();
   const { products } = useProductos();
   const [step, setStep] = useState(0);
   const [addressValidated] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
+  const [checkingOut, setCheckingOut] = useState(false);
+  const [checkoutError, setCheckoutError] = useState('');
+  const [lastPedidoId, setLastPedidoId] = useState('');
+  const [deliveryMethod, setDeliveryMethod] = useState<'express' | 'standard'>('express');
+  const isDebugConfirmation = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debugConfirmation') === '1';
+  const showConfirmation = orderComplete || isDebugConfirmation;
+  const displayPedidoId = lastPedidoId || (isDebugConfirmation ? '550e8400-e29b-41d4-a716-446655440000' : '');
+  const nameRef = useRef<HTMLInputElement>(null);
+  const addressRef = useRef<HTMLInputElement>(null);
+  const cityRef = useRef<HTMLInputElement>(null);
+  const postalRef = useRef<HTMLInputElement>(null);
 
   const subtotal = useMemo(
     () => items.reduce((sum, line) => sum + line.product.price * line.quantity, 0),
@@ -25,6 +40,44 @@ export function CheckoutPage() {
   const total = subtotal + shipping + tax;
 
   const recommendations = products.slice(0, 4);
+  let primaryActionLabel = 'Completar compra';
+
+  if (checkingOut) {
+    primaryActionLabel = 'Procesando...';
+  } else if (step < steps.length - 1) {
+    primaryActionLabel = 'Continuar al siguiente paso';
+  }
+
+  if (showConfirmation) {
+    return (
+      <div
+        className="max-w-container-max mx-auto px-lg py-xxl text-center"
+        data-debug-confirmation={isDebugConfirmation ? 'true' : undefined}
+      >
+        <div
+          className="mx-auto w-full max-w-[32rem] bg-surface-container-lowest p-xl rounded-xl shadow-lg border border-outline-variant/30"
+          style={{ boxSizing: 'border-box' }}
+        >
+          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-lg">
+            <Icon name="check_circle" className="text-4xl text-green-600" />
+          </div>
+          <h1 className="font-headline-lg text-headline-lg text-primary mb-md">¡Compra confirmada!</h1>
+          <p className="text-on-surface-variant mb-sm">
+            Pedido <span className="text-primary order-id">#{displayPedidoId}</span> registrado correctamente.
+          </p>
+          <p className="text-on-surface-variant text-sm mb-lg">
+            Recibirás un correo con los detalles y seguimiento del envío.
+          </p>
+          <Link
+            to="/perfil?tab=pedidos"
+            className="inline-block bg-primary text-white px-xl py-md rounded-xl font-button hover:opacity-90 transition-all"
+          >
+            Ver mis pedidos
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -87,6 +140,7 @@ export function CheckoutPage() {
                   name="full_name"
                   autoComplete="name"
                   defaultValue="Alejandro Nexus"
+                  ref={nameRef}
                   className="h-12 px-md rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary"
                 />
               </div>
@@ -100,6 +154,7 @@ export function CheckoutPage() {
                     name="address"
                     autoComplete="street-address"
                     defaultValue="123 Luxury Lane, Penthouse A"
+                    ref={addressRef}
                     aria-describedby={addressValidated ? 'address-valid-msg' : undefined}
                     className={`w-full h-12 px-md pr-xl rounded-lg border focus:ring-2 focus:ring-green-600 ${
                       addressValidated ? 'border-green-600' : 'border-outline-variant'
@@ -126,6 +181,8 @@ export function CheckoutPage() {
                 <input
                   id="city"
                   defaultValue="Ciudad de México"
+                  ref={cityRef}
+                  autoComplete="address-level2"
                   className="h-12 px-md rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary"
                 />
               </div>
@@ -136,6 +193,8 @@ export function CheckoutPage() {
                 <input
                   id="postal"
                   defaultValue="06600"
+                  ref={postalRef}
+                  autoComplete="postal-code"
                   className="h-12 px-md rounded-lg border border-outline-variant focus:ring-2 focus:ring-primary"
                 />
               </div>
@@ -146,7 +205,7 @@ export function CheckoutPage() {
             <h2 id="delivery-options-title" className="font-headline-md text-headline-md text-primary mb-lg">Opciones de Entrega</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-md" role="radiogroup" aria-labelledby="delivery-options-title">
               <label className="relative flex p-md border-2 border-primary bg-primary-fixed/10 rounded-xl cursor-pointer">
-                <input type="radio" name="delivery" defaultChecked className="sr-only" />
+                <input type="radio" name="delivery" value="express" checked={deliveryMethod === 'express'} onChange={() => setDeliveryMethod('express')} className="sr-only" />
                 <div className="flex justify-between w-full">
                   <div>
                     <span className="font-bold text-primary">Premium Express</span>
@@ -159,7 +218,7 @@ export function CheckoutPage() {
                 </span>
               </label>
               <label className="relative flex p-md border border-outline-variant rounded-xl cursor-pointer hover:border-primary/50">
-                <input type="radio" name="delivery" className="sr-only" aria-label="Envío Estándar" />
+                <input type="radio" name="delivery" value="standard" checked={deliveryMethod === 'standard'} onChange={() => setDeliveryMethod('standard')} className="sr-only" aria-label="Envío Estándar" />
                 <span className="sr-only">Envío Estándar</span>
                 <div className="flex justify-between w-full">
                   <div>
@@ -213,22 +272,23 @@ export function CheckoutPage() {
             <button
               type="button"
               onClick={() => {
+                if (!user) {
+                  navigate('/login?redirect=/checkout');
+                  return;
+                }
                 if (step < steps.length - 1) {
                   setStep((s) => s + 1);
                 } else {
                   setShowConfirm(true);
                 }
               }}
-              className="w-full bg-primary text-white py-xl rounded-xl font-button hover:bg-primary-container transition-all flex items-center justify-center gap-md focus-ring min-h-11"
+              disabled={checkingOut}
+              className="w-full bg-primary text-white py-xl rounded-xl font-button hover:bg-primary-container transition-all flex items-center justify-center gap-md focus-ring min-h-11 disabled:opacity-50"
             >
-              {step < steps.length - 1 ? 'Continuar al siguiente paso' : 'Completar compra'}
+              {primaryActionLabel}
               <Icon name="arrow_forward" />
             </button>
-            {orderComplete && (
-              <output aria-live="polite" className="text-green-700 font-label-md text-center">
-                Pedido confirmado correctamente.
-              </output>
-            )}
+
             {step > 0 && (
               <button
                 type="button"
@@ -261,40 +321,89 @@ export function CheckoutPage() {
       </section>
 
       {showConfirm && (
-        <dialog
-          open
+        <div
+          role="dialog"
+          aria-modal="true"
           aria-labelledby="confirm-purchase-title"
-          className="fixed inset-0 z-50 flex items-center justify-center p-lg bg-primary/30 min-w-full min-h-full border-none bg-transparent shadow-none"
+          aria-describedby="confirm-purchase-description"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-md py-xl backdrop-blur-[2px]"
         >
-          <div className="bg-surface-container-lowest rounded-xl p-xl max-w-md w-full shadow-2xl border border-outline-variant">
-            <h2 id="confirm-purchase-title" className="font-headline-md text-headline-md text-primary mb-md">
-              ¿Confirmar compra?
-            </h2>
-            <p className="text-on-surface-variant mb-lg">
-              Revisa el total de {formatPrice(total)} antes de confirmar. Esta acción procesará el pago.
-            </p>
-            <div className="flex gap-md">
-              <button
-                type="button"
-                onClick={() => setShowConfirm(false)}
-                className="flex-1 min-h-11 border border-outline-variant rounded-xl font-button focus-ring"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowConfirm(false);
-                  setOrderComplete(true);
-                  clearCart();
-                }}
-                className="flex-1 min-h-11 bg-primary text-on-primary rounded-xl font-button focus-ring"
-              >
-                Confirmar pedido
-              </button>
+          <div className="w-full max-w-2xl break-words rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-2xl">
+            <div className="border-b border-outline-variant bg-surface-container px-lg py-md sm:px-xl">
+              <p className="text-label-md text-secondary uppercase tracking-wide">Revisión final</p>
+              <h2 id="confirm-purchase-title" className="mt-xs font-headline-md text-headline-md text-primary">
+                ¿Confirmar compra?
+              </h2>
+            </div>
+
+            <div className="space-y-lg p-lg sm:p-xl">
+              <p id="confirm-purchase-description" className="max-w-prose text-body-md text-on-surface-variant leading-relaxed">
+                Antes de confirmar, revisa el total final y asegúrate de que los datos de envío sean correctos. Al continuar,
+                se procesará el pago por <strong className="text-primary">{formatPrice(total)}</strong>.
+              </p>
+
+              <div className="rounded-xl border border-outline-variant bg-surface px-lg py-md">
+                <div className="flex items-start justify-between gap-lg">
+                  <div>
+                    <p className="text-label-md text-on-surface-variant">Total a cobrar</p>
+                    <p className="mt-xs text-headline-lg text-headline-lg text-primary">{formatPrice(total)}</p>
+                  </div>
+                  <div className="rounded-full bg-primary-container px-md py-xs text-label-md text-on-primary-container">
+                    Pago seguro
+                  </div>
+                </div>
+              </div>
+
+              {checkoutError && (
+                <div className="rounded-xl border border-error/30 bg-error-container px-md py-md text-error text-body-md" role="alert">
+                  {checkoutError}
+                </div>
+              )}
+
+              <div className="grid gap-md sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(false)}
+                  className="min-h-11 rounded-xl border border-outline-variant bg-surface font-button text-on-surface-variant transition-colors hover:bg-surface-container-high focus-ring"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  disabled={checkingOut}
+                  onClick={async () => {
+                    setCheckoutError('');
+                    setCheckingOut(true);
+
+                    const formData = {
+                      fullName: nameRef.current?.value ?? '',
+                      address: addressRef.current?.value ?? '',
+                      city: cityRef.current?.value ?? '',
+                      postal: postalRef.current?.value ?? '',
+                      deliveryMethod: deliveryMethod === 'express' ? 'Premium Express' : 'Envío Estándar',
+                    };
+
+                    const result = await processCheckout(user!.id, items, formData, total);
+
+                    setCheckingOut(false);
+
+                    if (result.success) {
+                      setShowConfirm(false);
+                      setLastPedidoId(result.pedidoId ?? '');
+                      await clearCart();
+                      setOrderComplete(true);
+                    } else {
+                      setCheckoutError(result.error ?? 'Error desconocido');
+                    }
+                  }}
+                  className="min-h-11 rounded-xl bg-primary font-button text-on-primary transition-colors hover:bg-primary-container focus-ring disabled:opacity-50"
+                >
+                  {checkingOut ? 'Procesando...' : 'Confirmar pedido'}
+                </button>
+              </div>
             </div>
           </div>
-        </dialog>
+        </div>
       )}
     </div>
   );

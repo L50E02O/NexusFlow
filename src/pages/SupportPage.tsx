@@ -1,7 +1,9 @@
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Icon } from '@/shared/ui/Icon';
 import { useChat } from '@/shared/context/ChatContext';
 import { useAccessibility } from '@/shared/context/AccessibilityContext';
+import { VideoTutorialModal } from '@/components/accessibility/VideoTutorialModal';
 
 const helpCategories = [
   {
@@ -55,9 +57,130 @@ const tutorials = [
   },
 ];
 
+const videoTutorials = [
+  {
+    id: 'tutorial-contactar-soporte',
+    title: 'Cómo contactar a Soporte',
+    description: 'Aprende a abrir un hilo de mensajería y usar las acciones rápidas de IA Nexus.',
+    image: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=900&q=80',
+    poster: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1200&q=80',
+    videoSrc: '/support-contacto.mp4',
+    subtitlesSrc: '/support-video-contacto-subtitles-es.vtt',
+    descriptionsSrc: '/support-video-contacto-descriptions-es.vtt',
+    transcriptSrc: '/support-video-contacto-transcript.txt',
+  },
+  {
+    id: 'tutorial-realizar-compra',
+    title: 'Cómo realizar una compra',
+    description: 'Guía visual para avanzar por carrito, envío y pago con claridad y seguridad.',
+    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=900&q=80',
+    poster: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1200&q=80',
+    videoSrc: '/support-compra.mp4',
+    subtitlesSrc: '/support-video-compra-subtitles-es.vtt',
+    descriptionsSrc: '/support-video-compra-descriptions-es.vtt',
+    transcriptSrc: '/support-video-compra-transcript.txt',
+  },
+];
+
 export function SupportPage() {
+  const navigate = useNavigate();
   const { open: openChat } = useChat();
   const { openPanel } = useAccessibility();
+  const [activeVideo, setActiveVideo] = useState<(typeof videoTutorials)[number] | null>(null);
+  const [draftTicket, setDraftTicket] = useState('');
+  const [tickets, setTickets] = useState<Array<{id:string; title:string; status:string; preview:string; category:string; createdAt:string}>>(() => {
+    if (typeof window === 'undefined') {
+      return [
+        {
+          id: 'NF-8821',
+          title: 'Error en pago',
+          status: 'Resuelto',
+          preview: 'Tu pago fue procesado correctamente.',
+          category: 'Pagos',
+          createdAt: 'Hace 2 días',
+        },
+        {
+          id: 'NF-9102',
+          title: 'Cambio de dirección',
+          status: 'En progreso',
+          preview: 'Estamos validando la nueva dirección.',
+          category: 'Envío',
+          createdAt: 'Hace 4 horas',
+        },
+      ];
+    }
+
+    try {
+      const raw = window.localStorage.getItem('nexusflow_support_tickets');
+      return raw ? JSON.parse(raw) : [
+        {
+          id: 'NF-8821',
+          title: 'Error en pago',
+          status: 'Resuelto',
+          preview: 'Tu pago fue procesado correctamente.',
+          category: 'Pagos',
+          createdAt: 'Hace 2 días',
+        },
+        {
+          id: 'NF-9102',
+          title: 'Cambio de dirección',
+          status: 'En progreso',
+          preview: 'Estamos validando la nueva dirección.',
+          category: 'Envío',
+          createdAt: 'Hace 4 horas',
+        },
+      ];
+    } catch {
+      return [
+        {
+          id: 'NF-8821',
+          title: 'Error en pago',
+          status: 'Resuelto',
+          preview: 'Tu pago fue procesado correctamente.',
+          category: 'Pagos',
+          createdAt: 'Hace 2 días',
+        },
+        {
+          id: 'NF-9102',
+          title: 'Cambio de dirección',
+          status: 'En progreso',
+          preview: 'Estamos validando la nueva dirección.',
+          category: 'Envío',
+          createdAt: 'Hace 4 horas',
+        },
+      ];
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem('nexusflow_support_tickets', JSON.stringify(tickets));
+    } catch {
+      // ignore storage errors
+    }
+  }, [tickets]);
+
+  const ticketCountLabel = useMemo(() => `${tickets.length} ${tickets.length === 1 ? 'ticket' : 'tickets'}`, [tickets.length]);
+
+  const handleCreateTicket = (event: React.FormEvent) => {
+    event.preventDefault();
+    const trimmed = draftTicket.trim();
+    if (!trimmed) return;
+
+    const newTicket = {
+      id: `NF-${Math.floor(10000 + Math.random() * 90000)}`,
+      title: trimmed.length > 48 ? `${trimmed.slice(0, 45)}...` : trimmed,
+      status: 'Recibido',
+      preview: trimmed,
+      category: 'Soporte',
+      createdAt: 'Ahora',
+    };
+
+    setTickets((prev) => [newTicket, ...prev]);
+    setDraftTicket('');
+    navigate('/mensajeria', { state: { ticketCreated: true, ticketTitle: newTicket.title, ticketId: newTicket.id } });
+  };
 
   return (
     <div className="max-w-container-max mx-auto w-full px-lg py-xl space-y-xxl">
@@ -67,9 +190,13 @@ export function SupportPage() {
           ¿En qué podemos ayudarte hoy? Busca artículos, gestiona tus tickets o contacta con nuestro equipo.
         </p>
         <div className="flex flex-wrap justify-center gap-md">
-          <Link to="/mensajeria" className="min-h-11 px-xl bg-white text-primary rounded-xl font-button hover:shadow-lg flex items-center gap-sm focus-ring">
+          <button
+            type="button"
+            onClick={() => document.getElementById('create-ticket-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+            className="min-h-11 px-xl bg-white text-primary rounded-xl font-button hover:shadow-lg flex items-center gap-sm focus-ring"
+          >
             <Icon name="add_circle" /> Crear Ticket
-          </Link>
+          </button>
           <Link to="/mensajeria" className="min-h-11 px-xl border-2 border-white text-white rounded-xl font-button hover:bg-white/10 flex items-center gap-sm focus-ring">
             <Icon name="assignment" /> Seguimiento de Tickets
           </Link>
@@ -79,6 +206,51 @@ export function SupportPage() {
           >
             <Icon name="chat" /> Soporte en Tiempo Real
           </Link>
+        </div>
+      </section>
+
+      <section id="create-ticket-form" className="rounded-xl border border-outline-variant bg-surface-container-lowest p-xl shadow-sm space-y-lg">
+        <div className="flex flex-col gap-md lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-label-md uppercase tracking-[0.2em] text-secondary mb-xs">Crear nuevo ticket</p>
+            <h2 className="font-headline-md text-headline-md">¿Necesitas ayuda? Cuéntanos qué pasó.</h2>
+          </div>
+          <p className="text-on-surface-variant">{ticketCountLabel} activos en tu historial.</p>
+        </div>
+
+        <form onSubmit={handleCreateTicket} className="space-y-md">
+          <label className="block text-label-md text-on-surface" htmlFor="ticket-description">
+            Describe tu problema o solicitud
+          </label>
+          <textarea
+            id="ticket-description"
+            value={draftTicket}
+            onChange={(e) => setDraftTicket(e.target.value)}
+            rows={4}
+            placeholder="Ej. No recibí la confirmación de mi compra y necesito ayuda con el envío."
+            className="w-full rounded-xl border border-outline-variant bg-surface px-md py-md text-body-md focus-ring"
+          />
+          <div className="flex flex-wrap items-center justify-between gap-md">
+            <p className="text-sm text-on-surface-variant">Tu solicitud quedará registrada y aparecerá en Seguimiento de Tickets.</p>
+            <button type="submit" className="min-h-11 rounded-xl bg-primary px-xl py-md font-button text-on-primary hover:bg-primary-container focus-ring">
+              Enviar ticket
+            </button>
+          </div>
+        </form>
+
+        <div className="rounded-xl border border-outline-variant bg-surface-container p-md">
+          <h3 className="font-label-md text-primary mb-sm">Tickets recientes</h3>
+          <ul className="space-y-sm">
+            {tickets.map((ticket) => (
+              <li key={ticket.id} className="flex flex-col gap-1 rounded-lg border border-outline-variant/60 bg-surface-container-lowest p-md sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="font-label-md text-on-surface">{ticket.title}</p>
+                  <p className="text-sm text-on-surface-variant">{ticket.id} • {ticket.category} • {ticket.createdAt}</p>
+                </div>
+                <span className="rounded-full bg-secondary-fixed px-sm py-xs text-xs font-semibold text-secondary">{ticket.status}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -100,19 +272,27 @@ export function SupportPage() {
               aria-label="Video tutorial de soporte de NexusFlow"
             >
               <source
-                src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+                src="/support-contacto.mp4"
                 type="video/mp4"
               />
               <track
                 kind="captions"
+<<<<<<< HEAD
                 src="/support-video-subtitles-es.vtt"
+=======
+                src="/support-video-contacto-subtitles-es.vtt"
+>>>>>>> 8ad7bcdb1b07645d5f5764feb222d748ee64d3b7
                 srcLang="es"
                 label="Español"
                 default
               />
               <track
                 kind="descriptions"
+<<<<<<< HEAD
                 src="/support-video-descriptions-es.vtt"
+=======
+                src="/support-video-contacto-descriptions-es.vtt"
+>>>>>>> 8ad7bcdb1b07645d5f5764feb222d748ee64d3b7
                 srcLang="es"
                 label="Audiodescripciones"
               />
@@ -258,8 +438,30 @@ export function SupportPage() {
               </div>
             </div>
           ))}
+
+          {videoTutorials.map((video) => (
+            <button
+              key={video.id}
+              type="button"
+              onClick={() => setActiveVideo(video)}
+              aria-haspopup="dialog"
+              aria-label={`Abrir video tutorial: ${video.title}`}
+              className="group relative overflow-hidden rounded-xl h-64 shadow-sm text-left focus-ring"
+            >
+              <img src={video.image} alt="" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/85 via-primary/40 to-transparent flex flex-col justify-end p-xl">
+                <span className="mb-sm w-fit rounded-full bg-secondary px-sm py-xs text-[10px] font-bold uppercase tracking-widest text-white">
+                  VÍDEO
+                </span>
+                <h4 className="text-white font-headline-md text-body-lg">{video.title}</h4>
+                <p className="mt-sm text-sm text-white/90">{video.description}</p>
+              </div>
+            </button>
+          ))}
         </div>
       </section>
+
+      <VideoTutorialModal video={activeVideo} isOpen={Boolean(activeVideo)} onClose={() => setActiveVideo(null)} />
     </div>
   );
 }

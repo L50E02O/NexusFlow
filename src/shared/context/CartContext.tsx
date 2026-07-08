@@ -9,6 +9,7 @@ import {
 } from 'react';
 import type { Product } from '@/shared/data/mock';
 import { useAuth } from '@/shared/context/AuthContext';
+import { supabase } from '@/shared/lib/supabase';
 import {
   addCartItem as addCartItemToDb,
   clearCart as clearDbCart,
@@ -53,6 +54,11 @@ export function CartProvider({ children }: Readonly<{ children: ReactNode }>) {
 
   const addToCart = useCallback(
     async (product: Product, quantity = 1) => {
+      if (product.stock === 'out') {
+        window.alert(`"${product.name}" está agotado. No se puede agregar al carrito.`);
+        return;
+      }
+
       if (!user?.id) {
         setLocalItems((prev) => {
           const existing = prev.find((line) => line.product.id === product.id);
@@ -68,12 +74,29 @@ export function CartProvider({ children }: Readonly<{ children: ReactNode }>) {
         return;
       }
 
+      const { data: dbProduct } = await (supabase
+        .from('productos') as any)
+        .select('stock')
+        .eq('id_producto', product.id)
+        .single() as { data: { stock: number } | null; error: any };
+
+      if (dbProduct) {
+        const currentQty = items.find((line) => line.product.id === product.id)?.quantity ?? 0;
+        const requestedQty = currentQty + quantity;
+        if (requestedQty > dbProduct.stock) {
+          window.alert(
+            `Stock insuficiente para "${product.name}". Disponible: ${dbProduct.stock}, ${currentQty > 0 ? `ya tienes ${currentQty} en tu carrito, ` : ''}solicitaste ${requestedQty}.`,
+          );
+          return;
+        }
+      }
+
       const { error } = await addCartItemToDb(user.id, product, quantity);
       if (!error) {
         await reloadDbCart();
       }
     },
-    [reloadDbCart, user?.id],
+    [reloadDbCart, user?.id, items],
   );
 
   const updateQuantity = useCallback(
@@ -91,12 +114,36 @@ export function CartProvider({ children }: Readonly<{ children: ReactNode }>) {
         return;
       }
 
+      if (delta <= 0) {
+        const { error } = await updateDbCartItemQuantity(user.id, productId, delta);
+        if (!error) {
+          await reloadDbCart();
+        }
+        return;
+      }
+
+      const currentLine = items.find((line) => line.product.id === productId);
+      if (!currentLine) return;
+
+      const { data: dbProduct } = await (supabase
+        .from('productos') as any)
+        .select('stock')
+        .eq('id_producto', productId)
+        .single() as { data: { stock: number } | null; error: any };
+
+      if (dbProduct && currentLine.quantity + delta > dbProduct.stock) {
+        window.alert(
+          `Stock insuficiente para "${currentLine.product.name}". Disponible: ${dbProduct.stock}, ya tienes ${currentLine.quantity} en tu carrito.`,
+        );
+        return;
+      }
+
       const { error } = await updateDbCartItemQuantity(user.id, productId, delta);
       if (!error) {
         await reloadDbCart();
       }
     },
-    [reloadDbCart, user?.id],
+    [reloadDbCart, user?.id, items],
   );
 
   const removeItem = useCallback(
