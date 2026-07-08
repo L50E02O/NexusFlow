@@ -1,0 +1,11 @@
+Bienvenido. En este tutorial aprenderás a completar una compra desde el carrito hasta la confirmación final.
+
+En el carrito aparecen el producto Smartphone Nova, el selector de cantidad y el resumen con subtotal, envío e impuestos.
+
+Puedes aplicar un cupón y pulsar Proceder al Pago para iniciar el flujo de checkout.
+
+En el paso de envío completa tus datos y confirma la dirección validada por SmartMatch AI.
+
+Elige la opción Premium Express o Envío Estándar y revisa cómo cambia el resumen del pedido.
+
+Continúa por los pasos de entrega y pago hasta llegar a la confirmación de compra exitosa.

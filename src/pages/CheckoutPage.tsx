@@ -23,6 +23,9 @@ export function CheckoutPage() {
   const [checkoutError, setCheckoutError] = useState('');
   const [lastPedidoId, setLastPedidoId] = useState('');
   const [deliveryMethod, setDeliveryMethod] = useState<'express' | 'standard'>('express');
+  const isDebugConfirmation = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debugConfirmation') === '1';
+  const showConfirmation = orderComplete || isDebugConfirmation;
+  const displayPedidoId = lastPedidoId || (isDebugConfirmation ? '550e8400-e29b-41d4-a716-446655440000' : '');
   const nameRef = useRef<HTMLInputElement>(null);
   const addressRef = useRef<HTMLInputElement>(null);
   const cityRef = useRef<HTMLInputElement>(null);
@@ -45,16 +48,22 @@ export function CheckoutPage() {
     primaryActionLabel = 'Continuar al siguiente paso';
   }
 
-  if (orderComplete) {
+  if (showConfirmation) {
     return (
-      <div className="max-w-container-max mx-auto px-lg py-xxl text-center">
-        <div className="max-w-md mx-auto bg-surface-container-lowest p-xl rounded-xl shadow-lg border border-outline-variant/30">
+      <div
+        className="max-w-container-max mx-auto px-lg py-xxl text-center"
+        data-debug-confirmation={isDebugConfirmation ? 'true' : undefined}
+      >
+        <div
+          className="mx-auto w-full max-w-[32rem] bg-surface-container-lowest p-xl rounded-xl shadow-lg border border-outline-variant/30"
+          style={{ boxSizing: 'border-box' }}
+        >
           <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-lg">
             <Icon name="check_circle" className="text-4xl text-green-600" />
           </div>
           <h1 className="font-headline-lg text-headline-lg text-primary mb-md">¡Compra confirmada!</h1>
           <p className="text-on-surface-variant mb-sm">
-            Pedido <strong className="text-primary">#{lastPedidoId}</strong> registrado correctamente.
+            Pedido <span className="text-primary order-id">#{displayPedidoId}</span> registrado correctamente.
           </p>
           <p className="text-on-surface-variant text-sm mb-lg">
             Recibirás un correo con los detalles y seguimiento del envío.

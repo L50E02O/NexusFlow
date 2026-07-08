@@ -9,7 +9,7 @@ function matchShortcut(e: KeyboardEvent): string | null {
   if (e.shiftKey) parts.push('Shift');
   if (e.altKey) parts.push('Alt');
 
-  const key = e.key === ' ' ? 'Space' : e.key === 'Escape' ? 'Esc' : e.key;
+  const key = e.key === ' ' ? 'Space' : e.key === 'Escape' ? 'Esc' : e.key ?? '';
   if (!['Control', 'Shift', 'Alt', 'Meta'].includes(key)) {
     parts.push(key.length === 1 ? key.toUpperCase() : key);
   }
