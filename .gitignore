@@ -13,3 +13,11 @@ yarn-error.log*
 pnpm-debug.log*
 *.tsbuildinfo
 vite.svg
+.venv/
+
+# Antigravity
+.cursor/
+.gemini/
+
+# Playwright
+.playwright-mcp/

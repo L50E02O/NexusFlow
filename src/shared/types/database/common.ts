@@ -1,0 +1,1 @@
+export type ProfileRole = 'cliente' | 'comerciante' | 'admin';

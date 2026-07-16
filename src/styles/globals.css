@@ -1,0 +1,2 @@
+/* Re-export NexusFlow theme (evita regresiones si el entry importa globals.css). */
+@import './global.css';
