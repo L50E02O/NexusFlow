@@ -89,6 +89,14 @@ export function DragDropUpload({ onFileSelect, value }: DragDropUploadProps) {
   return (
     <div className="space-y-sm">
       <div
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            inputRef.current?.click();
+          }
+        }}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}

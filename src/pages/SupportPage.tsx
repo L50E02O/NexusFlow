@@ -169,7 +169,8 @@ export function SupportPage() {
     if (!trimmed) return;
 
     const newTicket = {
-      id: `NF-${Math.floor(10000 + Math.random() * 90000)}`,
+      id: `NF-${(crypto.getRandomValues(new Uint32Array(1))[0] % 90000) + 10000}`,
+
       title: trimmed.length > 48 ? `${trimmed.slice(0, 45)}...` : trimmed,
       status: 'Recibido',
       preview: trimmed,

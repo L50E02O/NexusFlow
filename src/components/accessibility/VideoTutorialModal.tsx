@@ -82,11 +82,13 @@ export function VideoTutorialModal({ video, isOpen, onClose }: VideoTutorialModa
   const shouldShowTranscript = showTranscript || transcripts;
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4"
-      role="presentation"
-      onClick={onClose}
-    >
+<div
+  className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4"
+  role="button"
+  tabIndex={0}
+  onClick={onClose}
+  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClose(); } }}
+>
       <div
         ref={dialogRef}
         role="dialog"
