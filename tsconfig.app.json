@@ -35,5 +35,9 @@
     "src/widgets/**/*.tsx",
     "src/shared/**/*.ts",
     "src/shared/**/*.tsx"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ]
 }
